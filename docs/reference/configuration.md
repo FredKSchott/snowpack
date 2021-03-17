@@ -465,7 +465,6 @@ Set the name of the function used to create JSX fragments.
 If set, this string can be used to automatically inject JSX imports for every JSX/TSX file.
 React users might use `import React from 'react'` whereas Preact users might use `import { h, Fragment } from 'preact'`.
 
-
 ## testOptions
 
 Configure your tests.

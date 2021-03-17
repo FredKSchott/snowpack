@@ -12,18 +12,26 @@ describe('config: buildOptions.jsxInject', () => {
   });
 
   it('injects jsxInject string in JSX file', () => {
-    expect(files['/_dist_/jsx-file.js']).toContain('import {h, Fragment} from "../_snowpack/pkg/preact.js"');
+    expect(files['/_dist_/jsx-file.js']).toContain(
+      'import {h, Fragment} from "../_snowpack/pkg/preact.js"',
+    );
   });
 
   it('injects jsxInject string in TSX file', () => {
-    expect(files['/_dist_/tsx-file.js']).toContain('import {h, Fragment} from "../_snowpack/pkg/preact.js"');
+    expect(files['/_dist_/tsx-file.js']).toContain(
+      'import {h, Fragment} from "../_snowpack/pkg/preact.js"',
+    );
   });
 
   it('does not inject jsxInject string into JS file', () => {
-    expect(files['/_dist_/js-file.js']).not.toContain('import {h, Fragment} from "../_snowpack/pkg/preact.js"');
+    expect(files['/_dist_/js-file.js']).not.toContain(
+      'import {h, Fragment} from "../_snowpack/pkg/preact.js"',
+    );
   });
 
   it('does not inject jsxInject string into TS file', () => {
-    expect(files['/_dist_/ts-file.js']).not.toContain('import {h, Fragment} from "../_snowpack/pkg/preact.js"');
+    expect(files['/_dist_/ts-file.js']).not.toContain(
+      'import {h, Fragment} from "../_snowpack/pkg/preact.js"',
+    );
   });
 });

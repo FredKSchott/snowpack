@@ -3,6 +3,6 @@ module.exports = {
     './src': '/_dist_',
   },
   buildOptions: {
-    jsxInject: 'import { h, Fragment } from "preact";'
-  }
+    jsxInject: 'import { h, Fragment } from "preact";',
+  },
 };

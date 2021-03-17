@@ -14,11 +14,11 @@ function checkIsPreact(contents: string) {
 
 type Loader = 'js' | 'jsx' | 'ts' | 'tsx';
 
-function getLoader(filePath: string): { loader: Loader, isJSX: boolean } {
+function getLoader(filePath: string): {loader: Loader; isJSX: boolean} {
   const ext = path.extname(filePath);
-  const loader: Loader = (ext === '.mjs') ? 'js' : ext.substr(1) as Loader;
+  const loader: Loader = ext === '.mjs' ? 'js' : (ext.substr(1) as Loader);
   const isJSX = loader.endsWith('x');
-  return { loader, isJSX };
+  return {loader, isJSX};
 }
 
 export function esbuildPlugin(config: SnowpackConfig, {input}: {input: string[]}): SnowpackPlugin {
@@ -31,7 +31,7 @@ export function esbuildPlugin(config: SnowpackConfig, {input}: {input: string[]}
     async load({filePath}) {
       esbuildService = esbuildService || (await startService());
       let contents = await fs.readFile(filePath, 'utf8');
-      const { loader, isJSX } = getLoader(filePath);
+      const {loader, isJSX} = getLoader(filePath);
       if (isJSX) {
         const jsxInject = config.buildOptions.jsxInject ? `${config.buildOptions.jsxInject}\n` : '';
         contents = jsxInject + contents;
