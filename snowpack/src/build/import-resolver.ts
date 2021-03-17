@@ -182,8 +182,7 @@ export function createImportGlobResolver({
     }).filter(_fileLoc => {
       // If final import *might* be the same as the source file, double check to avoid importing self
       const finalImportAbsolute = slash(path.resolve(path.dirname(fileLoc), toPath(_fileLoc)));
-      logger.warn(`${fileLoc} === ${finalImportAbsolute}`);
-      return finalImportAbsolute !== fileLoc;
+      return slash(finalImportAbsolute) !== slash(fileLoc);
     });
   };
 }
