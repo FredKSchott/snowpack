@@ -1,7 +1,7 @@
 import cheerio from 'cheerio';
 import * as esbuild from 'esbuild';
 import {promises as fs, readFileSync, unlinkSync, writeFileSync} from 'fs';
-import {glob} from 'glob';
+import {fdir} from 'fdir';
 import mkdirp from 'mkdirp';
 import path from 'path';
 import {logger} from '../logger';
@@ -445,11 +445,10 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
   }
 
   // * Scan to collect all build files: We'll need this throughout.
-  const allBuildFiles = glob.sync('**/*', {
-    cwd: buildDirectoryLoc,
-    nodir: true,
-    absolute: true,
-  });
+  const allBuildFiles = (await new fdir()
+    .withFullPaths()
+    .crawl(buildDirectoryLoc)
+    .withPromise()) as string[];
 
   // * Resolve and validate your entrypoints: they may be JS or HTML
   const userEntrypoints = await getEntrypoints(options.entrypoints, allBuildFiles);

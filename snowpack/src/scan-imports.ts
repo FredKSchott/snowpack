@@ -1,9 +1,10 @@
 import {ImportSpecifier, init as initESModuleLexer, parse} from 'es-module-lexer';
 import {InstallTarget} from 'esinstall';
 import glob from 'glob';
+import micromatch from 'micromatch';
+import {fdir} from 'fdir';
 import path from 'path';
 import stripComments from 'strip-comments';
-import url from 'url';
 import {logger} from './logger';
 import {SnowpackConfig, SnowpackSourceFile} from './types';
 import {
@@ -18,9 +19,6 @@ import {
   readFile,
   SVELTE_VUE_REGEX,
 } from './util';
-import PQueue from 'p-queue';
-
-const CONCURRENT_FILE_READS = 1000;
 
 // [@\w] - Match a word-character or @ (valid package name)
 // (?!.*(:\/\/)) - Ignore if previous match was a protocol (ex: http://)
@@ -272,15 +270,9 @@ export async function scanImports(
   config: SnowpackConfig,
 ): Promise<InstallTarget[]> {
   await initESModuleLexer;
-  const ignore = includeTests ? config.exclude : [...config.exclude, ...config.testOptions.files];
   const includeFileSets = await Promise.all(
-    Object.keys(config.mount).map((fromDisk) => {
-      return glob.sync(`**/*`, {
-        ignore,
-        cwd: fromDisk,
-        absolute: true,
-        nodir: true,
-      });
+    Object.keys(config.mount).map(async (fromDisk) => {
+      return (await new fdir().withFullPaths().crawl(fromDisk).withPromise()) as string[];
     }),
   );
   const includeFiles = Array.from(new Set(([] as string[]).concat.apply([], includeFileSets)));
@@ -289,18 +281,24 @@ export async function scanImports(
   }
 
   // Scan every matched JS file for web dependency imports
-  const loadFileQueue = new PQueue({concurrency: CONCURRENT_FILE_READS});
-  const getLoadedFiles = async (filePath: string): Promise<SnowpackSourceFile | null> =>
-    loadFileQueue.add(async () => {
-      return {
-        baseExt: getExtension(filePath),
-        root: config.root,
-        locOnDisk: filePath,
-        contents: await readFile(url.pathToFileURL(filePath)),
-      };
-    });
+  const excludePrivate = new RegExp(`\\${path.sep}\\.`);
+  const excludeGlobs = includeTests
+    ? config.exclude
+    : [...config.exclude, ...config.testOptions.files];
   const loadedFiles: (SnowpackSourceFile | null)[] = await Promise.all(
-    includeFiles.map(getLoadedFiles),
+    includeFiles.map(
+      async (filePath: string): Promise<SnowpackSourceFile | null> => {
+        if (micromatch.isMatch(filePath, excludeGlobs) || excludePrivate.test(filePath)) {
+          return null;
+        }
+        return {
+          baseExt: getExtension(filePath),
+          root: config.root,
+          locOnDisk: filePath,
+          contents: await readFile(filePath),
+        };
+      },
+    ),
   );
 
   return scanImportsFromFiles(loadedFiles.filter(isTruthy), config);

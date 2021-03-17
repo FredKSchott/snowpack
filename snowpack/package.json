@@ -48,6 +48,8 @@
     "cli-spinners": "^2.5.0",
     "default-browser-id": "^2.0.0",
     "esbuild": "^0.8.7",
+    "fdir": "^5.0.0",
+    "micromatch": "^4.0.2",
     "open": "^7.0.4",
     "resolve": "^1.20.0",
     "rollup": "^2.34.0"
