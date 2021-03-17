@@ -14,5 +14,5 @@ describe('config: environment', () => {
 
   it('Should load environment from config', () => {
     expect(files['/_snowpack/env.js']).toContain('export const API_URL = "TEST";');
-  })
+  });
 });

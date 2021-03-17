@@ -99,7 +99,6 @@ You can further customize this the build behavior for any mounted directory by u
 }
 ```
 
-
 ## env
 
 **Type**: `Record<string, string|boolean|undefined>`

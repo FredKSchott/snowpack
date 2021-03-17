@@ -249,7 +249,7 @@ export interface SnowpackConfig {
   workspaceRoot?: string | false;
   extends?: string;
   exclude: string[];
-  env?: Record<string, string|boolean|undefined>;
+  env?: Record<string, string | boolean | undefined>;
   mount: Record<string, MountEntry>;
   alias: Record<string, string>;
   plugins: SnowpackPlugin[];

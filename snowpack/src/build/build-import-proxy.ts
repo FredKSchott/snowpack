@@ -257,7 +257,7 @@ export function generateEnvModule({
 }: {
   mode: 'development' | 'production';
   isSSR: boolean;
-  configEnv?: Record<string, string|boolean|undefined>;
+  configEnv?: Record<string, string | boolean | undefined>;
 }) {
   const envObject: Record<string, string | boolean | undefined> = {
     ...getSnowpackPublicEnvVariables(),

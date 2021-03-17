@@ -26,9 +26,9 @@ SNOWPACK_PUBLIC_API_URL=api.google.com snowpack dev
 // snowpack.config.js
 module.exports = {
   env: {
-    API_URL: 'api.google.com'
-  }
-}
+    API_URL: 'api.google.com',
+  },
+};
 ```
 
 **In prior versions**, we recommended setting environment variables by adding to `process.env.*` at the top of your `snowpack.config.js` file. This ended up being pretty confusing, so using the `env` property is now the recommended approach.
