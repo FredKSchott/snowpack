@@ -13,7 +13,6 @@ import {
 } from '../util';
 import {getUrlsForFile} from './file-urls';
 import glob from 'glob';
-import { logger } from '../logger'
 
 /** Perform a file disk lookup for the requested import specifier. */
 export function getFsStat(importedFileOnDisk: string): fs.Stats | false {
