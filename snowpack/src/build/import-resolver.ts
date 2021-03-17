@@ -13,6 +13,7 @@ import {
 } from '../util';
 import {getUrlsForFile} from './file-urls';
 import fastGlob from 'fast-glob';
+import { logger } from '../logger';
 
 /** Perform a file disk lookup for the requested import specifier. */
 export function getFsStat(importedFileOnDisk: string): fs.Stats | false {
@@ -168,6 +169,10 @@ export function createImportGlobResolver({
       const normalized = slash(fileLoc);
       if (normalized.startsWith('.') || normalized.startsWith('/')) return normalized;
       return `./${normalized}`;
+    }).filter(_fileLoc => {
+      // Resolve absolute path of final import, ignore source file
+      const finalImportAbsolute = slash(path.resolve(path.dirname(fileLoc), _fileLoc))
+      return finalImportAbsolute !== fileLoc
     });
   };
 }

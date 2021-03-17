@@ -78,4 +78,8 @@ const modules = {
 \t"../../pages/c.js": () => import("../../pages/c.js")
 };`);
   });
+
+  it('import.meta.glob does not import its own source file', () => {
+    expect(stripWS(files['/_dist_/globSelf.js'])).not.toContain('globSelf.js');
+  });
 });
