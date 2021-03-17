@@ -23,8 +23,8 @@ export function scanImportGlob(code: string) {
   let end = 0;
   let state = ScannerState.idle;
 
-  let importGlobs: any[] = [];
-  let importGlob: any;
+  let importGlobs: ImportGlobStatement[] = [];
+  let importGlob: ImportGlobStatement|null = null;
   let glob: string = '';
 
   while (pos++ < code.length) {
@@ -69,7 +69,7 @@ export function scanImportGlob(code: string) {
         if (state === ScannerState.onImportMeta && checkIdent(code, pos, 'glob')) {
           state = ScannerState.onImportMetaGlob;
           const isEager = checkIdent(code, pos, 'globEager');
-          importGlob = { start, isEager };
+          importGlob = { start, isEager } as any;
         }
         break;
       }
@@ -107,7 +107,7 @@ export function scanImportGlob(code: string) {
     }
   }
 
-  return importGlobs as any[];
+  return importGlobs as ImportGlobStatement[];
 }
 
 function checkIdent(code: string, pos: number, text: string): boolean {
