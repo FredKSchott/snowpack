@@ -13,7 +13,8 @@ const mockComponent = path.join(__dirname, 'Button.svelte');
 beforeEach(() => {
   DEFAULT_CONFIG = {
     buildOptions: {sourceMaps: false},
-    installOptions: {
+    packageOptions: {
+      source: 'local',
       rollup: {plugins: []},
       packageLookupFields: [],
     },
