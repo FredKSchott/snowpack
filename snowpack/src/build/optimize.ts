@@ -414,7 +414,7 @@ async function runEsbuildOnBuildDirectory(
       delete manifest.outputs[f];
     });
   }
-  logger.debug(`outputFiles: ${JSON.stringify(outputFiles)}`);
+  logger.debug(`outputFiles: ${JSON.stringify(outputFiles.map(f => f.path))}`);
   logger.debug(`manifest: ${JSON.stringify(manifest)}`);
 
   return {outputFiles, manifest};
