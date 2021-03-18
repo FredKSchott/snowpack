@@ -41,6 +41,7 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
   routes: [],
   devOptions: {
     secure: false,
+    secureOptions: {},
     hostname: 'localhost',
     port: 8080,
     hmrDelay: 0,
@@ -115,12 +116,8 @@ const configSchema = {
         secureOptions: {
           type: 'object',
           properties: {
-                type: ['object'],
-                properties: {
-                  cert: {type: 'string'},
-                  key: {type: 'string'},
-                },
-              },
+            cert: { type: 'string' },
+            key: { type: 'string' },
           },
         },
         port: {type: 'number'},
