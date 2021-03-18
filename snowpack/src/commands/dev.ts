@@ -5,7 +5,7 @@ import etag from 'etag';
 import {EventEmitter} from 'events';
 import {createReadStream, promises as fs, statSync} from 'fs';
 import {fdir} from 'fdir';
-import micromatch from 'micromatch';
+import picomatch from 'picomatch';
 import http from 'http';
 import http2 from 'http2';
 import * as colors from 'kleur/colors';
@@ -291,12 +291,27 @@ export async function startServer(
   const inMemoryBuildCache = new Map<string, FileBuilder>();
   let fileToUrlMapping = new OneToManyMap();
 
+  const excludeGlobs = [
+    ...config.exclude,
+    ...(process.env.NODE_ENV === 'test' ? [] : config.testOptions.files),
+  ];
+  const foundExcludeMatch = picomatch(excludeGlobs);
+
   for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
     logger.debug(`Mounting directory: '${mountKey}' as URL '${mountEntry.url}'`);
-    const files = (await new fdir().withFullPaths().crawl(mountKey).withPromise()) as string[];
+    const files = (await new fdir()
+      .withFullPaths()
+      .crawlWithOptions(mountKey, {
+        includeBasePath: true,
+        exclude: (_, dirPath) => {
+          return foundExcludeMatch(dirPath);
+        },
+      })
+      .withPromise()) as string[];
+
     const excludePrivate = new RegExp(`\\${path.sep}\\.`);
     for (const f of files) {
-      if (micromatch.isMatch(f, config.exclude) || excludePrivate.test(f)) {
+      if (excludePrivate.test(f)) {
         continue;
       }
       fileToUrlMapping.add(f, getUrlsForFile(f, config)!);
