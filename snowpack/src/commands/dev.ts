@@ -307,12 +307,12 @@ export async function startServer(
 
   const readCredentials = async (cwd: string) => {
     const secure = config.devOptions.secure;
-    let cert: string|Buffer;
-    let key: string|Buffer;
+    let cert: Buffer;
+    let key: Buffer;
 
     if (typeof secure === 'object') {
-      cert = secure.cert;
-      key = secure.key;
+      cert = secure.cert as Buffer;
+      key = secure.key as Buffer;
     } else {
       const certPath = path.join(cwd, 'snowpack.crt');
       const keyPath = path.join(cwd, 'snowpack.key');
