@@ -1,3 +1,5 @@
+import { keywordStart, checkIdent, isEOL } from './lexer-util';
+
 export interface ImportGlobStatement {
   start: number;
   end: number;
@@ -14,10 +16,17 @@ const enum ScannerState {
   inSingleQuote,
   inDoubleQuote,
   inTemplateLiteral,
-  inCall
+  inCall,
+  inSingleLineComment,
+  inMutliLineComment,
 }
 
+// Specifically NOT using /g here as it is stateful!
+const IMPORT_META_GLOB_REGEX = /import\s*\.\s*meta\s*\.\s*glob/;
+
 export function scanImportGlob(code: string) {
+  if (!IMPORT_META_GLOB_REGEX.test(code)) return [];
+
   let pos = -1;
   let start = 0;
   let end = 0;
@@ -45,7 +54,27 @@ export function scanImportGlob(code: string) {
       continue;
     }
 
+    if (isInComment(state)) {
+      if (state === ScannerState.inSingleLineComment && isEOL(code, pos)) {
+         state = ScannerState.idle;
+      } else if (state === ScannerState.inMutliLineComment && checkIdent(code, pos, '*/')) {
+        state = ScannerState.idle;
+      } else {
+        continue;
+      }
+    }
+
     switch (ch) {
+      case '/': {
+        if (isInQuote(state)) continue;
+
+        if (code[pos + 1] === '/') {
+          state = ScannerState.inSingleLineComment;
+        } else if (code[pos + 1] === '*') {
+          state = ScannerState.inMutliLineComment;
+        }
+        break;
+      }
       case 'i': {
         if (keywordStart(code, pos) && checkIdent(code, pos, 'import')) {
           state = ScannerState.inImport;
@@ -110,28 +139,10 @@ export function scanImportGlob(code: string) {
   return importGlobs as ImportGlobStatement[];
 }
 
-function checkIdent(code: string, pos: number, text: string): boolean {
-  return code.slice(pos, pos + text.length) === text;
-}
-
 function isInQuote(state: ScannerState): boolean {
   return state === ScannerState.inDoubleQuote || state === ScannerState.inSingleQuote || state === ScannerState.inTemplateLiteral
 }
 
-function isBrOrWsOrPunctuatorNotDot(ch: string): boolean {
-  const c = ch.charCodeAt(0);
-  return c > 8 && c < 14 || c == 32 || c == 160 || isPunctuator(ch) && ch != '.';
-}
-
-function isPunctuator(ch: string): boolean {
-  const c = ch.charCodeAt(0);
-  // 23 possible punctuator endings: !%&()*+,-./:;<=>?[]^{}|~
-  return ch == '!' || ch == '%' || ch == '&' ||
-    c > 39 && c < 48 || c > 57 && c < 64 ||
-    ch == '[' || ch == ']' || ch == '^' ||
-    c > 122 && c < 127;
-}
-
-function keywordStart (source: string, pos: number) {
-  return pos === 0 || isBrOrWsOrPunctuatorNotDot(source.charAt(pos - 1));
+function isInComment(state: ScannerState): boolean {
+  return state === ScannerState.inSingleLineComment || state === ScannerState.inMutliLineComment
 }

@@ -21,6 +21,10 @@ const modules = {
 };`);
   });
 
+  it('import.meta.glob inside of comments is ignored', () => {
+    expect(stripWS(files['/_dist_/globCommented.js'])).not.toContain('./packages/a.js');
+  });
+
   it('import.meta.glob with an absolute glob is transformed relative to the project root', () => {
     expect(stripWS(files['/_dist_/globAbsolute.js']))
       .toEqual(`import * as __SNOWPACK_ENV__ from '../_snowpack/env.js';
