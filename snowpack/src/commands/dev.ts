@@ -257,7 +257,7 @@ export async function startServer(
     await pkgSource.prepare(commandOptions);
   }
   let serverStart = performance.now();
-  const {port: defaultPort, hostname, open} = config.devOptions;
+  const {port: defaultPort, hostname, open, urlpath} = config.devOptions;
   const messageBus = new EventEmitter();
   const PACKAGE_PATH_PREFIX = path.posix.join(config.buildOptions.metaUrlPath, 'pkg/');
   const PACKAGE_LINK_PATH_PREFIX = path.posix.join(config.buildOptions.metaUrlPath, 'link/');
@@ -830,7 +830,7 @@ export async function startServer(
   // Open the user's browser (ignore if failed)
   if (server && port && open && open !== 'none') {
     const protocol = config.devOptions.secure ? 'https:' : 'http:';
-    await openInBrowser(protocol, hostname, port, open).catch((err) => {
+    await openInBrowser(protocol, hostname, port, open, urlpath).catch((err) => {
       logger.debug(`Browser open error: ${err}`);
     });
   }

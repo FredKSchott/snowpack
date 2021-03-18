@@ -199,6 +199,13 @@ The hostname that the dev server is running on. Snowpack uses this information t
 
 The port the dev server runs on.
 
+### devOptions.urlpath
+
+**Type**: `string`
+**Default**: ``
+
+Optional path to append to dev server url.
+
 ### devOptions.fallback
 
 **Type**: `string`  

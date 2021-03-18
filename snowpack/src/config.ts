@@ -125,6 +125,7 @@ const configSchema = {
           ],
         },
         port: {type: 'number'},
+        urlpath: {type: 'string'},
         open: {type: 'string'},
         output: {type: 'string', enum: ['stream', 'dashboard']},
         hmr: {type: 'boolean'},
