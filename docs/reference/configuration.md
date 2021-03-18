@@ -202,9 +202,8 @@ The port the dev server runs on.
 ### devOptions.urlpath
 
 **Type**: `string`
-**Default**: ``
 
-Optional path to append to dev server url.
+Optional path to append to dev server url. May also include querystring parameters, example: `test/foo.html?bar=123`.
 
 ### devOptions.fallback
 
