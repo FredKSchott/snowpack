@@ -1,0 +1,29 @@
+{
+  "dependencies": {
+    "execa": "5.0.0",
+    "npm-run-path": "4.0.1"
+  },
+  "homepage": "https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-angular#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snowpackjs/snowpack.git",
+    "directory": "plugins/plugin-angular"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "snowpack",
+    "angular",
+    "plugin"
+  ],
+  "license": "MIT",
+  "main": "plugin.js",
+  "name": "@snowpack/plugin-angular",
+  "peerDependencies": {
+    "@angular-devkit/build-optimizer": ">= 0.900.0 <= ^0.1102.0",
+    "@angular/compiler-cli": ">= 9 <= 11",
+    "snowpack": ">= 2 <= 3"
+  },
+  "version": "2.2.0"
+}
