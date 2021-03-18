@@ -5,8 +5,23 @@ const {parse} = require('es-module-lexer');
 
 const WEBPACK_MAGIC_COMMENT_REGEX = /\/\*[\s\S]*?\*\//g;
 
-function spliceString(source: string, withSlice: string, start: number, end: number) {
-  return source.slice(0, start) + (withSlice || '') + source.slice(end);
+interface RewriteInstruction {
+  start: number;
+  end: number;
+  rewrite: string;
+}
+
+function applyRewrites(source: string, rewrites: RewriteInstruction[]) {
+  let result = ``;
+  let index = 0;
+  rewrites
+    .sort((a, b) => a.start - b.start)
+    .forEach(({start, end, rewrite}) => {
+      result += source.substring(index, start) + rewrite;
+      index = end;
+    });
+  result += source.substring(index);
+  return result;
 }
 
 export async function scanCodeImportsExports(code: string): Promise<any[]> {
@@ -30,58 +45,60 @@ export async function transformEsmImports(
   replaceImport: (specifier: string) => string | Promise<string>,
 ) {
   const imports = await scanCodeImportsExports(_code);
-  let rewrittenCode = _code;
-  for (const imp of imports.reverse()) {
-    let spec = rewrittenCode.substring(imp.s, imp.e);
-    let webpackMagicCommentMatches;
-    if (imp.d > -1) {
-      // Extracting comments from spec as they are stripped in `matchDynamicImportValue`
-      webpackMagicCommentMatches = spec.match(WEBPACK_MAGIC_COMMENT_REGEX);
-      spec = matchDynamicImportValue(spec) || '';
-    }
-    let rewrittenImport = await replaceImport(spec);
-    if (imp.d > -1) {
-      rewrittenImport = webpackMagicCommentMatches
-        ? `${webpackMagicCommentMatches.join(' ')} ${JSON.stringify(rewrittenImport)}`
-        : JSON.stringify(rewrittenImport);
-    }
-    rewrittenCode = spliceString(rewrittenCode, rewrittenImport, imp.s, imp.e);
-  }
-  return rewrittenCode;
+  const collectedRewrites: RewriteInstruction[] = [];
+  await Promise.all(
+    imports.map(async (imp) => {
+      let spec = _code.substring(imp.s, imp.e);
+      let webpackMagicCommentMatches;
+      if (imp.d > -1) {
+        // Extracting comments from spec as they are stripped in `matchDynamicImportValue`
+        webpackMagicCommentMatches = spec.match(WEBPACK_MAGIC_COMMENT_REGEX);
+        spec = matchDynamicImportValue(spec) || '';
+      }
+      let rewrittenImport = await replaceImport(spec);
+      if (imp.d > -1) {
+        rewrittenImport = webpackMagicCommentMatches
+          ? `${webpackMagicCommentMatches.join(' ')} ${JSON.stringify(rewrittenImport)}`
+          : JSON.stringify(rewrittenImport);
+      }
+      collectedRewrites.push({rewrite: rewrittenImport, start: imp.s, end: imp.e});
+    }),
+  );
+  const result = applyRewrites(_code, collectedRewrites);
+  return result;
 }
 
 async function transformHtmlImports(
   code: string,
   replaceImport: (specifier: string) => string | Promise<string>,
 ) {
-  let rewrittenCode = code;
+  const collectedRewrites: RewriteInstruction[] = [];
   let match;
   const jsImportRegex = new RegExp(HTML_JS_REGEX);
-  while ((match = jsImportRegex.exec(rewrittenCode))) {
+  while ((match = jsImportRegex.exec(code))) {
     const [, scriptTag, scriptCode] = match;
     // Only transform a script element if it contains inlined code / is not empty.
     if (scriptCode.trim()) {
-      rewrittenCode = spliceString(
-        rewrittenCode,
-        await transformEsmImports(scriptCode, replaceImport),
-        match.index + scriptTag.length,
-        match.index + scriptTag.length + scriptCode.length,
-      );
+      collectedRewrites.push({
+        rewrite: await transformEsmImports(scriptCode, replaceImport),
+        start: match.index + scriptTag.length,
+        end: match.index + scriptTag.length + scriptCode.length,
+      });
     }
   }
   const cssImportRegex = new RegExp(HTML_STYLE_REGEX);
-  while ((match = cssImportRegex.exec(rewrittenCode))) {
+  while ((match = cssImportRegex.exec(code))) {
     const [, styleTag, styleCode] = match;
     // Only transform a script element if it contains inlined code / is not empty.
     if (styleCode.trim()) {
-      rewrittenCode = spliceString(
-        rewrittenCode,
-        await transformCssImports(styleCode, replaceImport),
-        match.index + styleTag.length,
-        match.index + styleTag.length + styleCode.length,
-      );
+      collectedRewrites.push({
+        rewrite: await transformCssImports(styleCode, replaceImport),
+        start: match.index + styleTag.length,
+        end: match.index + styleTag.length + styleCode.length,
+      });
     }
   }
+  const rewrittenCode = applyRewrites(code, collectedRewrites);
   return rewrittenCode;
 }
 
@@ -89,20 +106,20 @@ async function transformCssImports(
   code: string,
   replaceImport: (specifier: string) => string | Promise<string>,
 ) {
-  let rewrittenCode = code;
+  const collectedRewrites: RewriteInstruction[] = [];
   let match;
   const importRegex = new RegExp(CSS_REGEX);
-  while ((match = importRegex.exec(rewrittenCode))) {
+  while ((match = importRegex.exec(code))) {
     const [fullMatch, spec] = match;
     // Only transform a script element if it contains inlined code / is not empty.
-    rewrittenCode = spliceString(
-      rewrittenCode,
+    collectedRewrites.push({
       // CSS doesn't support proxy files, so always point to the original file
-      `@import "${(await replaceImport(spec)).replace('.proxy.js', '')}";`,
-      match.index,
-      match.index + fullMatch.length,
-    );
+      rewrite: `@import "${(await replaceImport(spec)).replace('.proxy.js', '')}";`,
+      start: match.index,
+      end: match.index + fullMatch.length,
+    });
   }
+  const rewrittenCode = applyRewrites(code, collectedRewrites);
   return rewrittenCode;
 }
 
