@@ -2,8 +2,10 @@ module.exports = {
   devOptions: {
     open: "none",
     secure: true,
-    cert: "./tls/certificate.pem",
-    key: "./tls/key.pem"
+    secureOptions: {
+      cert: "./tls/certificate.pem",
+      key: "./tls/key.pem"
+    }
   },
   mount: {
     public: "/",

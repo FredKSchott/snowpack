@@ -306,8 +306,8 @@ export async function startServer(
   logger.debug(`Using in-memory cache: ${fileToUrlMapping}`);
 
   const readCredentials = async (cwd: string) => {
-    const certFile = config.devOptions.cert || path.join(cwd, 'snowpack.crt');
-    const keyFile = config.devOptions.key || path.join(cwd, 'snowpack.key');
+    const certFile = config.devOptions.secureOptions?.cert ?? path.join(cwd, 'snowpack.crt');
+    const keyFile = config.devOptions.secureOptions?.key ?? path.join(cwd, 'snowpack.key');
     const [cert, key] = await Promise.all([
       fs.readFile(certFile),
       fs.readFile(keyFile),
@@ -333,7 +333,7 @@ export async function startServer(
   - Including ${colors.yellow('snowpack.crt')} and ${colors.yellow('snowpack.key')} files in your project folder.
 
   - Specifying the paths to your HTTPS certificate and private key file using the
-    ${colors.yellow(`devOptions${colors.bold('.cert')}`)} and ${colors.yellow(`devOptions${colors.bold('.key')}`)} properties in your Snowpack configuration.
+    ${colors.yellow(`devOptions.secureOptions${colors.bold('.cert')}`)} and ${colors.yellow(`devOptions.secureOptions${colors.bold('.key')}`)} properties in your Snowpack configuration.
 
     You can automatically generate credentials for your project via either:
 
