@@ -151,17 +151,26 @@ Configure the Snowpack dev server.
 
 ### devOptions.secure
 
-**Type**: `boolean`  
+**Type**: `boolean` or `object`  
 **Default**: `false`
 
-Toggles whether Snowpack dev server should use HTTPS with HTTP2 enabled.
+Toggles whether Snowpack dev server should use HTTPS with HTTP2 enabled. See the [SSL Certificates](/guides/https-ssl-certificates) Guide for more information. 
 
-### devOptions.secureOptions 
+If the value is `true`, Snowpack will look for a `snowpack.crt` and `snowpack.key` file in your `root` directory. If the value is an `object`, you may pass your custom `cert` and `key` files directly to it.
 
-**Type**: `object`
-**Default**: `{ cert: "<site directory>/snowpack.crt", key: "<site directory>/snowpack.key" }`
+```js
+const fs = require('fs');
 
-When `devOptions.secure` is enabled, `devOptions.secureOptions` allows you to override specific behavior of the HTTPS server. See the [SSL Certificates](/guides/https-ssl-certificates) Guide for more information.
+const cert = fs.readFileSync('/path/to/server.crt');
+const key = fs.readFileSync('/path/to/server.key');
+
+module.exports = {
+  devOptions: {
+    secure: { cert, key }
+  }
+}
+```
+
 
 ### devOptions.hostname
 

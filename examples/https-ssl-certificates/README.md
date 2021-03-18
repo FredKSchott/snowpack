@@ -12,7 +12,7 @@ Snowpack provides an easy way to use a local HTTPS server during development thr
 When enabled, Snowpack will create an HTTPS server with HTTP2 support enabled using either:
 
   - (default) the `snowpack.key` and `snowpack.crt` file in the root directory of your site
-  - (if provided) the TLS certificate and private key files at the paths specified in `devOptions.secureOptions.cert` and `devOptions.secureOptions.key` in the Snowpack configuration.
+  - (if provided) the TLS certificate and private key files at the paths specified in `devOptions.secure.cert` and `devOptions.secure.key` in the Snowpack configuration.
 
 ## Generating SSL Certificates
 

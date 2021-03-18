@@ -253,11 +253,7 @@ export interface SnowpackConfig {
   alias: Record<string, string>;
   plugins: SnowpackPlugin[];
   devOptions: {
-    secure: boolean;
-    secureOptions?: {
-      cert?: string;
-      key?: string;
-    };
+    secure: boolean | { cert: string|Buffer; key: string|Buffer; };
     hostname: string;
     port: number;
     open?: string;

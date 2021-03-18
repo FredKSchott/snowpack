@@ -15,16 +15,17 @@ This guide has an example repo:
 npm start -- --secure
 ```
 
-Snowpack provides an easy way to use a local HTTPS server during development through the use of the `--secure` flag. When enabled, Snowpack will look for a `snowpack.key` and `snowpack.crt` file in the root directory and use that to create an HTTPS server with HTTP2 support enabled. Optionally, you may customize which TLS certificate and private key files are used by setting their paths using `devOptions.secureOptions.cert` and `devOptions.secureOptions.key`.
+Snowpack provides an easy way to use a local HTTPS server during development through the use of the `--secure` flag. When enabled, Snowpack will look for a `snowpack.key` and `snowpack.crt` file in the root directory and use that to create an HTTPS server with HTTP2 support enabled. Optionally, you may customize which TLS certificate and private key files by passing them directly to `devOptions.secure`.
 
 ```js
+const fs = require('fs')
+
+const cert = fs.readFileSync('/path/to/server.crt');
+const key = fs.readFileSync('/path/to/server.key');
+
 module.exports = {
   devOptions: {
-    secure: true,
-    secureOptions: {
-      key: './custom.key',
-      cert: './custom.crt'
-    }
+    secure: { cert, key }
   }
 }
 ```

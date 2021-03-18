@@ -1,11 +1,12 @@
+const { readFileSync } = require('fs');
+
+const cert = readFileSync("./tls/certificate.pem");
+const key = readFileSync("./tls/key.pem");
+
 module.exports = {
   devOptions: {
     open: "none",
-    secure: true,
-    secureOptions: {
-      cert: "./tls/certificate.pem",
-      key: "./tls/key.pem"
-    }
+    secure: { cert, key },
   },
   mount: {
     public: "/",
