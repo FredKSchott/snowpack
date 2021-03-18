@@ -15,6 +15,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
     snowpackConfig.buildOptions.sourcemap || snowpackConfig.buildOptions.sourceMaps;
   // Old Snowpack versions wouldn't build dependencies. Starting in v3.1, Snowpack's build pipeline
   // is run on all files, including npm package files. The rollup plugin is no longer needed.
+  const importedByMap = new Map();
   const needsRollupPlugin = typeof snowpackConfig.buildOptions.resolveProxyImports === 'undefined';
 
   // Support importing Svelte files when you install dependencies.
@@ -91,6 +92,15 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
     preprocessOptions = require('svelte-preprocess')();
   }
 
+  function addImportsToMap(filePath, imp) {
+    const importedBy = importedByMap.get(imp);
+    if (importedBy) {
+      importedBy.add(filePath);
+    } else {
+      importedByMap.set(imp, new Set([filePath]));
+    }
+  }
+
   return {
     name: '@snowpack/plugin-svelte',
     resolve: {
@@ -102,15 +112,46 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       'svelte-hmr/runtime/hot-api-esm.js',
       'svelte-hmr/runtime/proxy-adapter-dom.js',
     ],
+
+    /**
+     * If any files imported the given file path, mark them as changed.
+     * @private
+     */
+    _markImportersAsChanged(filePath) {
+      if (importedByMap.has(filePath)) {
+        const importedBy = importedByMap.get(filePath);
+        importedByMap.delete(filePath);
+        for (const importerFilePath of importedBy) {
+          this.markChanged(importerFilePath);
+        }
+      }
+    },
+
+    /**
+     * When a file changes, also mark it's importers as changed.
+     * svelte.preprocess returns a list of preprocess deps - https://svelte.dev/docs#svelte_preprocess
+     */
+    onChange({filePath}) {
+      this._markImportersAsChanged(filePath);
+    },
+
     async load({filePath, isHmrEnabled, isSSR, isPackage}) {
+      let dependencies = [];
       let codeToCompile = await fs.promises.readFile(filePath, 'utf-8');
       // PRE-PROCESS
       if (preprocessOptions !== false) {
-        codeToCompile = (
-          await svelte.preprocess(codeToCompile, preprocessOptions, {
+        ({code: codeToCompile, dependencies} = await svelte.preprocess(
+          codeToCompile,
+          preprocessOptions,
+          {
             filename: filePath,
-          })
-        ).code;
+          },
+        ));
+      }
+
+      // in dev mode, track preprocess dependencies
+      if (isDev && dependencies && dependencies.length) {
+        dependencies.forEach((imp) => addImportsToMap(filePath, imp));
       }
 
       const finalCompileOptions = {

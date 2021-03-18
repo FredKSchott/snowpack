@@ -99,6 +99,20 @@ You can further customize this the build behavior for any mounted directory by u
 }
 ```
 
+## env
+
+**Type**: `Record<string, string|boolean|undefined>`
+
+Declare any environment variables that should be exposed on `import.meta.env` at runtime. See [Environment Variables](/reference/environment-variables) for more information.
+
+```js
+{
+  "env": {
+    "API_URL": "api.google.com"
+  }
+}
+```
+
 ## alias
 
 **Type**: `object` (package: package or path)
