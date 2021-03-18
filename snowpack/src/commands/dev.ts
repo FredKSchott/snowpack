@@ -301,12 +301,8 @@ export async function startServer(
     logger.debug(`Mounting directory: '${mountKey}' as URL '${mountEntry.url}'`);
     const files = (await new fdir()
       .withFullPaths()
-      .crawlWithOptions(mountKey, {
-        includeBasePath: true,
-        exclude: (_, dirPath) => {
-          return foundExcludeMatch(dirPath);
-        },
-      })
+      .filter((path) => !foundExcludeMatch(path))
+      .crawl(mountKey)
       .withPromise()) as string[];
 
     const excludePrivate = new RegExp(`\\${path.sep}\\.`);
