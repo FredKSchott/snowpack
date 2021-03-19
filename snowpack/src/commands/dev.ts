@@ -388,6 +388,31 @@ export async function startServer(
     }
   }
 
+  function getOutputExtensionMatch() {
+    let outputExts: string[] = [];
+    for (const plugin of config.plugins) {
+      if (plugin.resolve) {
+        for (const outputExt of plugin.resolve.output) {
+          const ext = outputExt.toLowerCase();
+          if (!outputExts.includes(ext)) {
+            outputExts.push(ext);
+          }
+        }
+      }
+    }
+    outputExts = outputExts.sort((a,b) => b.split('.').length - a.split('.').length)
+  
+    return (base: string): string => {
+      const basename = base.toLowerCase();
+      for (const ext of outputExts) {
+        if (basename.endsWith(ext)) return ext;
+      }
+      return path.extname(basename);
+    }
+  }
+  
+  const matchOutputExt = getOutputExtensionMatch();
+
   async function loadUrl(
     reqUrl: string,
     {
@@ -485,7 +510,7 @@ export async function startServer(
     // directory, so we can't strip that info just yet. Try the exact match first, and then strip
     // it later on if there is no match.
     let resourcePath = reqPath;
-    let resourceType = path.extname(reqPath) || '.html';
+    let resourceType = matchOutputExt(reqPath) || '.html';
     let foundFile: FoundFile;
 
     // * Workspaces & Linked Packages:
@@ -673,7 +698,7 @@ export async function startServer(
       return null;
     }
     const reqPath = decodeURI(url.parse(reqUrl).pathname!);
-    const reqExt = path.extname(reqPath);
+    const reqExt = matchOutputExt(reqPath);
     const isRoute = !reqExt || reqExt.toLowerCase() === '.html';
     for (const route of config.routes) {
       if (route.match === 'routes' && !isRoute) {

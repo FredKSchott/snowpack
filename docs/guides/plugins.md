@@ -182,7 +182,7 @@ module.exports = function (snowpackConfig, pluginOptions) {
 
 This is a simplified version of the official Snowpack Babel plugin, which builds all JavaScript, TypeScript, and JSX files in your application with the `load()` method.
 
-The `load()` method is responsible for loading and build files from disk while the `resolve` property tells Snowpack which files the plugin can load and what to expect as output. In this case, the plugin claims responsibility for files matching any of the file extensions found in `resolve.input`, and outputs `.js` JavaScript (declared via `resolve.output`).
+The `load()` method is responsible for loading and build files from disk while the `resolve` property tells Snowpack which files the plugin can load and what to expect as output. In this case, the plugin claims responsibility for files matching any of the file extensions found in `resolve.input`, and outputs `.js` JavaScript (declared via `resolve.output`). `resolve.output` can also use a multi-part extension such as `.module.css` or `.hbs.js`—files will be matched from most specific extension to least.
 
 **See it in action:** Let's say that we have a source file at `src/components/App.jsx`. Because the `.jsx` file extension matches an extension in our plugin's `resolve.input` array, Snowpack lets this plugin claim responsibility for loading this file. `load()` executes, Babel builds the JSX input file from disk, and JavaScript is returned to the final build.
 
