@@ -5,7 +5,7 @@ import validatePackageName from 'validate-npm-package-name';
 import {ExportField, ExportMapEntry, PackageManifestWithExports, PackageManifest} from './types';
 import {parsePackageImportSpecifier, resolveDependencyManifest} from './util';
 import resolve from 'resolve';
-import pm from 'picomatch';
+import picomatch from 'picomatch';
 
 export const MAIN_FIELDS = [
   'browser:module',
@@ -277,7 +277,7 @@ function* forEachWildcardEntry(
   cwd: string,
 ): Generator<[string, string], any, undefined> {
   // Creates a regex from a pattern like ./src/extras/*
-  let expr = pm.makeRe(value, picoMatchGlobalOptions);
+  let expr = picomatch.makeRe(value, picoMatchGlobalOptions);
 
   // The directory, ie ./src/extras
   let valueDirectoryName = path.dirname(value);
