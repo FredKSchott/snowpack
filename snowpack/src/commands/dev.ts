@@ -744,10 +744,6 @@ export async function startServer(
       }
       return;
     } catch (err) {
-
-      logger.error(err.message);
-
-
       // Some consumers may want to handle/ignore errors themselves.
       if (handleError === false) {
         throw err;
