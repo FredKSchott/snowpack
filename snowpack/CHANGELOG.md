@@ -138,3 +138,7 @@
 * b756b49d - Fix snowpack add/rm for npm packages with @ prefix (#2665) <Nigel>
 * 58df86d4 - add a tip if someone uses process.env 
 * fdda447d - dont match meta paths to routes 
+
+## snowpack@3.1.1 [2021-03-19]
+
+* f53498ba - Fix preact regression (#2926) 
