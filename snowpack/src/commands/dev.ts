@@ -698,6 +698,21 @@ export async function startServer(
       res.end();
       return;
     }
+    // Backwards-compatable redirect for legacy package URLs: If someone has created an import URL manually
+    // (ex: /_snowpack/pkg/react.js) then we need to redirect and warn to use our new API in the future.
+    console.log(reqUrl, PACKAGE_PATH_PREFIX, reqUrl.split('.').length);
+    if (reqUrl.startsWith(PACKAGE_PATH_PREFIX) && reqUrl.split('.').length <= 2) {
+      logger.warn(`(${reqUrl}) Deprecated manual package import. Please use getUrlForPackage() to create package URLs instead.`);
+      const redirectUrl = await pkgSource.resolvePackageImport(
+        path.join(config.root, 'package.json'),
+        reqUrl.replace(PACKAGE_PATH_PREFIX, '').replace(/\.js/, ''),
+        config,
+      );
+      res.writeHead(301, {Location: redirectUrl});
+      res.end();
+      return;
+    }
+
     // Otherwise, load the file and respond if successful.
     try {
       const result = await loadUrl(reqUrl, {allowStale: true, encoding: null});
