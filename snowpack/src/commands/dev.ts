@@ -441,7 +441,7 @@ export async function startServer(
       // (ex: /_snowpack/pkg/react.js) then we need to redirect and warn to use our new API in the future.
       if (reqUrl.split('.').length <= 2) {
         if (!warnedDeprecatedPackageImport.has(reqUrl)) {
-          logger.warn(`(${reqUrl}) Deprecated manual package import. Please use getUrlForPackage() to create package URLs instead.`);
+          logger.warn(`(${reqUrl}) Deprecated manual package import. Please use snowpack.getUrlForPackage() to create package URLs instead.`);
           warnedDeprecatedPackageImport.add(reqUrl);
         }
         const redirectUrl = await pkgSource.resolvePackageImport(
@@ -717,7 +717,7 @@ export async function startServer(
     // (ex: /_snowpack/pkg/react.js) then we need to redirect and warn to use our new API in the future.
     if (reqUrl.startsWith(PACKAGE_PATH_PREFIX) && reqUrl.split('.').length <= 2) {
       if (!warnedDeprecatedPackageImport.has(reqUrl)) {
-          logger.warn(`(${reqUrl}) Deprecated manual package import. Please use getUrlForPackage() to create package URLs instead.`);
+          logger.warn(`(${reqUrl}) Deprecated manual package import. Please use snowpack.getUrlForPackage() to create package URLs instead.`);
           warnedDeprecatedPackageImport.add(reqUrl);
       }
       const redirectUrl = await pkgSource.resolvePackageImport(
