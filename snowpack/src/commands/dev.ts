@@ -262,6 +262,7 @@ export async function startServer(
   const PACKAGE_PATH_PREFIX = path.posix.join(config.buildOptions.metaUrlPath, 'pkg/');
   const PACKAGE_LINK_PATH_PREFIX = path.posix.join(config.buildOptions.metaUrlPath, 'link/');
   let port: number | undefined;
+  let warnedDeprecatedPackageImport = new Set();
   if (defaultPort !== 0) {
     port = await getPort(defaultPort);
     // Reset the clock if we had to wait for the user prompt to select a new port.
@@ -402,7 +403,7 @@ export async function startServer(
     const isHMR = _isHMR ?? (!!config.devOptions.hmr && !isSSR);
     const encoding = _encoding ?? null;
     const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
-    const reqPath = decodeURI(url.parse(reqUrl).pathname!);
+    let reqPath = decodeURI(url.parse(reqUrl).pathname!);
 
     if (reqPath === getMetaUrlPath('/hmr-client.js', config)) {
       return {
@@ -436,6 +437,20 @@ export async function startServer(
     // but as a general rule all URLs contained within are managed by the package source loader. When this URL
     // prefix is hit, we load the file through the selected package source loader.
     if (reqPath.startsWith(PACKAGE_PATH_PREFIX)) {
+      // Backwards-compatable redirect for legacy package URLs: If someone has created an import URL manually
+      // (ex: /_snowpack/pkg/react.js) then we need to redirect and warn to use our new API in the future.
+      if (reqUrl.split('.').length <= 2) {
+        if (!warnedDeprecatedPackageImport.has(reqUrl)) {
+          logger.warn(`(${reqUrl}) Deprecated manual package import. Please use getUrlForPackage() to create package URLs instead.`);
+          warnedDeprecatedPackageImport.add(reqUrl);
+        }
+        const redirectUrl = await pkgSource.resolvePackageImport(
+          path.join(config.root, 'package.json'),
+          reqUrl.replace(PACKAGE_PATH_PREFIX, '').replace(/\.js/, ''),
+          config,
+        );
+        reqPath = decodeURI(url.parse(redirectUrl).pathname!)
+      }
       const resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
       const webModuleUrl = resourcePath.substr(PACKAGE_PATH_PREFIX.length);
       let loadedModule = await pkgSource.load(webModuleUrl, isSSR, commandOptions);
@@ -700,9 +715,11 @@ export async function startServer(
     }
     // Backwards-compatable redirect for legacy package URLs: If someone has created an import URL manually
     // (ex: /_snowpack/pkg/react.js) then we need to redirect and warn to use our new API in the future.
-    console.log(reqUrl, PACKAGE_PATH_PREFIX, reqUrl.split('.').length);
     if (reqUrl.startsWith(PACKAGE_PATH_PREFIX) && reqUrl.split('.').length <= 2) {
-      logger.warn(`(${reqUrl}) Deprecated manual package import. Please use getUrlForPackage() to create package URLs instead.`);
+      if (!warnedDeprecatedPackageImport.has(reqUrl)) {
+          logger.warn(`(${reqUrl}) Deprecated manual package import. Please use getUrlForPackage() to create package URLs instead.`);
+          warnedDeprecatedPackageImport.add(reqUrl);
+      }
       const redirectUrl = await pkgSource.resolvePackageImport(
         path.join(config.root, 'package.json'),
         reqUrl.replace(PACKAGE_PATH_PREFIX, '').replace(/\.js/, ''),
@@ -727,6 +744,10 @@ export async function startServer(
       }
       return;
     } catch (err) {
+
+      logger.error(err.message);
+
+
       // Some consumers may want to handle/ignore errors themselves.
       if (handleError === false) {
         throw err;
