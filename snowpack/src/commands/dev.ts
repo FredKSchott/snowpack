@@ -326,10 +326,7 @@ export async function startServer(
     } else {
       const certPath = path.join(cwd, 'snowpack.crt');
       const keyPath = path.join(cwd, 'snowpack.key');
-      ([cert, key] = await Promise.all([
-        fs.readFile(certPath),
-        fs.readFile(keyPath),
-      ]));
+      [cert, key] = await Promise.all([fs.readFile(certPath), fs.readFile(keyPath)]);
     }
 
     return {
@@ -344,13 +341,13 @@ export async function startServer(
       logger.debug(`reading credentials`);
       credentials = await readCredentials(config.root);
     } catch (e) {
-      logger.error(
-        `✘ No HTTPS credentials found!`,
-      );
+      logger.error(`✘ No HTTPS credentials found!`);
       logger.info(`You can specify HTTPS credentials via either:
 
   - Including credentials in your project config under ${colors.yellow(`devOptions.secure`)}.
-  - Including ${colors.yellow('snowpack.crt')} and ${colors.yellow('snowpack.key')} files in your project's root directory.
+  - Including ${colors.yellow('snowpack.crt')} and ${colors.yellow(
+        'snowpack.key',
+      )} files in your project's root directory.
 
     You can automatically generate credentials for your project via either:
 
