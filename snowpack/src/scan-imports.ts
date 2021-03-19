@@ -289,7 +289,7 @@ export async function scanImports(
   const loadedFiles: (SnowpackSourceFile | null)[] = await Promise.all(
     includeFiles.map(
       async (filePath: string): Promise<SnowpackSourceFile | null> => {
-        if (foundExcludeMatch(filePath) || excludePrivate.test(filePath)) {
+        if (excludePrivate.test(filePath) || foundExcludeMatch(filePath)) {
           return null;
         }
         return {

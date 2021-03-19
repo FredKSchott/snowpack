@@ -107,7 +107,7 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
     const excludeGlobs = [...config.exclude, ...config.testOptions.files];
     const foundExcludeMatch = picomatch(excludeGlobs);
     for (const f of files) {
-      if (foundExcludeMatch(f) || excludePrivate.test(f)) {
+      if (excludePrivate.test(f) || foundExcludeMatch(f)) {
         continue;
       }
       const fileUrls = getUrlsForFile(f, config)!;
