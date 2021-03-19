@@ -85,3 +85,56 @@
 * b756b49d - Fix snowpack add/rm for npm packages with @ prefix (#2665) <Nigel>
 * 58df86d4 - add a tip if someone uses process.env 
 * fdda447d - dont match meta paths to routes 
+
+## snowpack@3.1.0 [2021-03-19]
+
+* 872bfc74 - [ci] yarn format <natemoo-re>
+* c8aee80f - Support compound output file extensions (#2593) <Edward Faulkner>
+* 8dbd6af3 - [ci] yarn format <natemoo-re>
+* 88d3a9a9 - handle legacy package urls (#2915) 
+* 094b7a12 - Add `openUrl` option to config (#2902) <Dan Marshall>
+* aba028c4 - [ci] yarn format <natemoo-re>
+* 4de244ef - Add support for custom TLS key files via devOptions.secure = { cert, key } (#2356) <Aral Balkan>
+* da049ce4 - [ci] yarn format <natemoo-re>
+* b569d35b - add getUrlForPackage utility (#2913) <Nate Moore>
+* d826a60c - Remove enumerability of converted ESM in SSR (#2920) <Matthew Phillips>
+* 941110cd - fix esbuild 0.9.x breaking change (#2914) 
+* 35289b4b - improve import scanner perf (#2900) 
+* a800bf3d - finalize picomatch support (#2912) 
+* d33076a3 - Speed up exclusions with picomatch  (#2904) <Ismail Syed>
+* 84e034cc - [ci] yarn format 
+* f35bc421 - fix debug log 
+* 81fd028e - [ci] yarn format <natemoo-re>
+* 7c8236e8 - Add config.env property to support non-prefixed env variables (#2390) <moonrailgun>
+* 337cfd7a - only target actual imports (Regex Fix) (#2817) <Danzo7>
+* aa953cca - refactor: update to esbuild 0.9 (#2886) <Ludovico Fischer>
+* cd4f344b - [ci] yarn format <natemoo-re>
+* 0fce7efd - Support buildOptions.jsxInject in config (#2884) <Nate Moore>
+* dc503c84 - speed up mount scanning with fdir (#2876) 
+* e8dead62 - improve handling of "." & ".." imports (#2877) 
+* a178f286 - run transform on all dependencies (#2878) 
+* 27321b83 - collect known imports by package and version 
+* 3a6ad53a - update (#2363) <Myou Aki>
+* b2738967 - improve cjs<>esm conversion of named exports (#2859) 
+* 3ba7fede - feat: support specifying sourcemap type in config.optimize.sourcemap (#2793) <yqrashawn>
+* 03ceb62d - Resolve missing extensions (#2839) <Drew Powers>
+* 28689888 - [ci] yarn format 
+* 689f58e9 - SSR fixes (#2853) <Matthew Phillips>
+* 3549e43c - Fix Mac OS devOptions.open bug (#2798) <joakim-mjardner>
+* 21461ce5 - Update @snowpack/plugin-postcss API (#2854) <Drew Powers>
+* 9fbe93fb - fix: revert snowpack to v3.0.13 for CI tests (#2851) <Nate Moore>
+* 339d3cf1 - [ci] yarn format <natemoo-re>
+* ea4ebd17 - Proper loading of ESM config files (#2834) <Nate Moore>
+* 8f022949 - snowpack@3.1.0-pre.12 
+* 9d987e4a - fix watching logic and dashboard output 
+* 15428ae4 - [ci] yarn format 
+* bea1c56c - Simplify. cleanup, enhance snowpack internals (#2707) 
+* 43677e89 - Add import support for .interface files, alongside .svelte, and .vue. (#2380) <Aral Balkan>
+* 3d457a8e - fix(ssr-loader): support css modules (#2528) <Nate Moore>
+* 23d7b450 - fix: recognise dot as a valid relative import (#2662) <Jon Rimmer>
+* 582808c3 - [ci] yarn format 
+* deabcb0e - don't escape utf-8 characters by cheerio and esbuild (#2755) <bsl-zcs>
+* d35d50b4 - [ci] yarn format 
+* b756b49d - Fix snowpack add/rm for npm packages with @ prefix (#2665) <Nigel>
+* 58df86d4 - add a tip if someone uses process.env 
+* fdda447d - dont match meta paths to routes 
