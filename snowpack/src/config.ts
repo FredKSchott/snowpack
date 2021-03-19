@@ -112,7 +112,18 @@ const configSchema = {
     devOptions: {
       type: 'object',
       properties: {
-        secure: {type: 'boolean'},
+        secure: {
+          oneOf: [
+            {type: 'boolean'},
+            {
+              type: 'object',
+              properties: {
+                cert: {},
+                key: {},
+              },
+            },
+          ],
+        },
         port: {type: 'number'},
         open: {type: 'string'},
         output: {type: 'string', enum: ['stream', 'dashboard']},

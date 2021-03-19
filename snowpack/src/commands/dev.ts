@@ -316,10 +316,21 @@ export async function startServer(
   logger.debug(`Using in-memory cache: ${fileToUrlMapping}`);
 
   const readCredentials = async (cwd: string) => {
-    const [cert, key] = await Promise.all([
-      fs.readFile(path.join(cwd, 'snowpack.crt')),
-      fs.readFile(path.join(cwd, 'snowpack.key')),
-    ]);
+    const secure = config.devOptions.secure;
+    let cert: Buffer;
+    let key: Buffer;
+
+    if (typeof secure === 'object') {
+      cert = secure.cert as Buffer;
+      key = secure.key as Buffer;
+    } else {
+      const certPath = path.join(cwd, 'snowpack.crt');
+      const keyPath = path.join(cwd, 'snowpack.key');
+      ([cert, key] = await Promise.all([
+        fs.readFile(certPath),
+        fs.readFile(keyPath),
+      ]));
+    }
 
     return {
       cert,
@@ -334,11 +345,14 @@ export async function startServer(
       credentials = await readCredentials(config.root);
     } catch (e) {
       logger.error(
-        `✘ No HTTPS credentials found! Missing Files:  ${colors.bold(
-          'snowpack.crt',
-        )}, ${colors.bold('snowpack.key')}`,
+        `✘ No HTTPS credentials found!`,
       );
-      logger.info(`You can automatically generate credentials for your project via either:
+      logger.info(`You can specify HTTPS credentials via either:
+
+  - Including credentials in your project config under ${colors.yellow(`devOptions.secure`)}.
+  - Including ${colors.yellow('snowpack.crt')} and ${colors.yellow('snowpack.key')} files in your project's root directory.
+
+    You can automatically generate credentials for your project via either:
 
   - ${colors.cyan('devcert')}: ${colors.yellow('npx devcert-cli generate localhost')}
     https://github.com/davewasmer/devcert-cli (no install required)
@@ -346,7 +360,6 @@ export async function startServer(
   - ${colors.cyan('mkcert')}: ${colors.yellow(
         'mkcert -install && mkcert -key-file snowpack.key -cert-file snowpack.crt localhost',
       )}
-
     https://github.com/FiloSottile/mkcert (install required)`);
       process.exit(1);
     }
