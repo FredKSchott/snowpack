@@ -1,7 +1,7 @@
 {
   "name": "@snowpack/app-template-lit-element-typescript",
   "description": "A preconfigured template for Snowpack with TypeScript and LitElement",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "license": "MIT",
   "homepage": "https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-lit-element-typescript#readme",
   "repository": {
