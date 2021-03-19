@@ -331,12 +331,12 @@ export default {
           JSON.parse(await fs.readFile(existingImportMapLoc, 'utf8'));
         if (existingImportMap && existingImportMap.imports[spec]) {
           if (depth > 0) {
-            logger.info(`${lineBullet} ${packageFormatted} ${colors.dim(`(dedupe)`)}`);
+            logger.info(`${lineBullet} ${packageFormatted} ${colors.dim(`(dedupe)`)}`, {name: 'pkg'});
           }
           return existingImportMap;
         }
         // Otherwise, kick off a new build to generate a fresh import map.
-        logger.info(`${lineBullet} ${packageFormatted}`);
+        logger.info(`${lineBullet} ${packageFormatted}`, {name: 'pkg'});
 
         const installTargets = [...allKnownSpecs]
           .filter((spec) => spec.startsWith(packageUID))
@@ -376,9 +376,8 @@ export default {
           installTargets,
           installOptions,
         });
-        logger.debug(`${lineBullet} ${packageFormatted} DONE`);
         if (needsSsrBuild) {
-          logger.info(`${lineBullet} ${packageFormatted} ${colors.dim(`(ssr)`)}`);
+          logger.info(`${lineBullet} ${packageFormatted} ${colors.dim(`(ssr)`)}`, {name: 'pkg'});
           await installPackages({
             config,
             isDev: true,
@@ -389,7 +388,6 @@ export default {
               dest: installDest + '-ssr',
             },
           });
-          logger.debug(`${lineBullet} ${packageFormatted} (ssr) DONE`);
         }
         const dependencyFileLoc = path.join(installDest, newImportMap.imports[spec]);
         const loadedFile = await fs.readFile(dependencyFileLoc!);
