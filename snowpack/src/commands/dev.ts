@@ -362,51 +362,49 @@ export async function startServer(
     }
   }
 
-  for (const runPlugin of config.plugins) {
-    if (runPlugin.run) {
-      logger.debug(`starting ${runPlugin.name} run() workers`);
-      runPlugin
+  let outputExts: string[] = [];
+
+  for (const plugin of config.plugins) {
+    if (plugin.run) {
+      logger.debug(`starting ${plugin.name} run() workers`);
+      plugin
         .run({
           isDev,
           // @ts-ignore: internal API only
           log: (msg, data) => {
             if (msg === 'CONSOLE_INFO') {
-              logger.info(data.msg, {name: runPlugin.name});
+              logger.info(data.msg, {name: plugin.name});
             } else {
-              messageBus.emit(msg, {...data, id: runPlugin.name});
+              messageBus.emit(msg, {...data, id: plugin.name});
             }
           },
         })
         .then(() => {
-          logger.info('Command completed.', {name: runPlugin.name});
+          logger.info('Command completed.', {name: plugin.name});
         })
         .catch((err) => {
-          logger.error(`Command exited with error code: ${err}`, {name: runPlugin.name});
+          logger.error(`Command exited with error code: ${err}`, {name: plugin.name});
           process.exit(1);
         });
     }
+    if (plugin.resolve) {
+      for (const outputExt of plugin.resolve.output) {
+        const ext = outputExt.toLowerCase();
+        if (!outputExts.includes(ext)) {
+          outputExts.push(ext);
+        }
+      }
+    }
   }
-
-  const matchOutputExtension: (baseName: string) => string = (function() {
-    let outputExtensions = new Set<string>();
-    for (const resolvePlugin of config.plugins) {
-      if (resolvePlugin.resolve?.output) {
-        for (let ext of resolvePlugin.resolve.output) {
-          outputExtensions.add(ext.toLowerCase());
-        }
-      }
+  outputExts = outputExts.sort((a,b) => b.length - a.length)
+  
+  function matchOutputExt(base: string): string {
+    const basename = base.toLowerCase();
+    for (const ext of outputExts) {
+      if (basename.endsWith(ext)) return ext;
     }
-    let sortedOutputExtensions = [...outputExtensions].sort((a,b) => b.length - a.length);
-    return function matchOutputExtension(baseName: string): string {
-      let lowerBaseName = baseName.toLowerCase();
-      for (let ext of sortedOutputExtensions) {
-        if (lowerBaseName.endsWith(ext)) {
-          return ext;
-        }
-      }
-      return path.extname(lowerBaseName);
-    }
-  })();
+    return path.extname(basename);
+  }
 
   async function loadUrl(
     reqUrl: string,
@@ -489,7 +487,7 @@ export async function startServer(
     // directory, so we can't strip that info just yet. Try the exact match first, and then strip
     // it later on if there is no match.
     let resourcePath = reqPath;
-    let resourceType = matchOutputExtension(reqPath) || '.html';
+    let resourceType = matchOutputExt(reqPath) || '.html';
     let foundFile: FoundFile;
 
     // * Workspaces & Linked Packages:
@@ -677,7 +675,7 @@ export async function startServer(
       return null;
     }
     const reqPath = decodeURI(url.parse(reqUrl).pathname!);
-    const reqExt = matchOutputExtension(reqPath);
+    const reqExt = matchOutputExt(reqPath);
     const isRoute = !reqExt || reqExt.toLowerCase() === '.html';
     for (const route of config.routes) {
       if (route.match === 'routes' && !isRoute) {
