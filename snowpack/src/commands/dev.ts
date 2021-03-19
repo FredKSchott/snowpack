@@ -339,10 +339,8 @@ export async function startServer(
       );
       logger.info(`You can specify HTTPS credentials via either:
 
-  - Including ${colors.yellow('snowpack.crt')} and ${colors.yellow('snowpack.key')} files in your project folder.
-
-  - Specifying the your HTTPS certificate and private key file using the
-    ${colors.yellow(`devOptions.secure${colors.bold('.cert')}`)} and ${colors.yellow(`devOptions.secure${colors.bold('.key')}`)} properties in your Snowpack configuration.
+  - Including credentials in your project config under ${colors.yellow(`devOptions.secure`)}.
+  - Including ${colors.yellow('snowpack.crt')} and ${colors.yellow('snowpack.key')} files in your project's root directory.
 
     You can automatically generate credentials for your project via either:
 
