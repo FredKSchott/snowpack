@@ -46,7 +46,10 @@ const NEVER_PEER_PACKAGES: string[] = [
   'node-fetch',
   'whatwg-fetch',
   'tslib',
+  '@ant-design/icons-svg',
 ];
+
+const memoizedResolve: Record<string, Record<string, string>> = {};
 
 function getRootPackageDirectory(loc: string) {
   const parts = loc.split('node_modules');
@@ -239,6 +242,17 @@ export default {
     depth = 0,
   ) {
     config = config || _config;
+    // Imports in the same project should never change once resolved. Check the momized cache here to speed up faster repeat page loads.
+    // NOTE(fks): This is mainly needed because `resolveEntrypoint` can be slow and blocking, which creates issues when many files
+    // are loaded/resolved at once (ex: antd). If we can improve the performance there and make that async, this may no longer be
+    // necessary.
+    if (!importMap) {
+      if (!memoizedResolve[source]) {
+        memoizedResolve[source] = {};
+      } else if (memoizedResolve[source][spec]) {
+        return memoizedResolve[source][spec];
+      }
+    }
 
     const aliasEntry = findMatchingAliasEntry(config, spec);
     if (aliasEntry && aliasEntry.type === 'package') {
@@ -420,7 +434,13 @@ export default {
       packageName,
       packageVersion,
     };
-    return path.posix.join(config.buildOptions.metaUrlPath, 'pkg', importId);
+    // Memoize the result, for faster repeat lookups.
+    memoizedResolve[source][spec] = path.posix.join(
+      config.buildOptions.metaUrlPath,
+      'pkg',
+      importId,
+    );
+    return memoizedResolve[source][spec];
   },
 
   clearCache() {

@@ -79,6 +79,17 @@ const {contents} = server.loadUrl(fileUrl, {...});
 
 A helper function to find the final hosted URL for any source file. Useful when combined with `loadUrl`, since you may only know a file's location on disk without knowing it's final hosted URL.
 
+#### SnowpackDevServer.getUrlForPackage()
+
+`getUrlForPackage(packageSpec: string) => Promise<string>`
+
+```ts
+const server = await startServer({config});
+const pkgUrl = await server.getUrlForPackage('preact');
+```
+
+A helper function to find the final hosted URL of any dependency.
+
 #### SnowpackDevServer.sendResponseError()
 
 `sendResponseError(req: http.IncomingMessage, res: http.ServerResponse, status: number) => void;`

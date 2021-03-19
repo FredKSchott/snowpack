@@ -29,7 +29,7 @@ import {
 import type {Awaited} from './util';
 
 const CONFIG_NAME = 'snowpack';
-const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/_*.{sass,scss}', '**/*.d.ts'];
+const ALWAYS_EXCLUDE = ['**/node_modules/**', '**/_*.{sass,scss}', '**.d.ts'];
 
 // default settings
 const DEFAULT_ROOT = process.cwd();
@@ -112,7 +112,18 @@ const configSchema = {
     devOptions: {
       type: 'object',
       properties: {
-        secure: {type: 'boolean'},
+        secure: {
+          oneOf: [
+            {type: 'boolean'},
+            {
+              type: 'object',
+              properties: {
+                cert: {},
+                key: {},
+              },
+            },
+          ],
+        },
         port: {type: 'number'},
         open: {type: 'string'},
         output: {type: 'string', enum: ['stream', 'dashboard']},
@@ -408,7 +419,7 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
     config.packageOptions.rollup.plugins = config.packageOptions.rollup.plugins || [];
   }
   config.exclude = Array.from(
-    new Set([...ALWAYS_EXCLUDE, `${config.buildOptions.out}/**/*`, ...config.exclude]),
+    new Set([...ALWAYS_EXCLUDE, `${config.buildOptions.out}/**`, ...config.exclude]),
   );
   // normalize config URL/path values
   config.buildOptions.out = removeTrailingSlash(config.buildOptions.out);

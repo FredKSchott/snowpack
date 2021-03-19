@@ -5,7 +5,7 @@ import etag from 'etag';
 import {EventEmitter} from 'events';
 import {createReadStream, promises as fs, statSync} from 'fs';
 import {fdir} from 'fdir';
-import micromatch from 'micromatch';
+import picomatch from 'picomatch';
 import http from 'http';
 import http2 from 'http2';
 import * as colors from 'kleur/colors';
@@ -290,15 +290,25 @@ export async function startServer(
   const symlinkDirectories = new Set();
   const inMemoryBuildCache = new Map<string, FileBuilder>();
   let fileToUrlMapping = new OneToManyMap();
+  const excludeGlobs = [
+    ...config.exclude,
+    ...(process.env.NODE_ENV === 'test' ? [] : config.testOptions.files),
+  ];
+  const excludePrivate = new RegExp(`\\${path.sep}\\.`);
+  const foundExcludeMatch = picomatch(excludeGlobs);
 
   for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
     logger.debug(`Mounting directory: '${mountKey}' as URL '${mountEntry.url}'`);
-    const files = (await new fdir().withFullPaths().crawl(mountKey).withPromise()) as string[];
-    const excludePrivate = new RegExp(`\\${path.sep}\\.`);
+    const files = (await new fdir()
+      .withFullPaths()
+      // Note: exclude() only matches directories, and not files. However, the cost
+      // of false positives here is minor, so do this as a quick check to possibly
+      // skip scanning into entire folder trees.
+      .exclude((_, dirPath) => excludePrivate.test(dirPath) || foundExcludeMatch(dirPath))
+      .crawl(mountKey)
+      .withPromise()) as string[];
+
     for (const f of files) {
-      if (micromatch.isMatch(f, config.exclude) || excludePrivate.test(f)) {
-        continue;
-      }
       fileToUrlMapping.add(f, getUrlsForFile(f, config)!);
     }
   }
@@ -306,10 +316,18 @@ export async function startServer(
   logger.debug(`Using in-memory cache: ${fileToUrlMapping}`);
 
   const readCredentials = async (cwd: string) => {
-    const [cert, key] = await Promise.all([
-      fs.readFile(path.join(cwd, 'snowpack.crt')),
-      fs.readFile(path.join(cwd, 'snowpack.key')),
-    ]);
+    const secure = config.devOptions.secure;
+    let cert: Buffer;
+    let key: Buffer;
+
+    if (typeof secure === 'object') {
+      cert = secure.cert as Buffer;
+      key = secure.key as Buffer;
+    } else {
+      const certPath = path.join(cwd, 'snowpack.crt');
+      const keyPath = path.join(cwd, 'snowpack.key');
+      [cert, key] = await Promise.all([fs.readFile(certPath), fs.readFile(keyPath)]);
+    }
 
     return {
       cert,
@@ -323,12 +341,15 @@ export async function startServer(
       logger.debug(`reading credentials`);
       credentials = await readCredentials(config.root);
     } catch (e) {
-      logger.error(
-        `✘ No HTTPS credentials found! Missing Files:  ${colors.bold(
-          'snowpack.crt',
-        )}, ${colors.bold('snowpack.key')}`,
-      );
-      logger.info(`You can automatically generate credentials for your project via either:
+      logger.error(`✘ No HTTPS credentials found!`);
+      logger.info(`You can specify HTTPS credentials via either:
+
+  - Including credentials in your project config under ${colors.yellow(`devOptions.secure`)}.
+  - Including ${colors.yellow('snowpack.crt')} and ${colors.yellow(
+        'snowpack.key',
+      )} files in your project's root directory.
+
+    You can automatically generate credentials for your project via either:
 
   - ${colors.cyan('devcert')}: ${colors.yellow('npx devcert-cli generate localhost')}
     https://github.com/davewasmer/devcert-cli (no install required)
@@ -336,7 +357,6 @@ export async function startServer(
   - ${colors.cyan('mkcert')}: ${colors.yellow(
         'mkcert -install && mkcert -key-file snowpack.key -cert-file snowpack.crt localhost',
       )}
-
     https://github.com/FiloSottile/mkcert (install required)`);
       process.exit(1);
     }
@@ -823,6 +843,13 @@ export async function startServer(
     handleRequest,
     sendResponseFile,
     sendResponseError,
+    getUrlForPackage: (pkgSpec: string) => {
+      return pkgSource.resolvePackageImport(
+        path.join(config.root, 'package.json'),
+        pkgSpec,
+        config,
+      );
+    },
     getUrlForFile: (fileLoc: string) => {
       const result = getUrlsForFile(fileLoc, config);
       return result ? result[0] : result;

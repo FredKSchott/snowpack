@@ -1,7 +1,7 @@
 import {ImportSpecifier, init as initESModuleLexer, parse} from 'es-module-lexer';
 import {InstallTarget} from 'esinstall';
 import glob from 'glob';
-import micromatch from 'micromatch';
+import picomatch from 'picomatch';
 import {fdir} from 'fdir';
 import path from 'path';
 import stripComments from 'strip-comments';
@@ -285,10 +285,11 @@ export async function scanImports(
   const excludeGlobs = includeTests
     ? config.exclude
     : [...config.exclude, ...config.testOptions.files];
+  const foundExcludeMatch = picomatch(excludeGlobs);
   const loadedFiles: (SnowpackSourceFile | null)[] = await Promise.all(
     includeFiles.map(
       async (filePath: string): Promise<SnowpackSourceFile | null> => {
-        if (micromatch.isMatch(filePath, excludeGlobs) || excludePrivate.test(filePath)) {
+        if (excludePrivate.test(filePath) || foundExcludeMatch(filePath)) {
           return null;
         }
         return {

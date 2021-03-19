@@ -464,11 +464,6 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
     );
   }
 
-  // NOTE: esbuild has no `cwd` support, and assumes that you're always bundling the
-  // current working directory. To get around this, we change the current working directory
-  // for this run only, and then reset it on exit.
-  process.chdir(buildDirectoryLoc);
-
   // * Run esbuild on the entire build directory. Even if you are not writing the result
   // to disk (bundle: false), we still use the bundle manifest as an in-memory representation
   // of our import graph, saved to disk.
@@ -482,14 +477,10 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
   // build files that now live in the bundles.
   if (options.bundle) {
     for (const bundledInput of Object.keys(manifest.inputs)) {
-      if (!manifest.outputs![bundledInput]) {
-        logger.debug(
-          `Removing bundled source file: ${path.resolve(
-            buildDirectoryLoc,
-            path.basename(bundledInput),
-          )}`,
-        );
-        await fs.unlink(path.resolve(buildDirectoryLoc, path.basename(bundledInput)));
+      const outputKey = path.relative(buildDirectoryLoc, path.resolve(process.cwd(), bundledInput));
+      if (!manifest.outputs![`/` + outputKey]) {
+        logger.debug(`Removing bundled source file: ${path.resolve(buildDirectoryLoc, outputKey)}`);
+        deleteFromBuildSafe(path.resolve(buildDirectoryLoc, outputKey), config);
       }
     }
     deleteFromBuildSafe(

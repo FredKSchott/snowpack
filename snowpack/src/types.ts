@@ -77,6 +77,7 @@ export interface SnowpackDevServer {
   getServerRuntime: (options?: {invalidateOnChange?: boolean}) => ServerRuntime;
   sendResponseError: (req: http.IncomingMessage, res: http.ServerResponse, status: number) => void;
   getUrlForFile: (fileLoc: string) => string | null;
+  getUrlForPackage: (packageSpec: string) => Promise<string>;
   onFileChange: (callback: OnFileChangeCallback) => void;
   shutdown(): Promise<void>;
 }
@@ -254,7 +255,7 @@ export interface SnowpackConfig {
   alias: Record<string, string>;
   plugins: SnowpackPlugin[];
   devOptions: {
-    secure: boolean;
+    secure: boolean | {cert: string | Buffer; key: string | Buffer};
     hostname: string;
     port: number;
     open?: string;

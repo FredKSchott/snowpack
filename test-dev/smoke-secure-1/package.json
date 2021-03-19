@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@snowpack/plugin-build-script": "^2.0.7",
+    "canvas-confetti": "^1.2.0",
+    "snowpack": "^3.0.0"
+  }
+}

@@ -49,8 +49,8 @@
     "default-browser-id": "^2.0.0",
     "esbuild": "^0.9.3",
     "fdir": "^5.0.0",
-    "micromatch": "^4.0.2",
     "open": "^7.0.4",
+    "picomatch": "^2.2.2",
     "resolve": "^1.20.0",
     "rollup": "^2.34.0"
   },
