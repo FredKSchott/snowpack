@@ -21,3 +21,21 @@
 
 * ec3c29fd - Pin rollup version to fix tree shaking bugs (#2572) <Matthew Phillips>
 * 4ffc1c10 - add support for internal export map imports (#2507) 
+
+## esinstall@1.1.0 [2021-03-19]
+
+* a800bf3d - finalize picomatch support (#2912) 
+* b2738967 - improve cjs<>esm conversion of named exports (#2859) 
+* c3ecc7da - [ci] yarn format <natemoo-re>
+* 92057561 - Fix: warn on missing export (#2826) <Nate Moore>
+* bea1c56c - Simplify. cleanup, enhance snowpack internals (#2707) 
+* 6f514a0d - [ci] yarn format <matthewp>
+* 8280627d - fix issue with types package (#2768) 
+* bb1ca50a - url not needed in esinstall 
+* 19cdf5ca - ignore data imports from build or scan 
+* 435692d0 - make stats optional, speed up perf (#2708) 
+* b82c472e - [ci] yarn format 
+* 81d9ff88 - fix unnecessary filtering of absolute aliases (#2424) <Jon Rimmer>
+* c0501f72 - [ci] yarn format <matthewp>
+* d3b6f769 - Support packages that use export maps but have no main (#2659) <Matthew Phillips>
+* 520112b6 - Update the changelog <Matthew Phillips>
