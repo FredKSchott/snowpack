@@ -400,17 +400,17 @@ export async function startServer(
         }
       }
     }
-    outputExts = outputExts.sort((a,b) => b.split('.').length - a.split('.').length)
-  
+    outputExts = outputExts.sort((a, b) => b.split('.').length - a.split('.').length);
+
     return (base: string): string => {
       const basename = base.toLowerCase();
       for (const ext of outputExts) {
         if (basename.endsWith(ext)) return ext;
       }
       return path.extname(basename);
-    }
+    };
   }
-  
+
   const matchOutputExt = getOutputExtensionMatch();
 
   async function loadUrl(
