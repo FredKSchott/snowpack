@@ -258,7 +258,7 @@ export interface SnowpackConfig {
     secure: boolean | {cert: string | Buffer; key: string | Buffer};
     hostname: string;
     port: number;
-    urlpath?: string;
+    openUrl?: string;
     open?: string;
     output?: 'stream' | 'dashboard';
     hmr?: boolean;
