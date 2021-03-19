@@ -1,8 +1,8 @@
 /** @type {import("snowpack").SnowpackUserConfig } */
 module.exports = {
   mount: {
-    public: { url: '/', static: true },
-    src: { url: '/dist' },
+    public: {url: '/', static: true},
+    src: {url: '/dist'},
   },
   routes: [
     /* Enable an SPA Fallback in development: */
@@ -10,9 +10,9 @@ module.exports = {
   ],
   optimize: {
     /* Example: Bundle your final build: */
-    "bundle": true,
+    bundle: true,
     minify: true,
-    target: "es2020",
+    target: 'es2020',
   },
   packageOptions: {
     /* ... */
