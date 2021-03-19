@@ -25,5 +25,5 @@
     "@angular/compiler-cli": ">= 9 <= 11",
     "snowpack": ">= 2 <= 3"
   },
-  "version": "2.2.0"
+  "version": "0.0.1"
 }
