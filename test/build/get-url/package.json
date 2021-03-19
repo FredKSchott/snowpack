@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-get-url",
+  "scripts": {
+    "testbuild": "snowpack build"
+  },
+  "dependencies": {
+    "chalk": "4.1.0",
+    "ansi-styles": "*"
+  },
+  "devDependencies": {
+    "snowpack": "^3.0.0"
+  }
+}

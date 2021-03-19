@@ -834,6 +834,9 @@ export async function startServer(
     handleRequest,
     sendResponseFile,
     sendResponseError,
+    getUrlForPackage: (pkgSpec: string) => {
+      return pkgSource.resolvePackageImport(path.join(config.root, 'package.json'), pkgSpec, config)
+    },
     getUrlForFile: (fileLoc: string) => {
       const result = getUrlsForFile(fileLoc, config);
       return result ? result[0] : result;
