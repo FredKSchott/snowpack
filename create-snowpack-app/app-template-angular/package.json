@@ -1,0 +1,79 @@
+{
+	"dependencies": {
+		"@angular/animations": "~11.2.0",
+		"@angular/common": "~11.2.0",
+		"@angular/core": "~11.2.0",
+		"@angular/elements": "~11.2.0",
+		"@angular/forms": "~11.2.0",
+		"@angular/platform-browser": "~11.2.0",
+		"@angular/platform-browser-dynamic": "~11.2.0",
+		"@angular/router": "~11.2.0",
+		"rxjs": "^6.6.0",
+		"tslib": "^2.0.0",
+		"zone.js": "~0.10.0"
+	},
+	"description": "A preconfigured template for Snowpack with Angular",
+	"devDependencies": {
+		"@angular-devkit/build-optimizer": "~0.1102.0",
+		"@angular-eslint/eslint-plugin": "^2.0.0",
+		"@angular-eslint/eslint-plugin-template": "^2.0.0",
+		"@angular-eslint/template-parser": "^2.0.0",
+		"@angular/cli": "~11.2.0",
+		"@angular/compiler": "~11.2.0",
+		"@angular/compiler-cli": "~11.2.0",
+		"@snowpack/plugin-angular": "^0.0.1",
+		"@testing-library/angular": "^10.2.1",
+		"@testing-library/cypress": "^7.0.2",
+		"@types/jest": "^26.0.15",
+		"@types/node": "^14.0.0",
+		"@types/snowpack-env": "^2.3.3",
+		"@typescript-eslint/eslint-plugin": "^4.3.0",
+		"@typescript-eslint/parser": "^4.3.0",
+		"cypress": "^6.0.0",
+		"eslint": "^7.6.0",
+		"eslint-config-prettier": "^8.0.0",
+		"eslint-plugin-import": "^2.22.1",
+		"eslint-plugin-jsdoc": "^32.0.0",
+		"eslint-plugin-prefer-arrow": "^1.2.2",
+		"jest": "^26.6.3",
+		"jest-preset-angular": "^8.3.2",
+		"prettier": "^2.0.5",
+		"snowpack": "^3.0.0",
+		"typescript": "~4.1.0"
+	},
+	"jest": {
+		"preset": "jest-preset-angular",
+		"setupFilesAfterEnv": [
+			"./src/setup-jest.ts"
+		]
+	},
+	"keywords": [
+		"csa-template",
+		"snowpack",
+		"angular"
+	],
+	"license": "MIT",
+	"name": "@snowpack/template-angular",
+	"prettier": {
+		"singleQuote": true,
+		"tabWidth": 4,
+		"trailingComma": "all",
+		"useTabs": true
+	},
+	"repository": {
+		"directory": "create-snowpack-app/app-template-angular",
+		"type": "git",
+		"url": "https://github.com/snowpackjs/snowpack.git"
+	},
+	"scripts": {
+		"build": "snowpack build",
+		"e2e": "cypress open",
+		"e2e:silent": "cypress run",
+		"format": "prettier --write .",
+		"lint": "eslint --ignore-path .gitignore .",
+		"postinstall": "ngcc",
+		"start": "snowpack dev",
+		"test": "jest ./src"
+	},
+	"version": "0.0.1"
+}

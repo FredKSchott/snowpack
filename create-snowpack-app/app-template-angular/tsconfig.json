@@ -1,0 +1,26 @@
+{
+	"angularCompilerOptions": {
+		"strictInjectionParameters": true,
+		"strictInputAccessModifiers": true,
+		"strictTemplates": true
+	},
+	"compileOnSave": false,
+	"compilerOptions": {
+		"allowSyntheticDefaultImports": true,
+		"baseUrl": "./",
+		"declaration": false,
+		"experimentalDecorators": true,
+		"forceConsistentCasingInFileNames": true,
+		"importHelpers": true,
+		"lib": ["ESNext", "dom"],
+		"module": "ESNext",
+		"moduleResolution": "node",
+		"paths": {
+			"styles/*": ["./public/styles/*"]
+		},
+		"resolveJsonModule": true,
+		"sourceMap": true,
+		"strict": true,
+		"target": "ESNext"
+	}
+}
