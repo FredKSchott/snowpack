@@ -362,49 +362,55 @@ export async function startServer(
     }
   }
 
-  let outputExts: string[] = [];
-
-  for (const plugin of config.plugins) {
-    if (plugin.run) {
-      logger.debug(`starting ${plugin.name} run() workers`);
-      plugin
+  for (const runPlugin of config.plugins) {
+    if (runPlugin.run) {
+      logger.debug(`starting ${runPlugin.name} run() workers`);
+      runPlugin
         .run({
           isDev,
           // @ts-ignore: internal API only
           log: (msg, data) => {
             if (msg === 'CONSOLE_INFO') {
-              logger.info(data.msg, {name: plugin.name});
+              logger.info(data.msg, {name: runPlugin.name});
             } else {
-              messageBus.emit(msg, {...data, id: plugin.name});
+              messageBus.emit(msg, {...data, id: runPlugin.name});
             }
           },
         })
         .then(() => {
-          logger.info('Command completed.', {name: plugin.name});
+          logger.info('Command completed.', {name: runPlugin.name});
         })
         .catch((err) => {
-          logger.error(`Command exited with error code: ${err}`, {name: plugin.name});
+          logger.error(`Command exited with error code: ${err}`, {name: runPlugin.name});
           process.exit(1);
         });
     }
-    if (plugin.resolve) {
-      for (const outputExt of plugin.resolve.output) {
-        const ext = outputExt.toLowerCase();
-        if (!outputExts.includes(ext)) {
-          outputExts.push(ext);
+  }
+
+  function getOutputExtensionMatch() {
+    let outputExts: string[] = [];
+    for (const plugin of config.plugins) {
+      if (plugin.resolve) {
+        for (const outputExt of plugin.resolve.output) {
+          const ext = outputExt.toLowerCase();
+          if (!outputExts.includes(ext)) {
+            outputExts.push(ext);
+          }
         }
       }
     }
-  }
-  outputExts = outputExts.sort((a,b) => b.length - a.length)
+    outputExts = outputExts.sort((a,b) => b.split('.').length - a.split('.').length)
   
-  function matchOutputExt(base: string): string {
-    const basename = base.toLowerCase();
-    for (const ext of outputExts) {
-      if (basename.endsWith(ext)) return ext;
+    return (base: string): string => {
+      const basename = base.toLowerCase();
+      for (const ext of outputExts) {
+        if (basename.endsWith(ext)) return ext;
+      }
+      return path.extname(basename);
     }
-    return path.extname(basename);
   }
+  
+  const matchOutputExt = getOutputExtensionMatch();
 
   async function loadUrl(
     reqUrl: string,
