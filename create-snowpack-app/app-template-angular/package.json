@@ -38,6 +38,7 @@
 		"jest": "^26.6.3",
 		"jest-preset-angular": "^8.3.2",
 		"prettier": "^2.0.5",
+		"rimraf": "^3.0.0",
 		"snowpack": "^3.0.0",
 		"typescript": "~4.1.0"
 	},
@@ -66,13 +67,14 @@
 		"url": "https://github.com/snowpackjs/snowpack.git"
 	},
 	"scripts": {
-		"build": "snowpack build",
+		"build": "npm run clean && snowpack build",
+		"clean": "rimraf ./public/_dist",
 		"e2e": "cypress open",
 		"e2e:silent": "cypress run",
 		"format": "prettier --write .",
 		"lint": "eslint --ignore-path .gitignore .",
 		"postinstall": "ngcc",
-		"start": "snowpack dev",
+		"start": "npm run clean && snowpack dev",
 		"test": "jest ./src"
 	},
 	"version": "0.0.1"
