@@ -33,10 +33,10 @@ function transformHtml(contents) {
 
 const babel = require('@babel/core');
 const IS_FAST_REFRESH_ENABLED = /\$RefreshReg\$\(/;
-async function transformJs(contents, id, cwd, skipTransform) {
+async function transformJs(contents, id, cwd, babelConfig) {
   let fastRefreshEnhancedCode;
 
-  if (skipTransform) {
+  if (babelConfig === false) {
     fastRefreshEnhancedCode = contents;
   } else if (IS_FAST_REFRESH_ENABLED.test(contents)) {
     // Warn in case someone has a bad setup, and to help older users upgrade.
@@ -45,6 +45,7 @@ async function transformJs(contents, id, cwd, skipTransform) {
     );
     fastRefreshEnhancedCode = contents;
   } else {
+    const {plugins = [], ...restConfig} = babelConfig instanceof Object ? babelConfig : {};
     const {code} = await babel.transformAsync(contents, {
       cwd,
       filename: id,
@@ -56,7 +57,9 @@ async function transformJs(contents, id, cwd, skipTransform) {
       plugins: [
         [require('react-refresh/babel'), {skipEnvCheck: true}],
         require('@babel/plugin-syntax-class-properties'),
+        ...plugins,
       ],
+      ...restConfig,
     });
     fastRefreshEnhancedCode = code;
   }
@@ -107,8 +110,7 @@ module.exports = function reactRefreshTransform(snowpackConfig, {babel}) {
 
       // While server-side rendering, the fast-refresh code is not needed.
       if (fileExt === '.js' && !isSSR) {
-        const skipTransform = babel === false;
-        return transformJs(contents, id, snowpackConfig.root || process.cwd(), skipTransform);
+        return transformJs(contents, id, snowpackConfig.root || process.cwd(), babel);
       }
       if (fileExt === '.html') {
         return transformHtml(contents);
