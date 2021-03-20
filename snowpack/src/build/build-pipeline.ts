@@ -35,6 +35,10 @@ async function runPipelineLoadStep(
     if (!step.load) {
       continue;
     }
+    // v3.1: Some plugins break when run on node_modules/. This fix is in place until the plugins themselves have a chance to update.
+    if (step.name.endsWith('@prefresh/snowpack/dist/index.js') && isPackage) {
+      continue;
+    }
     try {
       const debugPath = path.relative(config.root, srcPath);
       logger.debug(`load() starting… [${debugPath}]`, {name: step.name});
@@ -124,6 +128,10 @@ async function runPipelineTransformStep(
   const rootFileName = path.basename(rootFilePath);
   for (const step of config.plugins) {
     if (!step.transform) {
+      continue;
+    }
+    // v3.1: Some plugins break when run on node_modules/. This fix is in place until the plugins themselves have a chance to update.
+    if (step.name.endsWith('@prefresh/snowpack/dist/index.js') && isPackage) {
       continue;
     }
 

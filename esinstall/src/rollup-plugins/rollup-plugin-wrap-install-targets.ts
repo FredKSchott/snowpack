@@ -81,11 +81,11 @@ export function rollupPluginWrapInstallTargets(
         );
       }
       // If nothing was detected, return undefined.
-      if (isMainEntrypoint && exports.length === 0 && reexports.length === 0) {
-        return undefined;
-      }
       // Otherwise, resolve and flatten all exports into a single array, remove invalid exports.
-      return Array.from(new Set([...exports, ...resolvedReexports])).filter(isValidNamedExport);
+      const resolvedExports = Array.from(new Set([...exports, ...resolvedReexports])).filter(
+        isValidNamedExport,
+      );
+      return isMainEntrypoint && resolvedExports.length === 0 ? undefined : resolvedExports;
     } catch (err) {
       // Safe to ignore, this is usually due to the file not being CJS.
       logger.debug(`cjsAutoDetectExportsStatic ${filename}: ${err.message}`);
