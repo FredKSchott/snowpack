@@ -1,5 +1,10 @@
 import crypto from 'crypto';
-import {InstallOptions, InstallTarget, resolveEntrypoint} from 'esinstall';
+import {
+  InstallOptions,
+  InstallTarget,
+  resolveEntrypoint,
+  resolveDependencyManifest as _resolveDependencyManifest,
+} from 'esinstall';
 import projectCacheDir from 'find-cache-dir';
 import findUp from 'find-up';
 import {existsSync, promises as fs} from 'fs';
@@ -50,6 +55,19 @@ const NEVER_PEER_PACKAGES: string[] = [
 ];
 
 const memoizedResolve: Record<string, Record<string, string>> = {};
+
+function isPackageCJS(manifest: any): boolean {
+  return (
+    // If a "module" entrypoint is defined, we'll use that.
+    !manifest.module &&
+    // If "type":"module", assume ESM.
+    manifest.type !== 'module' &&
+    // If export map exists, assume ESM exists somewhere within it.
+    !manifest.exports &&
+    // If "main" exists and ends in ".mjs", assume ESM.
+    !manifest.main?.endsWith('.mjs')
+  );
+}
 
 function getRootPackageDirectory(loc: string) {
   const parts = loc.split('node_modules');
@@ -348,6 +366,17 @@ export default {
           ...Object.keys(packageManifest.peerDependencies || {}),
         ].filter((ext) => ext !== _packageName && !NEVER_PEER_PACKAGES.includes(ext));
 
+        function getMemoizedResolveDependencyManifest() {
+          const results = {};
+          return (packageName: string) => {
+            results[packageName] =
+              results[packageName] ||
+              _resolveDependencyManifest(packageName, rootPackageDirectory!);
+            return results[packageName];
+          };
+        }
+        const resolveDependencyManifest = getMemoizedResolveDependencyManifest();
+
         const installOptions: InstallOptions = {
           dest: installDest,
           cwd: packageManifestLoc,
@@ -356,7 +385,17 @@ export default {
           sourcemap: config.buildOptions.sourcemap,
           alias: config.alias,
           external: externalPackages,
-          externalEsm: true,
+          // ESM<>CJS Compatability: If we can detect that a dependency is common.js vs. ESM, then
+          // we can provide this hint to esinstall to improve our cross-package import support.
+          externalEsm: (imp) => {
+            const specParts = imp.split('/');
+            let _packageName: string = specParts.shift()!;
+            if (_packageName?.startsWith('@')) {
+              _packageName += '/' + specParts.shift();
+            }
+            const [, result] = resolveDependencyManifest(_packageName);
+            return !result || !isPackageCJS(result);
+          },
         };
         if (config.packageOptions.source === 'local') {
           if (config.packageOptions.polyfillNode !== undefined) {
