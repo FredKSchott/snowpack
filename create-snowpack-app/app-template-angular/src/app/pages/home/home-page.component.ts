@@ -1,9 +1,5 @@
 import { Component, OnDestroy } from '@angular/core';
 
-if (import.meta.hot) {
-	import.meta.hot.accept();
-}
-
 @Component({
 	selector: 'app-home-page',
 	template: `
@@ -28,7 +24,7 @@ if (import.meta.hot) {
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						Learn Vuew
+						Learn Angular
 					</a>
 				</p>
 			</header>

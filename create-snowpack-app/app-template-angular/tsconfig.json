@@ -1,3 +1,4 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
 	"angularCompilerOptions": {
 		"strictInjectionParameters": true,
@@ -9,11 +10,12 @@
 		"allowSyntheticDefaultImports": true,
 		"baseUrl": "./",
 		"declaration": false,
+		"downlevelIteration": true,
 		"experimentalDecorators": true,
 		"forceConsistentCasingInFileNames": true,
 		"importHelpers": true,
-		"lib": ["ESNext", "dom"],
-		"module": "ESNext",
+		"lib": ["es2018", "dom"],
+		"module": "es2020",
 		"moduleResolution": "node",
 		"paths": {
 			"styles/*": ["./public/styles/*"]
@@ -21,6 +23,6 @@
 		"resolveJsonModule": true,
 		"sourceMap": true,
 		"strict": true,
-		"target": "ESNext"
+		"target": "es2015"
 	}
 }
