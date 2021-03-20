@@ -39,3 +39,8 @@
 * c0501f72 - [ci] yarn format <matthewp>
 * d3b6f769 - Support packages that use export maps but have no main (#2659) <Matthew Phillips>
 * 520112b6 - Update the changelog <Matthew Phillips>
+
+## esinstall@1.1.1 [2021-03-20]
+
+* e50cb745 - fix better handling for unscannable cjs packages 
+* 1232e252 - add back cjs-cjs compat from an earlier pr (#2934) 
