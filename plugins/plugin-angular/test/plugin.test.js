@@ -34,7 +34,7 @@ describe('plugin-angular', () => {
   test('calls "ngc --watch" when isDev=true', async () => {
     const p = plugin({});
     await p.run({isDev: true, log: jest.fn});
-    expect(execaFn.mock.calls[0][0]).toContain('--watch');
+    expect(execaFn.mock.calls[1][0]).toContain('--watch');
   });
   test('calls "ngc" correctly with args', async () => {
     const p = plugin({}, {args: '--foo bar'});

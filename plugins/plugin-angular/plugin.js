@@ -1,4 +1,4 @@
-const {command, commandSync} = require('execa');
+const execa = require('execa');
 const {env} = require('npm-run-path');
 const cwd = process.cwd();
 
@@ -9,19 +9,28 @@ function dataListener(chunk, log) {
     log('WORKER_RESET', {});
     stdOutput = stdOutput.replace(/\x1Bc/, '').replace(/\u001bc/, '');
   }
-  log('WORKER_MSG', {level: 'log', msg: `${stdOutput}`});
+  log('WORKER_MSG', {msg: stdOutput});
 }
 
-function runNgc(args, log) {
-  const {stdout, stderr} = commandSync(`ngc ${args || '--project ./tsconfig.app.json'}`, {
-    env: env(),
-    extendEnv: true,
-    windowsHide: false,
-    cwd,
-  });
+async function runNgc(args, log) {
+  const {stdout, stderr} = await execa
+    .command(`ngc ${args || '--project ./tsconfig.app.json'}`, {
+      env: env(),
+      extendEnv: true,
+      windowsHide: false,
+      cwd,
+    })
+    .catch((err) => {
+      if (/ENOENT/.test(err.message)) {
+        log('WORKER_MSG', {
+          msg: 'WARN: "tsc" run failed. Is typescript installed in your project?',
+        });
+      }
+      throw err;
+    });
 
-  if (stdout && stdout.trim()) dataListener(stdout, log);
-  if (stderr && stderr.trim()) dataListener(stderr, log);
+  stdout && stdout.on('data', (chunk) => dataListener(chunk, log));
+  stderr && stderr.on('data', (chunk) => dataListener(chunk, log));
 }
 
 function angularPlugin(_, {args} = {}) {
@@ -33,7 +42,7 @@ function angularPlugin(_, {args} = {}) {
     run({isDev, log}) {
       if (isDev) runNgc(args, log);
 
-      const workerPromise = command(
+      const workerPromise = execa.command(
         `ngc ${args || '--project ./tsconfig.app.json'} ${isDev ? '--watch' : ''}`,
         {
           env: env(),
@@ -47,7 +56,14 @@ function angularPlugin(_, {args} = {}) {
       stdout && stdout.on('data', (chunk) => dataListener(chunk, log));
       stderr && stderr.on('data', (chunk) => dataListener(chunk, log));
 
-      return workerPromise;
+      return workerPromise.catch((err) => {
+        if (/ENOENT/.test(err.message)) {
+          log('WORKER_MSG', {
+            msg: 'WARN: "ngc" run failed. Is @angular/compiler-cli installed in your project?',
+          });
+        }
+        throw err;
+      });
     },
     transform({contents, fileExt, isDev}) {
       if (isDev || fileExt.trim() !== '.js' || !contents.trim()) return contents;
