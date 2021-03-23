@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 /// <reference types="@testing-library/cypress" />
 
-context('Exaple', () => {
+context('Example', () => {
 	beforeEach(() => {
 		cy.visit('http://localhost:8080');
 	});
