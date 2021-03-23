@@ -29,4 +29,6 @@ SNOWPACK_PUBLIC_ENABLE_FEATURE=true
 
 #### Plugin Options
 
-None
+| Name  | Type     | Description                                                                                        |
+| :---- | :------- | :------------------------------------------------------------------------------------------------- |
+| `dir` | `string` | (optional) Where to find `.env` files. Default is your current working directory (`process.cwd()`) |
