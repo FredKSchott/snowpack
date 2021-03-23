@@ -15,9 +15,7 @@ module.exports = function plugin(snowpackConfig, options) {
     '.env',
   ].filter(Boolean);
 
-  const dir = (options && options.dir)
-    ? options.dir.toString()
-    : '.';
+  const dir = options && options.dir ? options.dir.toString() : '.';
   // Load environment variables from .env* files. Suppress warnings using silent
   // if this file is missing. dotenv will never modify any environment variables
   // that have already been set.  Variable expansion is supported in .env files.
