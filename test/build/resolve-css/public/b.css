@@ -1,6 +1,0 @@
-@import 'b.css'; /* Import self */
-@import './c.css';
-
-.b {
-  color: limegreen;
-}

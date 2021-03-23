@@ -101,15 +101,6 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
       return spec;
     }
 
-    // Note: CSS is allowed to play by different rules. If we can locate a file locally, don’t try and resolve an npm module
-    const isCSSImportingCSS =
-      path.extname(fileLoc) === '.css' &&
-      path.extname(spec) === '.css' &&
-      fs.existsSync(path.join(path.dirname(fileLoc), spec));
-    if (isCSSImportingCSS) {
-      return spec.startsWith('.') ? spec : `./${spec}`;
-    }
-
     if (spec[0] === '/') {
       return spec;
     }

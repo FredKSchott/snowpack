@@ -1,7 +1,0 @@
-@import './a.css';
-@import '/_dist_/f.css';
-
-body {
-  background: blue;
-  color: white;
-}

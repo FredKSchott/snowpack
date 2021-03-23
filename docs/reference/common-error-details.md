@@ -70,3 +70,53 @@ module.exports = {
   },
 };
 ```
+
+### Package "[name]" not found. Have you installed it?
+
+This warning appears when Snowpack believes something to be in `node_modules`, but can’t find it. This typically happens because you‘ve tried to import something without a leading `/`, `./`, or `../`.
+
+Here are some possible fixes:
+
+#### I’m trying to import a file from npm
+
+If you were trying to import an npm package, try running the following:
+
+```
+npm install [package].
+```
+
+Then re-running Snowpack. If the issue still persists, try telling Snowpack where to find this with [an alias](https://www.snowpack.dev/reference/configuration#alias):
+
+```js
+// snowpack.config.js
+
+module.exports = {
+  alias: {
+    myPackage: './path/to/myPackage',
+  },
+};
+```
+
+#### I’m trying to import a local `.js` file
+
+If you‘re getting this error while trying to import a local file, the fix usually looks like this:
+
+```diff
+- import myFile from 'myFile.js';
++ import myFile from './myFile.js';
+```
+
+If the issue still persists, [please open an issue](https://github.com/snowpackjs/snowpack/issues/new/choose).
+
+#### I’m trying to import a local `.css` file
+
+The fix for `.css` files is similar to JS. Prefix a `./` to the import path like so:
+
+```diff
+- @import "myfile.css";
++ @import "./myfile.css";
+```
+
+While it’s true you may be used to writing CSS without the `./`, and a browser respects it, Snowpack works a little differently. Because we let you import from npm seamlessly, `myfile.css` will be resolved as an npm package whereas `/myfile.css`, `./myfile.css`, and `../myfile.css` will be resolved as local project files.
+
+Also, `./myfile.css` is perfectly-valid, and it’s good to get in the habit of using it consistently to prevent ambiguous resolution.
