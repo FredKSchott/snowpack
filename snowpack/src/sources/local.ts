@@ -241,8 +241,13 @@ export default {
       return;
     }
     await Promise.all(
-      [...new Set(installTargets.map((t) => t.specifier))].map((spec) => {
-        return this.resolvePackageImport(path.join(config.root, 'package.json'), spec, config);
+      [...new Set(installTargets.map((t) => t.specifier))].map(async (spec) => {
+        // Note: the "await" is important here for error messages! Do not remove
+        return await this.resolvePackageImport(
+          path.join(config.root, 'package.json'),
+          spec,
+          config,
+        );
       }),
     );
     await inProgressBuilds.onIdle();
@@ -260,7 +265,7 @@ export default {
     depth = 0,
   ) {
     config = config || _config;
-    // Imports in the same project should never change once resolved. Check the momized cache here to speed up faster repeat page loads.
+    // Imports in the same project should never change once resolved. Check the memoized cache here to speed up faster repeat page loads.
     // NOTE(fks): This is mainly needed because `resolveEntrypoint` can be slow and blocking, which creates issues when many files
     // are loaded/resolved at once (ex: antd). If we can improve the performance there and make that async, this may no longer be
     // necessary.
@@ -408,7 +413,7 @@ export default {
             installOptions.namedExports = config.packageOptions.namedExports;
           }
         }
-        const {importMap: newImportMap, needsSsrBuild} = await installPackages({
+        const installResult = await installPackages({
           config,
           isDev: true,
           isSSR: false,
@@ -416,7 +421,7 @@ export default {
           installOptions,
         });
         logger.debug(`${lineBullet} ${packageFormatted} DONE`);
-        if (needsSsrBuild) {
+        if (installResult.needsSsrBuild) {
           logger.info(`${lineBullet} ${packageFormatted} ${colors.dim(`(ssr)`)}`);
           await installPackages({
             config,
@@ -430,7 +435,7 @@ export default {
           });
           logger.debug(`${lineBullet} ${packageFormatted} (ssr) DONE`);
         }
-        const dependencyFileLoc = path.join(installDest, newImportMap.imports[spec]);
+        const dependencyFileLoc = path.join(installDest, installResult.importMap.imports[spec]);
         const loadedFile = await fs.readFile(dependencyFileLoc!);
         if (isJavaScript(dependencyFileLoc)) {
           const packageImports = new Set<string>();
@@ -453,7 +458,7 @@ export default {
           // above have a chance to enter the queue. Prevents a premature exit.
           await new Promise((resolve) => setTimeout(resolve, 5));
         }
-        return newImportMap;
+        return installResult.importMap;
       },
       {priority: depth},
     );
