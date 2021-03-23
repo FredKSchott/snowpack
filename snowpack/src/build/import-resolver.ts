@@ -100,6 +100,7 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
     if (config.packageOptions.external?.includes(spec)) {
       return spec;
     }
+
     if (spec[0] === '/') {
       return spec;
     }
