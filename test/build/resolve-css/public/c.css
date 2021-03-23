@@ -1,0 +1,6 @@
+@import 'a.css';
+@import './d/d.css';
+
+.c {
+  color: red;
+}

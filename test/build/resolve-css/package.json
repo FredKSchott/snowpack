@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-resolve-css",
+  "description": "This test tests CSS resolution with Snowpack",
+  "scripts": {
+    "testbuild": "snowpack build"
+  },
+  "devDependencies": {
+    "snowpack": "^3.0.0"
+  }
+}
