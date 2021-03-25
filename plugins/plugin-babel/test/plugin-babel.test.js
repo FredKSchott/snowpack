@@ -184,7 +184,7 @@ describe('plugin-babel', () => {
       }
     `);
   });
-  test('process.env not converted for package files', async () => {
+  test('package files include shim for import.meta.env', async () => {
     // Modify transformFileAsync mock to include a dummy `process.env`
     babel.transformFileAsync = jest.fn(() =>
       Promise.resolve({code: 'code [process.env.test]', map: 'map'}),
@@ -196,11 +196,12 @@ describe('plugin-babel', () => {
       filePath: 'test.js',
       isPackage: true, // testing a package file
     });
-    // Expect process.env to be unchanged
+    // Expect output to include import.meta.env default snippet
     expect(result).toMatchInlineSnapshot(`
       Object {
         ".js": Object {
-          "code": "code [process.env.test]",
+          "code": "import.meta.env = import.meta.env || process.env || {};
+      code [import.meta.env.test]",
           "map": "map",
         },
       }
