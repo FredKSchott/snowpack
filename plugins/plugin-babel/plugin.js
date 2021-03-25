@@ -19,7 +19,7 @@ module.exports = function plugin(snowpackConfig, options = {}) {
       input: options.input || ['.js', '.mjs', '.jsx', '.ts', '.tsx'],
       output: ['.js'], // always export JS
     },
-    async load({filePath}) {
+    async load({filePath, isPackage}) {
       if (!filePath) {
         return;
       }
@@ -41,11 +41,14 @@ module.exports = function plugin(snowpackConfig, options = {}) {
       });
       let {code, map} = JSON.parse(encodedResult);
 
-      if (code) {
+      if (code && !isPackage) {
         // Some Babel plugins assume process.env exists, but Snowpack
         // uses import.meta.env instead. Handle this here since it
-        // seems to be pretty common.
-        // See: https://www.pika.dev/npm/snowpack/discuss/496
+        // seems to be pretty common. Don't apply this transformation
+        // to packages since import.meta.env is not available at
+        // compile time.
+        // See: https://www.pika.dev/npm/snowpack/discuss/496 and
+        // https://github.com/snowpackjs/snowpack/discussions/2978
         code = code.replace(/process\.env/g, 'import.meta.env');
       }
       return {
