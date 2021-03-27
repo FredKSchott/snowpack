@@ -29,11 +29,7 @@ function resolveSourceSpecifier(
 ) {
   const lazyFileStat = getFsStat(lazyFileLoc);
 
-  // Handle directory imports (ex: "./components" -> "./components/index.js")
-  if (lazyFileStat && lazyFileStat.isDirectory()) {
-    const trailingSlash = lazyFileLoc.endsWith(path.sep) ? '' : path.sep;
-    lazyFileLoc = lazyFileLoc + trailingSlash + 'index.js';
-  } else if (lazyFileStat && lazyFileStat.isFile()) {
+  if (lazyFileStat && lazyFileStat.isFile()) {
     lazyFileLoc = lazyFileLoc;
   } else if (hasExtension(lazyFileLoc, '.css')) {
     lazyFileLoc = lazyFileLoc;
@@ -63,9 +59,15 @@ function resolveSourceSpecifier(
       }
     }
 
-    // if still no extension match, fall back to .js
     if (!path.extname(lazyFileLoc)) {
-      lazyFileLoc = lazyFileLoc + '.js';
+      if (lazyFileStat && lazyFileStat.isDirectory()) {
+        // Handle directory imports (ex: "./components" -> "./components/index.js")
+        const trailingSlash = lazyFileLoc.endsWith(path.sep) ? '' : path.sep;
+        lazyFileLoc = lazyFileLoc + trailingSlash + 'index.js';
+      } else {
+        // Fall back to .js.
+        lazyFileLoc = lazyFileLoc + '.js';
+      }
     }
   }
 
