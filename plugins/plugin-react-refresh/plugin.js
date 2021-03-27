@@ -13,22 +13,21 @@ const reactRefreshCode = fs
   .replace(`process.env.NODE_ENV`, JSON.stringify('development'));
 
 function transformHtml(contents) {
-  return contents.replace(
-    /<body.*?>/s,
-    `$&
-<script>
-  function debounce(e,t){let u;return()=>{clearTimeout(u),u=setTimeout(e,t)}}
-  {
-    const exports = {};
-    ${reactRefreshCode}
-    exports.performReactRefresh = debounce(exports.performReactRefresh, 30);
-    window.$RefreshRuntime$ = exports;
-    window.$RefreshRuntime$.injectIntoGlobalHook(window);
-    window.$RefreshReg$ = () => {};
-    window.$RefreshSig$ = () => (type) => type;
-  }
-</script>`,
-  );
+  // Here just append the react-refresh code to the bottom of html content, instead of using contents.replace().
+  // To solve the problem with MobX observer() HOC. see: https://github.com/facebook/react/issues/20417#issuecomment-808429848
+  return `${contents}
+  <script>
+    function debounce(e,t){let u;return()=>{clearTimeout(u),u=setTimeout(e,t)}}
+    {
+      const exports = {};
+      ${reactRefreshCode}
+      exports.performReactRefresh = debounce(exports.performReactRefresh, 30);
+      window.$RefreshRuntime$ = exports;
+      window.$RefreshRuntime$.injectIntoGlobalHook(window);
+      window.$RefreshReg$ = () => {};
+      window.$RefreshSig$ = () => (type) => type;
+    }
+  </script>`;
 }
 
 const babel = require('@babel/core');
