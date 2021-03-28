@@ -165,7 +165,7 @@ export class FileBuilder {
       const scannedImports = await scanImportsFromFiles(
         [
           {
-            baseExt: type,
+            baseExt: path.extname(this.loc).toLowerCase(),
             root: this.config.root,
             locOnDisk: this.loc,
             contents,
