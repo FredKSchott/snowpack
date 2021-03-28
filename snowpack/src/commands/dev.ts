@@ -26,12 +26,15 @@ import {getPackageSource} from '../sources/util';
 import {createLoader as createServerRuntime} from '../ssr-loader';
 import {
   CommandOptions,
+  DevServerResponseHeaders,
   LoadResult,
   LoadUrlOptions,
   OnFileChangeCallback,
   RouteConfigObject,
   ServerRuntime,
+  SnowpackConfig,
   SnowpackDevServer,
+  SnowpackPlugin,
 } from '../types';
 import {
   getCacheKey,
@@ -115,14 +118,27 @@ class NotFoundError extends Error {
   }
 }
 
+function writeHead(
+  res: http.ServerResponse,
+  statusCode: number,
+  headers: DevServerResponseHeaders,
+  plugins: SnowpackPlugin[]
+) {
+  for (const plugin of plugins) {
+    plugin.devServer?.beforeWriteHead?.(statusCode, headers)
+  }
+  res.writeHead(statusCode, headers);
+}
+
 function sendResponseFile(
   req: http.IncomingMessage,
   res: http.ServerResponse,
   {contents, originalFileLoc, contentType}: LoadResult,
+  {plugins}: SnowpackConfig
 ) {
   const body = Buffer.from(contents);
   const ETag = etag(body, {weak: true});
-  const headers: Record<string, string> = {
+  const headers: DevServerResponseHeaders = {
     'Accept-Ranges': 'bytes',
     'Access-Control-Allow-Origin': '*',
     'Content-Type': contentType || 'application/octet-stream',
@@ -131,7 +147,7 @@ function sendResponseFile(
   };
 
   if (req.headers['if-none-match'] === ETag) {
-    res.writeHead(304, headers);
+    writeHead(res, 304, headers, plugins);
     res.end();
     return;
   }
@@ -150,7 +166,7 @@ function sendResponseFile(
   if (/\bgzip\b/.test(acceptEncoding) && stream.Readable.from) {
     const bodyStream = stream.Readable.from([body]);
     headers['Content-Encoding'] = 'gzip';
-    res.writeHead(200, headers);
+    writeHead(res, 200, headers, plugins);
     stream.pipeline(bodyStream, zlib.createGzip(), res, function onError(err) {
       if (err) {
         res.end();
@@ -176,21 +192,27 @@ function sendResponseFile(
     const chunkSize = end - start + 1;
 
     const fileStream = createReadStream(originalFileLoc, {start, end});
-    res.writeHead(206, {
+    writeHead(res, 206, {
       ...headers,
       'Content-Range': `bytes ${start}-${end}/${fileSize}`,
       'Content-Length': chunkSize,
-    });
+    }, plugins);
+
     fileStream.pipe(res);
     return;
   }
 
-  res.writeHead(200, headers);
+  writeHead(res, 200, headers, plugins);
   res.write(body);
   res.end();
 }
 
-function sendResponseError(req: http.IncomingMessage, res: http.ServerResponse, status: number) {
+function sendResponseError(
+  req: http.IncomingMessage,
+  res: http.ServerResponse,
+  status: number,
+  {plugins}: SnowpackConfig,
+  ) {
   const contentType = mime.contentType(path.extname(req.url!) || '.html');
   const headers: Record<string, string> = {
     'Access-Control-Allow-Origin': '*',
@@ -198,18 +220,23 @@ function sendResponseError(req: http.IncomingMessage, res: http.ServerResponse, 
     'Content-Type': contentType || 'application/octet-stream',
     Vary: 'Accept-Encoding',
   };
-  res.writeHead(status, headers);
+  writeHead(res, status, headers, plugins);
   res.end();
 }
 
-function handleResponseError(req, res, err: Error | NotFoundError) {
+function handleResponseError(
+  req: http.IncomingMessage,
+  res: http.ServerResponse,
+  err: Error | NotFoundError,
+  config: SnowpackConfig,
+  ) {
   if (err instanceof NotFoundError) {
     // Don't log favicon "Not Found" errors. Browsers automatically request a favicon.ico file
     // from the server, which creates annoying errors for new apps / first experiences.
     if (req.url !== '/favicon.ico') {
       logger.error(`[404] ${err.message}`);
     }
-    sendResponseError(req, res, 404);
+    sendResponseError(req, res, 404, config);
     return;
   }
   console.log(err);
@@ -218,7 +245,7 @@ function handleResponseError(req, res, err: Error | NotFoundError) {
     // @ts-ignore
     name: err.__snowpackBuildDetails?.name,
   });
-  sendResponseError(req, res, 500);
+  sendResponseError(req, res, 500, config);
   return;
 }
 
@@ -719,8 +746,10 @@ export async function startServer(
   async function handleRequest(
     req: http.IncomingMessage,
     res: http.ServerResponse,
+    config: SnowpackConfig,
     {handleError}: {handleError?: boolean} = {},
   ) {
+    const {plugins} = config
     let reqUrl = req.url!;
     const matchedRoute = matchRoute(reqUrl);
     // If a route is matched, rewrite the URL or call the route function
@@ -736,7 +765,7 @@ export async function startServer(
     const quickETagCheckUrl = reqUrl.replace(/\/$/, '/index.html');
     if (quickETagCheck && quickETagCheck === knownETags.get(quickETagCheckUrl)) {
       logger.debug(`optimized etag! sending 304...`);
-      res.writeHead(304, {'Access-Control-Allow-Origin': '*'});
+      writeHead(res, 304, {'Access-Control-Allow-Origin': '*'}, plugins);
       res.end();
       return;
     }
@@ -754,7 +783,7 @@ export async function startServer(
         reqUrl.replace(PACKAGE_PATH_PREFIX, '').replace(/\.js/, ''),
         config,
       );
-      res.writeHead(301, {Location: redirectUrl});
+      writeHead(res, 301, {Location: redirectUrl}, plugins);
       res.end();
       return;
     }
@@ -762,7 +791,7 @@ export async function startServer(
     // Otherwise, load the file and respond if successful.
     try {
       const result = await loadUrl(reqUrl, {allowStale: true, encoding: null});
-      sendResponseFile(req, res, result);
+      sendResponseFile(req, res, result, config);
       if (result.checkStale) {
         await result.checkStale();
       }
@@ -777,7 +806,7 @@ export async function startServer(
       if (handleError === false) {
         throw err;
       }
-      handleResponseError(req, res, err);
+      handleResponseError(req, res, err, config);
     }
   }
 
@@ -806,7 +835,7 @@ export async function startServer(
         logger.debug(`[${statusCode}] ${method} ${url}`);
       });
       // Otherwise, pass requests directly to Snowpack's request handler.
-      handleRequest(req, res);
+      handleRequest(req, res, config);
     })
       .on('error', (err: Error) => {
         logger.error(colors.red(`  ✘ Failed to start server at port ${colors.bold(port!)}.`), err);
@@ -901,9 +930,21 @@ export async function startServer(
     hmrEngine,
     rawServer: server,
     loadUrl,
-    handleRequest,
-    sendResponseFile,
-    sendResponseError,
+    handleRequest: (
+      req: http.IncomingMessage,
+      res: http.ServerResponse,
+      options?: {handleError?: boolean}
+      ) => handleRequest(req, res, config, options),
+    sendResponseFile: (
+      req: http.IncomingMessage,
+      res: http.ServerResponse,
+      loadResult: LoadResult,
+      ) => sendResponseFile(req, res, loadResult, config),
+    sendResponseError: (
+      req: http.IncomingMessage,
+      res: http.ServerResponse,
+      status: number,
+    ) => sendResponseError(req, res, status, config),
     getUrlForPackage: (pkgSpec: string) => {
       return pkgSource.resolvePackageImport(
         path.join(config.root, 'package.json'),

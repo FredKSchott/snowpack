@@ -157,6 +157,12 @@ export interface PluginOptimizeOptions {
   buildDirectory: string;
 }
 
+export type DevServerResponseHeaders = Record<string, string | number | string[]>
+
+export interface PluginDevServerHooks {
+  beforeWriteHead?(statusCode: number, headers: DevServerResponseHeaders): void;
+}
+
 export interface SnowpackPlugin {
   /** name of the plugin */
   name: string;
@@ -192,6 +198,7 @@ export interface SnowpackPlugin {
   onChange?({filePath}: {filePath: string}): void;
   /** (internal interface, not set by the user) Mark a file as changed. */
   markChanged?(file: string): void;
+  devServer?: PluginDevServerHooks;
 }
 
 /** Snowpack Build Plugin type */
