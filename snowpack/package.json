@@ -50,6 +50,7 @@
     "esbuild": "^0.9.3",
     "fdir": "^5.0.0",
     "open": "^7.0.4",
+    "pacote": "^11.3.1",
     "picomatch": "^2.2.2",
     "resolve": "^1.20.0",
     "rollup": "^2.34.0"
@@ -58,6 +59,7 @@
     "fsevents": "^2.2.0"
   },
   "devDependencies": {
+    "@npmcli/arborist": "^2.2.9",
     "@types/cheerio": "0.22.22",
     "bufferutil": "^4.0.2",
     "cachedir": "^2.3.0",
@@ -85,7 +87,6 @@
     "mime-types": "^2.1.26",
     "mkdirp": "^1.0.3",
     "npm-run-path": "^4.0.1",
-    "p-queue": "^6.6.1",
     "periscopic": "^2.0.3",
     "postcss": "^8.2.8",
     "postcss-modules": "^4.0.0",

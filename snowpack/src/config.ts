@@ -10,8 +10,8 @@ import {esbuildPlugin} from './plugins/plugin-esbuild';
 import {
   CLIFlags,
   MountEntry,
-  PackageSourceLocal,
-  PackageSourceRemote,
+  PackageOptionsLocal,
+  PackageOptionsRemote,
   PluginLoadResult,
   RouteConfigObject,
   SnowpackConfig,
@@ -64,7 +64,7 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
   packageOptions: {source: 'local'},
 };
 
-export const DEFAULT_PACKAGES_LOCAL_CONFIG: PackageSourceLocal = {
+export const DEFAULT_PACKAGES_LOCAL_CONFIG: PackageOptionsLocal = {
   source: 'local',
   external: [],
   packageLookupFields: [],
@@ -73,7 +73,7 @@ export const DEFAULT_PACKAGES_LOCAL_CONFIG: PackageSourceLocal = {
 
 const REMOTE_PACKAGE_ORIGIN = 'https://pkg.snowpack.dev';
 
-const DEFAULT_PACKAGES_REMOTE_CONFIG: PackageSourceRemote = {
+const DEFAULT_PACKAGES_REMOTE_CONFIG: PackageOptionsRemote = {
   source: 'remote',
   origin: REMOTE_PACKAGE_ORIGIN,
   external: [],
@@ -453,7 +453,7 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
 
   // If any plugins defined knownEntrypoints, add them here
   for (const {knownEntrypoints} of config.plugins) {
-    if (knownEntrypoints && config.packageOptions.source === 'local') {
+    if (knownEntrypoints) {
       config.packageOptions.knownEntrypoints = config.packageOptions.knownEntrypoints.concat(
         knownEntrypoints,
       );
