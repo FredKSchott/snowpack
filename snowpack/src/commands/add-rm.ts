@@ -30,7 +30,7 @@ export async function addCommandLegacy(addValue: string, commandOptions: Command
     pkgSemver = `^${data.version}`;
   }
   logger.info(
-    `adding ${cyan(underline(`${pkgName}@${pkgSemver}`))} to your project lockfile. ${dim(
+    `Adding ${cyan(underline(`${pkgName}@${pkgSemver}`))} to your project lockfile. ${dim(
       `(${LOCKFILE_NAME})`,
     )}`,
   );
@@ -66,11 +66,6 @@ export async function addCommand(addValue: string, commandOptions: CommandOption
     const {data} = await send('GET', `http://registry.npmjs.org/${pkgName}/latest`);
     pkgSemver = `^${data.version}`;
   }
-  logger.info(
-    `adding ${cyan(underline(`${pkgName}@${pkgSemver}`))} to your project lockfile. ${dim(
-      `(${LOCKFILE_NAME})`,
-    )}`,
-  );
   const newLockfile: LockfileManifest = {
     dependencies: {
       ...(lockfile ? lockfile.dependencies : {}),
@@ -80,13 +75,18 @@ export async function addCommand(addValue: string, commandOptions: CommandOption
   };
   await writeLockfile(path.join(config.root, LOCKFILE_NAME), newLockfile);
   await getPackageSource(config).prepare();
+  logger.info(
+    `Adding ${cyan(underline(`${pkgName}@${pkgSemver}`))} to your project lockfile. ${dim(
+      `(${LOCKFILE_NAME})`,
+    )}`,
+  );
 }
 
 async function rmCommandLegacy(rmValue: string, commandOptions: CommandOptions) {
   const {lockfile, config} = commandOptions;
   const packageOptions = config.packageOptions as PackageOptionsRemote;
   let [pkgName] = pkgInfoFromString(rmValue);
-  logger.info(`removing ${cyan(pkgName)} from project lockfile...`);
+  logger.info(`Removing ${cyan(pkgName)} from project lockfile...`);
   const newLockfile: LockfileManifest = convertSkypackImportMapToLockfile(
     lockfile?.dependencies ?? {},
     await remotePackageSDK.generateImportMap(
@@ -108,8 +108,6 @@ export async function rmCommand(rmValue: string, commandOptions: CommandOptions)
     throw new Error(`"snowpack rm" only works when "packageOptions.source" is set.`);
   }
   let [pkgName] = pkgInfoFromString(rmValue);
-  logger.info(`removing ${cyan(pkgName)} from project lockfile...`);
-
   const newLockfile: LockfileManifest = {
     dependencies: {...(lockfile ? lockfile.dependencies : {})},
     lock: lockfile ? lockfile.lock : {},
@@ -117,6 +115,7 @@ export async function rmCommand(rmValue: string, commandOptions: CommandOptions)
   delete newLockfile.dependencies[pkgName];
   await writeLockfile(path.join(config.root, LOCKFILE_NAME), newLockfile);
   await getPackageSource(config).prepare();
+  logger.info(`Removing ${cyan(pkgName)} from project lockfile...`);
 
   const newLockfileAfterPrepare = await readLockfile(config.root);
   if (newLockfileAfterPrepare?.dependencies[pkgName]) {

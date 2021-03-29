@@ -256,6 +256,7 @@ export async function startServer(
   const pkgSource = getPackageSource(config);
   if (isPreparePackages) {
     await pkgSource.prepare();
+    logger.info(colors.bold('Ready!'));
   }
   let serverStart = performance.now();
   const {port: defaultPort, hostname, open, openUrl} = config.devOptions;

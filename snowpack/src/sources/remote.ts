@@ -82,7 +82,7 @@ export class PackageSourceRemote implements PackageSource {
     // Do nothing! Skypack loads packages on-demand.
   }
 
-  modifyBuildInstallOptions(installOptions) {
+  async modifyBuildInstallOptions(installOptions) {
     installOptions.importMap = lockfile
       ? convertLockfileToSkypackImportMap(
           (config.packageOptions as PackageOptionsRemote).origin,

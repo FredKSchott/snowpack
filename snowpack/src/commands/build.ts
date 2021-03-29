@@ -65,7 +65,7 @@ async function installOptimizedDependencies(
   };
 
   const pkgSource = getPackageSource(commandOptions.config);
-  const installOptions = pkgSource.modifyBuildInstallOptions(baseInstallOptions);
+  const installOptions = await pkgSource.modifyBuildInstallOptions(baseInstallOptions);
   // 2. Install dependencies, based on the scan of your final build.
   const installResult = await installPackages({
     config: commandOptions.config,
@@ -189,8 +189,6 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
   } else {
     const installDest = path.join(buildDirectoryLoc, config.buildOptions.metaUrlPath, 'pkg');
     const installResult = await installOptimizedDependencies(
-      // TODO (v4): We should add `...config.packageOptions.knownEntrypoints` to this array
-      // now that knownEntrypoints is no longer needed for dev/test imports.
       [...allBareModuleSpecifiers],
       installDest,
       commandOptions,

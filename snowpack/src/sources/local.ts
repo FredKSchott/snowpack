@@ -99,13 +99,16 @@ async function setupPackageRootDirectory(dir: string, lockfile: LockfileManifest
     );
     // Check for "lockfileVersion" to guarentee that lockfile is in expected format (not legacy).
     if (lockfile.lock && lockfile.lock.lockfileVersion) {
-      await fs.writeFile(path.join(dir, 'package-lock.json'), JSON.stringify(lockfile.lock, null, 2));
+      await fs.writeFile(
+        path.join(dir, 'package-lock.json'),
+        JSON.stringify(lockfile.lock, null, 2),
+      );
     } else {
       await fs.unlink(path.join(dir, 'package-lock.json')).catch(() => null);
     }
   } else {
-    await fs.unlink(path.join(dir, 'package.json')).catch(() => null);;
-    await fs.unlink(path.join(dir, 'package-lock.json')).catch(() => null);;
+    await fs.unlink(path.join(dir, 'package.json')).catch(() => null);
+    await fs.unlink(path.join(dir, 'package-lock.json')).catch(() => null);
   }
 }
 
@@ -232,7 +235,6 @@ export class PackageSourceLocal implements PackageSource {
     // Save some metdata. Useful for next time.
     await mkdirp(path.dirname(installDirectoryHashLoc));
     await fs.writeFile(installDirectoryHashLoc, 'v2', 'utf-8');
-    logger.info(colors.bold('Ready!'));
     return;
   }
 
@@ -332,7 +334,7 @@ export class PackageSourceLocal implements PackageSource {
     return {contents: packageCode, imports};
   }
 
-  modifyBuildInstallOptions(installOptions) {
+  async modifyBuildInstallOptions(installOptions) {
     const config = this.config;
     if (config.packageOptions.source === 'remote') {
       return installOptions;
@@ -343,6 +345,17 @@ export class PackageSourceLocal implements PackageSource {
     installOptions.polyfillNode = config.packageOptions.polyfillNode;
     installOptions.packageLookupFields = config.packageOptions.packageLookupFields;
     installOptions.packageExportLookupFields = config.packageOptions.packageExportLookupFields;
+    if (config.packageOptions.source !== 'local') {
+      installOptions.cwd = this.packageRootDirectory;
+      this.lockfile = (await readLockfile(this.config.root)) || this.lockfile;
+      await setupPackageRootDirectory(this.packageRootDirectory, this.lockfile);
+    const buildArb = new Arborist({
+      ...(typeof config.packageOptions.source === 'string' ? {} : config.packageOptions.source),
+      path: PKG_SOURCE_DIR,
+    });
+      await buildArb.buildIdealTree();
+      await buildArb.reify();
+    }
     return installOptions;
   }
 
@@ -414,7 +427,7 @@ export class PackageSourceLocal implements PackageSource {
     // Before doing anything, check for symlinks because symlinks shouldn't be built.
     try {
       const entrypoint = resolveEntrypoint(spec, {
-        cwd: path.dirname(source),
+        cwd: source,
         packageLookupFields: [
           'snowpack:source',
           ...((config.packageOptions as PackageOptionsLocal).packageLookupFields || []),
@@ -430,7 +443,7 @@ export class PackageSourceLocal implements PackageSource {
 
     await this.installPackage(_packageName, source);
     const entrypoint = resolveEntrypoint(spec, {
-      cwd: path.dirname(source),
+      cwd: source,
       packageLookupFields: [
         'snowpack:source',
         ...((config.packageOptions as PackageOptionsLocal).packageLookupFields || []),
@@ -472,18 +485,18 @@ export class PackageSourceLocal implements PackageSource {
       const existingImportMap: ImportMap | null =
         (await fs.stat(existingImportMapLoc).catch(() => null)) &&
         JSON.parse(await fs.readFile(existingImportMapLoc, 'utf8'));
-      // Kick off a build, if needed
+      // Kick off a build, if needed.
       let importMap = existingImportMap;
       let needsBuild = !existingImportMap?.imports[spec];
+      if (logLine || (depth === 0 && (!importMap || needsBuild))) {
+        logLine = true;
+        // TODO: We need to confirm version match, not just package import match
+        const isDedupe = depth > 0 && (isKnownSpec || this.allKnownProjectSpecs.has(spec));
+        logger.info(
+          `${lineBullet} ${packageFormatted}${isDedupe ? colors.dim(` (dedupe)`) : ''}`,
+        );
+      }
       if (!importMap || needsBuild) {
-        if (logLine || depth === 0) {
-          logLine = true;
-          // TODO: We need to confirm version match, not just package import match
-          const isDedupe = depth > 0 && (isKnownSpec || this.allKnownProjectSpecs.has(spec));
-          logger.info(
-            `${lineBullet} ${packageFormatted}${isDedupe ? colors.dim(` (dedupe)`) : ''}`,
-          );
-        }
         const installTargets = [...allKnownSpecs]
           .filter((spec) => spec.startsWith(packageUID))
           .map((spec) => spec.substr(packageUID.length + 1));
@@ -617,7 +630,7 @@ export class PackageSourceLocal implements PackageSource {
     }
 
     const entrypoint = resolveEntrypoint(spec, {
-      cwd: path.dirname(source),
+      cwd: source,
       packageLookupFields: [
         'snowpack:source',
         ...((config.packageOptions as PackageOptionsLocal).packageLookupFields || []),
