@@ -22,5 +22,7 @@ describe('JS resolution', () => {
   it('resolves absolute URLs correctly', () => {
     // this tests that a URL-style import works
     expect(files['/a/a.js']).toEqual(expect.stringContaining(`import '../index.js';`));
+    // this ensures that we don't mistakenly import an index file from a directory with the same name
+    expect(files['/index.js']).toEqual(expect.stringContaining(`import b from './b.js';`));
   });
 });
