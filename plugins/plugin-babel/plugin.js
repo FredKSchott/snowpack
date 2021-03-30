@@ -19,7 +19,7 @@ module.exports = function plugin(snowpackConfig, options = {}) {
       input: options.input || ['.js', '.mjs', '.jsx', '.ts', '.tsx'],
       output: ['.js'], // always export JS
     },
-    async load({filePath}) {
+    async load({filePath, isPackage}) {
       if (!filePath) {
         return;
       }
@@ -47,6 +47,14 @@ module.exports = function plugin(snowpackConfig, options = {}) {
         // seems to be pretty common.
         // See: https://www.pika.dev/npm/snowpack/discuss/496
         code = code.replace(/process\.env/g, 'import.meta.env');
+
+        if (isPackage) {
+          // If injecting import.meta.env to a compiled package,
+          // ensure it won't be undefined at compile time by adding
+          // a shim.
+          // See: https://github.com/snowpackjs/snowpack/discussions/2978.
+          code = 'import.meta.env = import.meta.env || process.env || {};\n' + code;
+        }
       }
       return {
         '.js': {

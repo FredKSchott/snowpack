@@ -162,4 +162,49 @@ describe('plugin-babel', () => {
       ...transformOptions,
     });
   });
+  test('process.env will be converted for source files', async () => {
+    // Modify transformFileAsync mock to include a dummy `process.env`
+    babel.transformFileAsync = jest.fn(() =>
+      Promise.resolve({code: 'code [process.env.test]', map: 'map'}),
+    );
+    const p = plugin({
+      buildOptions: {},
+    });
+    const result = await p.load({
+      filePath: 'test.js',
+      isPackage: false, // testing a source file
+    });
+    // Expect process.env to be converted to import.meta.env
+    expect(result).toMatchInlineSnapshot(`
+      Object {
+        ".js": Object {
+          "code": "code [import.meta.env.test]",
+          "map": "map",
+        },
+      }
+    `);
+  });
+  test('package files include shim for import.meta.env', async () => {
+    // Modify transformFileAsync mock to include a dummy `process.env`
+    babel.transformFileAsync = jest.fn(() =>
+      Promise.resolve({code: 'code [process.env.test]', map: 'map'}),
+    );
+    const p = plugin({
+      buildOptions: {},
+    });
+    const result = await p.load({
+      filePath: 'test.js',
+      isPackage: true, // testing a package file
+    });
+    // Expect output to include import.meta.env default snippet
+    expect(result).toMatchInlineSnapshot(`
+      Object {
+        ".js": Object {
+          "code": "import.meta.env = import.meta.env || process.env || {};
+      code [import.meta.env.test]",
+          "map": "map",
+        },
+      }
+    `);
+  });
 });
