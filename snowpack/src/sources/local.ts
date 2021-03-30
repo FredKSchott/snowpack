@@ -338,7 +338,7 @@ export class PackageSourceLocal implements PackageSource {
     return {contents: packageCode, imports};
   }
 
-  async modifyBuildInstallOptions(installOptions) {
+  async modifyBuildInstallOptions(installOptions, installTargets) {
     const config = this.config;
     if (config.packageOptions.source === 'remote') {
       return installOptions;
@@ -349,16 +349,18 @@ export class PackageSourceLocal implements PackageSource {
     installOptions.polyfillNode = config.packageOptions.polyfillNode;
     installOptions.packageLookupFields = config.packageOptions.packageLookupFields;
     installOptions.packageExportLookupFields = config.packageOptions.packageExportLookupFields;
-    if (config.packageOptions.source !== 'local') {
-      installOptions.cwd = this.packageSourceDirectory;
-      await this.setupPackageCacheDirectory();
-      const buildArb = new Arborist({
-        ...(typeof config.packageOptions.source === 'string' ? {} : config.packageOptions.source),
-        path: this.packageSourceDirectory,
-      });
-      await buildArb.buildIdealTree();
-      await buildArb.reify();
+    if (config.packageOptions.source === 'local') {
+      return installOptions;
     }
+    installOptions.cwd = this.packageSourceDirectory;
+    await this.setupPackageCacheDirectory();
+    await this.installPackageRootDirectory(installTargets);
+    const buildArb = new Arborist({
+      ...(typeof config.packageOptions.source === 'string' ? {} : config.packageOptions.source),
+      path: this.packageSourceDirectory,
+    });
+    await buildArb.buildIdealTree();
+    await buildArb.reify();
     return installOptions;
   }
 

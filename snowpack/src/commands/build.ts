@@ -65,7 +65,7 @@ async function installOptimizedDependencies(
   };
 
   const pkgSource = getPackageSource(commandOptions.config);
-  const installOptions = await pkgSource.modifyBuildInstallOptions(baseInstallOptions);
+  const installOptions = await pkgSource.modifyBuildInstallOptions(baseInstallOptions, installTargets);
   // 2. Install dependencies, based on the scan of your final build.
   const installResult = await installPackages({
     config: commandOptions.config,
