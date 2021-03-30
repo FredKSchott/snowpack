@@ -1,25 +1,25 @@
+import Arborist from '@npmcli/arborist';
 import crypto from 'crypto';
 import {
   InstallOptions,
   InstallTarget,
-  resolveEntrypoint,
   resolveDependencyManifest as _resolveDependencyManifest,
+  resolveEntrypoint,
 } from 'esinstall';
 import projectCacheDir from 'find-cache-dir';
-import pacote from 'pacote';
 import findUp from 'find-up';
 import {existsSync, promises as fs} from 'fs';
 import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
+import pacote from 'pacote';
 import path from 'path';
-import Arborist from '@npmcli/arborist';
 import rimraf from 'rimraf';
 import slash from 'slash';
 import {getBuiltFileUrls} from '../build/file-urls';
 import {logger} from '../logger';
 import {scanCodeImportsExports, transformFileImports} from '../rewrite-imports';
 import {getInstallTargets} from '../scan-imports';
-import {ImportMap, PackageSource, PackageOptionsLocal, SnowpackConfig} from '../types';
+import {ImportMap, PackageOptionsLocal, PackageSource, SnowpackConfig} from '../types';
 import {
   createInstallTarget,
   findMatchingAliasEntry,
@@ -28,6 +28,7 @@ import {
   isJavaScript,
   isPathImport,
   isRemoteUrl,
+  parsePackageImportSpecifier,
   readFile,
 } from '../util';
 import {installPackages} from './local-install';
@@ -170,12 +171,8 @@ export class PackageSourceLocal implements PackageSource {
     const packageNamesNeedInstall = new Set(
       installTargets
         .map((spec) => {
-          const specParts = spec.specifier.split('/');
-          let _packageName: string = specParts.shift()!;
-          if (_packageName?.startsWith('@')) {
-            _packageName += '/' + specParts.shift();
-          }
-          // IMPRVE DOCS: handle aliases
+          let [_packageName] = parsePackageImportSpecifier(spec.specifier);
+          // handle aliases
           const aliasEntry = findMatchingAliasEntry(config, _packageName);
           if (aliasEntry && aliasEntry.type === 'package') {
             const {from, to} = aliasEntry;
@@ -416,11 +413,7 @@ export class PackageSourceLocal implements PackageSource {
       spec = spec.replace(from, to);
     }
 
-    const specParts = spec.split('/');
-    let _packageName: string = specParts.shift()!;
-    if (_packageName?.startsWith('@')) {
-      _packageName += '/' + specParts.shift();
-    }
+    const [_packageName] = parsePackageImportSpecifier(spec);
 
     // Before doing anything, check for symlinks because symlinks shouldn't be built.
     try {
@@ -521,12 +514,8 @@ export class PackageSourceLocal implements PackageSource {
           // ESM<>CJS Compatability: If we can detect that a dependency is common.js vs. ESM, then
           // we can provide this hint to esinstall to improve our cross-package import support.
           externalEsm: (imp) => {
-            const specParts = imp.split('/');
-            let _packageName: string = specParts.shift()!;
-            if (_packageName?.startsWith('@')) {
-              _packageName += '/' + specParts.shift();
-            }
-            const [, result] = resolveDependencyManifest(_packageName);
+            const [packageName] = parsePackageImportSpecifier(imp);
+            const [, result] = resolveDependencyManifest(packageName);
             return !result || !isPackageCJS(result);
           },
         };
@@ -638,12 +627,8 @@ export class PackageSourceLocal implements PackageSource {
         return path.posix.join(config.buildOptions.metaUrlPath, 'pkg', memoizedResolve[entrypoint]);
       }
     }
-    const specParts = spec.split('/');
-    let _packageName: string = specParts.shift()!;
-    if (_packageName?.startsWith('@')) {
-      _packageName += '/' + specParts.shift();
-    }
-    const isSymlink = !entrypoint.includes(path.join('node_modules', _packageName));
+    const [packageName] = parsePackageImportSpecifier(spec);
+    const isSymlink = !entrypoint.includes(path.join('node_modules', packageName));
     const isWithinRoot = config.workspaceRoot && entrypoint.startsWith(config.workspaceRoot);
     if (isSymlink && config.workspaceRoot && isWithinRoot) {
       const builtEntrypointUrls = getBuiltFileUrls(entrypoint, config);

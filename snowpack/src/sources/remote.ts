@@ -5,8 +5,13 @@ import rimraf from 'rimraf';
 import {clearCache as clearSkypackCache, rollupPluginSkypack} from 'skypack';
 import util from 'util';
 import {logger} from '../logger';
-import {LockfileManifest, PackageSource, PackageOptionsRemote, SnowpackConfig} from '../types';
-import {convertLockfileToSkypackImportMap, isJavaScript, remotePackageSDK} from '../util';
+import {LockfileManifest, PackageOptionsRemote, PackageSource, SnowpackConfig} from '../types';
+import {
+  convertLockfileToSkypackImportMap,
+  isJavaScript,
+  parsePackageImportSpecifier,
+  remotePackageSDK,
+} from '../util';
 
 const fetchedPackages = new Set<string>();
 function logFetching(origin: string, packageName: string, packageSemver: string | undefined) {
@@ -22,16 +27,6 @@ function logFetching(origin: string, packageName: string, packageSemver: string 
   if (!packageSemver) {
     logger.info(colors.yellow(`pin project to this version: \`snowpack add ${packageName}\``));
   }
-}
-
-function parseRawPackageImport(spec: string): [string, string | null] {
-  const impParts = spec.split('/');
-  if (spec.startsWith('@')) {
-    const [scope, name, ...rest] = impParts;
-    return [`${scope}/${name}`, rest.join('/') || null];
-  }
-  const [name, ...rest] = impParts;
-  return [name, rest.join('/') || null];
 }
 
 /**
@@ -116,7 +111,7 @@ export class PackageSourceRemote implements PackageSource {
     ) {
       body = (await remotePackageSDK.fetch(`/${spec}`)).body;
     } else {
-      const [packageName, packagePath] = parseRawPackageImport(spec.replace(/(?<!^)\@.*\//, '/'));
+      const [packageName, packagePath] = parsePackageImportSpecifier(spec);
       if (lockfile && lockfile.dependencies[packageName]) {
         const lockEntry = packageName + '#' + lockfile.dependencies[packageName];
         if (packagePath) {
