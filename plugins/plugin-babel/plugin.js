@@ -46,14 +46,8 @@ module.exports = function plugin(snowpackConfig, options = {}) {
         // uses import.meta.env instead. Handle this here since it
         // seems to be pretty common.
         // See: https://www.pika.dev/npm/snowpack/discuss/496
-        code = code.replace(/process\.env/g, 'import.meta.env');
-
-        if (isPackage) {
-          // If injecting import.meta.env to a compiled package,
-          // ensure it won't be undefined at compile time by adding
-          // a shim.
-          // See: https://github.com/snowpackjs/snowpack/discussions/2978.
-          code = 'import.meta.env = import.meta.env || process.env || {};\n' + code;
+        if (!isPackage) {
+          code = code.replace(/process\.env/g, 'import.meta.env');
         }
       }
       return {
