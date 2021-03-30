@@ -2,14 +2,13 @@ import {send} from 'httpie';
 import {cyan, dim, underline} from 'kleur/colors';
 import path from 'path';
 import {logger} from '../logger';
-import {CommandOptions, LockfileManifest, PackageOptionsRemote} from '../types';
+import {CommandOptions, LockfileManifest} from '../types';
 import {
   convertLockfileToSkypackImportMap,
   convertSkypackImportMapToLockfile,
   LOCKFILE_NAME,
   writeLockfile,
   remotePackageSDK,
-  readLockfile,
 } from '../util';
 import {getPackageSource} from '../sources/util';
 
@@ -19,9 +18,16 @@ function pkgInfoFromString(str) {
   return [str.slice(0, idx), str.slice(idx + 1)];
 }
 
-export async function addCommandLegacy(addValue: string, commandOptions: CommandOptions) {
+export async function addCommand(addValue: string, commandOptions: CommandOptions) {
   const {lockfile, config} = commandOptions;
-  const packageOptions = config.packageOptions as PackageOptionsRemote;
+  if (config.packageOptions.source === 'remote-next') {
+    throw new Error(
+      `[remote-next] add command has been deprecated. Manually add to the "config.dependencies" object in your snowpack config file.`,
+    );
+  }
+  if (config.packageOptions.source !== 'remote') {
+    throw new Error(`add command requires packageOptions.source="remote".`);
+  }
   let [pkgName, pkgSemver] = pkgInfoFromString(addValue);
   const installMessage = pkgSemver ? `${pkgName}@${pkgSemver}` : pkgName;
   logger.info(`fetching ${cyan(installMessage)} from CDN...`);
@@ -30,7 +36,7 @@ export async function addCommandLegacy(addValue: string, commandOptions: Command
     pkgSemver = `^${data.version}`;
   }
   logger.info(
-    `Adding ${cyan(underline(`${pkgName}@${pkgSemver}`))} to your project lockfile. ${dim(
+    `adding ${cyan(underline(`${pkgName}@${pkgSemver}`))} to your project lockfile. ${dim(
       `(${LOCKFILE_NAME})`,
     )}`,
   );
@@ -46,81 +52,37 @@ export async function addCommandLegacy(addValue: string, commandOptions: Command
     },
     await remotePackageSDK.generateImportMap(
       addedDependency,
-      lockfile ? convertLockfileToSkypackImportMap(packageOptions.origin, lockfile) : undefined,
+      lockfile
+        ? convertLockfileToSkypackImportMap(config.packageOptions.origin, lockfile)
+        : undefined,
     ),
   );
   await writeLockfile(path.join(config.root, LOCKFILE_NAME), newLockfile);
   await getPackageSource(config).prepare();
 }
 
-export async function addCommand(addValue: string, commandOptions: CommandOptions) {
+export async function rmCommand(addValue: string, commandOptions: CommandOptions) {
   const {lockfile, config} = commandOptions;
-  if (config.packageOptions.source === 'remote') {
-    return addCommandLegacy(addValue, commandOptions);
+  if (config.packageOptions.source === 'remote-next') {
+    throw new Error(
+      `[remote-next] rm command has been deprecated. Manually remove from the "config.dependencies" object in your snowpack config file.`,
+    );
   }
-  if (config.packageOptions.source === 'local') {
-    throw new Error(`"snowpack add" only works when "packageOptions.source" is set.`);
+  if (config.packageOptions.source !== 'remote') {
+    throw new Error(`rm command requires packageOptions.source="remote".`);
   }
-  let [pkgName, pkgSemver] = pkgInfoFromString(addValue);
-  if (!pkgSemver || pkgSemver === 'latest') {
-    const {data} = await send('GET', `http://registry.npmjs.org/${pkgName}/latest`);
-    pkgSemver = `^${data.version}`;
-  }
-  const newLockfile: LockfileManifest = {
-    dependencies: {
-      ...(lockfile ? lockfile.dependencies : {}),
-      [pkgName]: pkgSemver,
-    },
-    lock: lockfile ? lockfile.lock : {},
-  };
-  await writeLockfile(path.join(config.root, LOCKFILE_NAME), newLockfile);
-  await getPackageSource(config).prepare();
-  logger.info(
-    `Adding ${cyan(underline(`${pkgName}@${pkgSemver}`))} to your project lockfile. ${dim(
-      `(${LOCKFILE_NAME})`,
-    )}`,
-  );
-}
-
-async function rmCommandLegacy(rmValue: string, commandOptions: CommandOptions) {
-  const {lockfile, config} = commandOptions;
-  const packageOptions = config.packageOptions as PackageOptionsRemote;
-  let [pkgName] = pkgInfoFromString(rmValue);
-  logger.info(`Removing ${cyan(pkgName)} from project lockfile...`);
+  let [pkgName] = pkgInfoFromString(addValue);
+  logger.info(`removing ${cyan(pkgName)} from project lockfile...`);
   const newLockfile: LockfileManifest = convertSkypackImportMapToLockfile(
     lockfile?.dependencies ?? {},
     await remotePackageSDK.generateImportMap(
       {[pkgName]: null},
-      lockfile ? convertLockfileToSkypackImportMap(packageOptions.origin, lockfile) : undefined,
+      lockfile
+        ? convertLockfileToSkypackImportMap(config.packageOptions.origin, lockfile)
+        : undefined,
     ),
   );
   delete newLockfile.dependencies[pkgName];
   await writeLockfile(path.join(config.root, LOCKFILE_NAME), newLockfile);
   await getPackageSource(config).prepare();
-}
-
-export async function rmCommand(rmValue: string, commandOptions: CommandOptions) {
-  const {lockfile, config} = commandOptions;
-  if (config.packageOptions.source === 'remote') {
-    return rmCommandLegacy(rmValue, commandOptions);
-  }
-  if (config.packageOptions.source === 'local') {
-    throw new Error(`"snowpack rm" only works when "packageOptions.source" is set.`);
-  }
-  let [pkgName] = pkgInfoFromString(rmValue);
-  const newLockfile: LockfileManifest = {
-    dependencies: {...(lockfile ? lockfile.dependencies : {})},
-    lock: lockfile ? lockfile.lock : {},
-  };
-  delete newLockfile.dependencies[pkgName];
-  await writeLockfile(path.join(config.root, LOCKFILE_NAME), newLockfile);
-  await getPackageSource(config).prepare();
-  logger.info(`Removing ${cyan(pkgName)} from project lockfile...`);
-
-  const newLockfileAfterPrepare = await readLockfile(config.root);
-  if (newLockfileAfterPrepare?.dependencies[pkgName]) {
-    throw new Error(
-      `Tried to remove dependency ${cyan(pkgName)}, but its still used within your project.`,
-    );
-  }
 }
