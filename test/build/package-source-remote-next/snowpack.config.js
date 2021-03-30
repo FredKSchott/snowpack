@@ -3,6 +3,6 @@ module.exports = {
     './src': '/_dist_',
   },
   packageOptions: {
-    source: 'remote-next'
+    source: 'remote-next',
   },
 };

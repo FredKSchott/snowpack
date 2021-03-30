@@ -32,15 +32,17 @@ import {
 } from '../util';
 import {installPackages} from './local-install';
 
-const PROJECT_CACHE_DIR =
-  projectCacheDir({name: 'snowpack'}) ||
-  // If `projectCacheDir()` is null, no node_modules directory exists.
-  // Use the current path (hashed) to create a cache entry in the global cache instead.
-  // Because this is specifically for dependencies, this fallback should rarely be used.
-  path.join(GLOBAL_CACHE_DIR, crypto.createHash('md5').update(process.cwd()).digest('hex'));
+const CURRENT_META_FILE_CONTENTS = `.snowpack cache - Do not edit this directory!
 
-const PKG_SOURCE_DIR = path.join(PROJECT_CACHE_DIR, 'source');
-const PKG_BUILD_DIR = path.join(PROJECT_CACHE_DIR, 'build');
+The ".snowpack" cache directory is fully managed for you by Snowpack. 
+Manual changes that you make to the files inside could break things.
+
+Commit this directory to source control to speed up cold starts.
+
+Found an issue? You can always delete the ".snowpack" 
+directory and Snowpack will recreate it on next run.
+
+[.meta.version=2]`;
 
 const NEVER_PEER_PACKAGES: string[] = [
   '@babel/runtime',
@@ -81,30 +83,6 @@ function getRootPackageDirectory(loc: string) {
   }
 }
 
-async function setupPackageCacheDirectory(config: SnowpackConfig) {
-  await mkdirp(PKG_SOURCE_DIR);
-  if (config.dependencies) {
-    await fs.writeFile(
-      path.join(PKG_SOURCE_DIR, 'package.json'),
-      JSON.stringify(
-        {'//': 'TODO: Comment explaining this file', dependencies: config.dependencies},
-        null,
-        2,
-      ),
-      'utf8',
-    );
-    const lockfile = await fs.readFile(path.join(PROJECT_CACHE_DIR, 'lock.json')).catch(() => null);
-    if (lockfile) {
-      await fs.writeFile(path.join(PKG_SOURCE_DIR, 'package-lock.json'), lockfile);
-    } else {
-      await fs.unlink(path.join(PKG_SOURCE_DIR, 'package-lock.json')).catch(() => null);
-    }
-  } else {
-    await fs.unlink(path.join(PKG_SOURCE_DIR, 'package.json')).catch(() => null);
-    await fs.unlink(path.join(PKG_SOURCE_DIR, 'package-lock.json')).catch(() => null);
-  }
-}
-
 type PackageImportData = {
   entrypoint: string;
   loc: string;
@@ -116,7 +94,7 @@ type PackageImportData = {
 export class PackageSourceLocal implements PackageSource {
   config: SnowpackConfig;
   arb: Arborist;
-  packageRootDirectory: string;
+  packageSourceDirectory: string;
   memoizedResolve: Record<string, string> = {};
   allPackageImports: Record<string, PackageImportData> = {};
   allSymlinkImports: Record<string, string> = {};
@@ -124,15 +102,66 @@ export class PackageSourceLocal implements PackageSource {
   allKnownProjectSpecs = new Set<string>();
   hasWorkspaceWarningFired = false;
 
+  cacheDirectory: string;
+
+  // const PROJECT_CACHE_DIR =
+  //   projectCacheDir({name: 'snowpack'}) ||
+  //   // If `projectCacheDir()` is null, no node_modules directory exists.
+  //   // Use the current path (hashed) to create a cache entry in the global cache instead.
+  //   // Because this is specifically for dependencies, this fallback should rarely be used.
+  //   path.join(GLOBAL_CACHE_DIR, crypto.createHash('md5').update(process.cwd()).digest('hex'));
+
+  // const PKG_SOURCE_DIR = path.join(PROJECT_CACHE_DIR, 'source');
+  // const PKG_BUILD_DIR = path.join(PROJECT_CACHE_DIR, 'build');
+
   constructor(config: SnowpackConfig) {
     this.config = config;
-    this.arb = new Arborist({
-      ...(typeof config.packageOptions.source === 'string' ? {} : config.packageOptions.source),
-      path: PKG_SOURCE_DIR,
-      packageLockOnly: true,
-    });
-    this.packageRootDirectory =
-      config.packageOptions.source === 'local' ? config.root : PKG_SOURCE_DIR;
+    if (config.packageOptions.source === 'local') {
+      this.cacheDirectory =
+        projectCacheDir({name: 'snowpack'}) ||
+        // If `projectCacheDir()` is null, no node_modules directory exists.
+        // Use the current path (hashed) to create a cache entry in the global cache instead.
+        // Because this is specifically for dependencies, this fallback should rarely be used.
+        path.join(GLOBAL_CACHE_DIR, crypto.createHash('md5').update(process.cwd()).digest('hex'));
+      this.packageSourceDirectory = config.root;
+      this.arb = null;
+    } else {
+      this.cacheDirectory = path.join(config.root, '.snowpack');
+      this.packageSourceDirectory = path.join(config.root, '.snowpack', 'source');
+      this.arb = new Arborist({
+        ...(typeof config.packageOptions.source === 'string' ? {} : config.packageOptions.source),
+        path: this.packageSourceDirectory,
+        packageLockOnly: true,
+      });
+    }
+  }
+
+  private async setupPackageCacheDirectory() {
+    const {config, packageSourceDirectory, cacheDirectory} = this;
+    await mkdirp(packageSourceDirectory);
+    if (config.dependencies) {
+      await fs.writeFile(
+        path.join(packageSourceDirectory, 'package.json'),
+        JSON.stringify(
+          {
+            '//': 'snowpack-mananged meta file. Do not edit this file!',
+            dependencies: config.dependencies,
+          },
+          null,
+          2,
+        ),
+        'utf8',
+      );
+      const lockfile = await fs.readFile(path.join(cacheDirectory, 'lock.json')).catch(() => null);
+      if (lockfile) {
+        await fs.writeFile(path.join(packageSourceDirectory, 'package-lock.json'), lockfile);
+      } else {
+        await fs.unlink(path.join(packageSourceDirectory, 'package-lock.json')).catch(() => null);
+      }
+    } else {
+      await fs.unlink(path.join(packageSourceDirectory, 'package.json')).catch(() => null);
+      await fs.unlink(path.join(packageSourceDirectory, 'package-lock.json')).catch(() => null);
+    }
   }
 
   private async installPackageRootDirectory(installTargets: InstallTarget[]) {
@@ -167,27 +196,25 @@ export class PackageSourceLocal implements PackageSource {
     if (needsInstall) {
       await arb.buildIdealTree({add: [...packageNamesNeedInstall]});
       await arb.reify();
-    }
-    if (packageNamesNeedInstall.size > 0) {
-      const savedPackageLockfileLoc = path.join(PKG_SOURCE_DIR, 'package-lock.json');
+      const savedPackageLockfileLoc = path.join(this.packageSourceDirectory, 'package-lock.json');
       const savedPackageLockfile = await fs.readFile(savedPackageLockfileLoc);
-      await fs.writeFile(path.join(PROJECT_CACHE_DIR, 'lock.json'), savedPackageLockfile);
+      await fs.writeFile(path.join(this.cacheDirectory, 'lock.json'), savedPackageLockfile);
     }
   }
 
   async prepare() {
-    const installDirectoryHashLoc = path.join(PROJECT_CACHE_DIR, '.meta');
+    const installDirectoryHashLoc = path.join(this.cacheDirectory, '.meta');
     const installDirectoryHash = await fs
       .readFile(installDirectoryHashLoc, 'utf-8')
       .catch(() => null);
 
-    if (installDirectoryHash === 'v2') {
-      logger.debug(`Install directory ".meta" tag is up-to-date. Welcome back!`);
+    if (installDirectoryHash === CURRENT_META_FILE_CONTENTS) {
+      logger.debug(`Install directory ".meta" file is up-to-date. Welcome back!`);
     } else if (installDirectoryHash) {
       logger.info(
         'Snowpack updated! Rebuilding your dependencies for the latest version of Snowpack...',
       );
-      await PackageSourceLocal.clearCache();
+      await this.clearCache();
     } else {
       logger.info(
         `${colors.bold('Welcome to Snowpack!')} Because this is your first time running\n` +
@@ -199,7 +226,7 @@ export class PackageSourceLocal implements PackageSource {
     const {config} = this;
     // If we're managing the the packages directory, setup some basic files.
     if (config.packageOptions.source !== 'local') {
-      await setupPackageCacheDirectory(config);
+      await this.setupPackageCacheDirectory();
     }
     // Scan your project for imports.
     const installTargets = await getInstallTargets(config, config.packageOptions.knownEntrypoints);
@@ -214,7 +241,7 @@ export class PackageSourceLocal implements PackageSource {
     }
     // Save some metdata. Useful for next time.
     await mkdirp(path.dirname(installDirectoryHashLoc));
-    await fs.writeFile(installDirectoryHashLoc, 'v2', 'utf-8');
+    await fs.writeFile(installDirectoryHashLoc, CURRENT_META_FILE_CONTENTS, 'utf-8');
     return;
   }
 
@@ -326,11 +353,11 @@ export class PackageSourceLocal implements PackageSource {
     installOptions.packageLookupFields = config.packageOptions.packageLookupFields;
     installOptions.packageExportLookupFields = config.packageOptions.packageExportLookupFields;
     if (config.packageOptions.source !== 'local') {
-      installOptions.cwd = this.packageRootDirectory;
-      await setupPackageCacheDirectory(config);
+      installOptions.cwd = this.packageSourceDirectory;
+      await this.setupPackageCacheDirectory();
       const buildArb = new Arborist({
         ...(typeof config.packageOptions.source === 'string' ? {} : config.packageOptions.source),
-        path: PKG_SOURCE_DIR,
+        path: this.packageSourceDirectory,
       });
       await buildArb.buildIdealTree();
       await buildArb.reify();
@@ -343,7 +370,7 @@ export class PackageSourceLocal implements PackageSource {
     if (config.packageOptions.source === 'local') {
       return false;
     }
-    const lookupStr = path.relative(this.packageRootDirectory, source);
+    const lookupStr = path.relative(this.packageSourceDirectory, source);
     const lookupParts = lookupStr.split(path.sep);
     let lookupNode = arb.actualTree || arb.virtualTree;
     let exactLookupNode = lookupNode;
@@ -366,10 +393,10 @@ export class PackageSourceLocal implements PackageSource {
     if (!arbNode) {
       await arb.buildIdealTree({add: [packageName]});
       await arb.reify();
-      // TODO: log this to the user somehow? Tell them to add the package to dependencies obj?
-      const savedPackageLockfileLoc = path.join(this.packageRootDirectory, 'package-lock.json');
+      // TODO: log this to the user somehow? Tell them to add the new package to dependencies obj?
+      const savedPackageLockfileLoc = path.join(this.packageSourceDirectory, 'package-lock.json');
       const savedPackageLockfile = await fs.readFile(savedPackageLockfileLoc, 'utf-8');
-      await fs.writeFile(path.join(PROJECT_CACHE_DIR, 'lock.json'), savedPackageLockfile);
+      await fs.writeFile(path.join(this.cacheDirectory, 'lock.json'), savedPackageLockfile);
       // Retry.
       return this.installPackage(packageName, source);
     }
@@ -382,7 +409,7 @@ export class PackageSourceLocal implements PackageSource {
 
   private async buildPackageImport(spec: string, _source?: string, logLine = false, depth = 0) {
     const {config, memoizedResolve, allKnownSpecs, allPackageImports} = this;
-    const source = _source || this.packageRootDirectory;
+    const source = _source || this.packageSourceDirectory;
     const aliasEntry = findMatchingAliasEntry(config, spec);
     if (aliasEntry && aliasEntry.type === 'package') {
       const {from, to} = aliasEntry;
@@ -436,7 +463,7 @@ export class PackageSourceLocal implements PackageSource {
     const packageName = packageManifest.name || _packageName;
     const packageVersion = packageManifest.version || 'unknown';
     const packageUID = packageName + '@' + packageVersion;
-    const installDest = path.join(PKG_BUILD_DIR, packageUID);
+    const installDest = path.join(this.cacheDirectory, 'build', packageUID);
     const isKnownSpec = allKnownSpecs.has(`${packageUID}:${spec}`);
     allKnownSpecs.add(`${packageUID}:${spec}`);
 
@@ -586,7 +613,7 @@ export class PackageSourceLocal implements PackageSource {
     options: {source?: string; importMap?: ImportMap; isRetry?: boolean} = {},
   ) {
     const {config, memoizedResolve, allSymlinkImports} = this;
-    const source = options.source || this.packageRootDirectory;
+    const source = options.source || this.packageSourceDirectory;
     let spec = _spec;
     const aliasEntry = findMatchingAliasEntry(config, spec);
     if (aliasEntry && aliasEntry.type === 'package') {
@@ -661,16 +688,11 @@ export class PackageSourceLocal implements PackageSource {
     return this.resolvePackageImport(_spec, {source: options.source, isRetry: true});
   }
 
-  static clearCache() {
-    return rimraf.sync(PROJECT_CACHE_DIR);
-  }
-
-  /** @deprecated */
   clearCache() {
-    return rimraf.sync(PROJECT_CACHE_DIR);
+    return rimraf.sync(this.cacheDirectory);
   }
 
   getCacheFolder() {
-    return PROJECT_CACHE_DIR;
+    return this.cacheDirectory;
   }
 }

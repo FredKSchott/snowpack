@@ -379,7 +379,7 @@ export interface PackageSource {
   /** Resolve a package import to URL (ex: "react" -> "/pkg/react") */
   resolvePackageImport(
     spec: string,
-    options?: {source?: string, importMap?: ImportMap, depth?: number},
+    options?: {source?: string; importMap?: ImportMap; depth?: number},
   ): Promise<string>;
   /** Modify the build install config for optimized build install. */
   modifyBuildInstallOptions(installOptions: EsinstallOptions): Promise<EsinstallOptions>;

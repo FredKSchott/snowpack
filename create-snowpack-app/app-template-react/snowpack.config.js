@@ -5,8 +5,8 @@ module.exports = {
     src: { url: '/dist' },
   },
   dependencies: {
-    "react": '17.0.1',
-    "react-dom": '17.0.1',
+    react: '17.0.1',
+    'react-dom': '17.0.1',
   },
   plugins: ['@snowpack/plugin-react-refresh', '@snowpack/plugin-dotenv'],
   routes: [
@@ -18,7 +18,7 @@ module.exports = {
     // "bundle": true,
   },
   packageOptions: {
-    source: 'remote-next'
+    source: 'remote-next',
     /* ... */
   },
   devOptions: {
