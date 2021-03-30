@@ -39,6 +39,7 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
   alias: {},
   exclude: [],
   routes: [],
+  dependencies: {},
   devOptions: {
     secure: false,
     hostname: 'localhost',

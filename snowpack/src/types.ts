@@ -256,6 +256,7 @@ export interface SnowpackConfig {
   mount: Record<string, MountEntry>;
   alias: Record<string, string>;
   plugins: SnowpackPlugin[];
+  dependencies: Record<string, string>;
   devOptions: {
     secure: boolean | {cert: string | Buffer; key: string | Buffer};
     hostname: string;
@@ -306,6 +307,7 @@ export type SnowpackUserConfig = {
   mount?: Record<string, string | Partial<MountEntry>>;
   alias?: Record<string, string>;
   plugins?: (string | [string, any])[];
+  dependencies?: Record<string, string>;
   devOptions?: Partial<SnowpackConfig['devOptions']>;
   buildOptions?: Partial<SnowpackConfig['buildOptions']>;
   testOptions?: Partial<SnowpackConfig['testOptions']>;

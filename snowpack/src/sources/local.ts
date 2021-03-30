@@ -19,13 +19,7 @@ import {getBuiltFileUrls} from '../build/file-urls';
 import {logger} from '../logger';
 import {scanCodeImportsExports, transformFileImports} from '../rewrite-imports';
 import {getInstallTargets} from '../scan-imports';
-import {
-  ImportMap,
-  LockfileManifest,
-  PackageSource,
-  PackageOptionsLocal,
-  SnowpackConfig,
-} from '../types';
+import {ImportMap, PackageSource, PackageOptionsLocal, SnowpackConfig} from '../types';
 import {
   createInstallTarget,
   findMatchingAliasEntry,
@@ -35,9 +29,6 @@ import {
   isPathImport,
   isRemoteUrl,
   readFile,
-  readLockfile,
-  LOCKFILE_NAME,
-  writeLockfile,
 } from '../util';
 import {installPackages} from './local-install';
 
@@ -49,6 +40,7 @@ const PROJECT_CACHE_DIR =
   path.join(GLOBAL_CACHE_DIR, crypto.createHash('md5').update(process.cwd()).digest('hex'));
 
 const PKG_SOURCE_DIR = path.join(PROJECT_CACHE_DIR, 'source');
+const PKG_BUILD_DIR = path.join(PROJECT_CACHE_DIR, 'build');
 
 const NEVER_PEER_PACKAGES: string[] = [
   '@babel/runtime',
@@ -89,26 +81,27 @@ function getRootPackageDirectory(loc: string) {
   }
 }
 
-async function setupPackageRootDirectory(dir: string, lockfile: LockfileManifest) {
-  await mkdirp(dir);
-  if (lockfile.dependencies) {
+async function setupPackageCacheDirectory(config: SnowpackConfig) {
+  await mkdirp(PKG_SOURCE_DIR);
+  if (config.dependencies) {
     await fs.writeFile(
-      path.join(dir, 'package.json'),
-      JSON.stringify({dependencies: lockfile.dependencies}),
+      path.join(PKG_SOURCE_DIR, 'package.json'),
+      JSON.stringify(
+        {'//': 'TODO: Comment explaining this file', dependencies: config.dependencies},
+        null,
+        2,
+      ),
       'utf8',
     );
-    // Check for "lockfileVersion" to guarentee that lockfile is in expected format (not legacy).
-    if (lockfile.lock && lockfile.lock.lockfileVersion) {
-      await fs.writeFile(
-        path.join(dir, 'package-lock.json'),
-        JSON.stringify(lockfile.lock, null, 2),
-      );
+    const lockfile = await fs.readFile(path.join(PROJECT_CACHE_DIR, 'lock.json')).catch(() => null);
+    if (lockfile) {
+      await fs.writeFile(path.join(PKG_SOURCE_DIR, 'package-lock.json'), lockfile);
     } else {
-      await fs.unlink(path.join(dir, 'package-lock.json')).catch(() => null);
+      await fs.unlink(path.join(PKG_SOURCE_DIR, 'package-lock.json')).catch(() => null);
     }
   } else {
-    await fs.unlink(path.join(dir, 'package.json')).catch(() => null);
-    await fs.unlink(path.join(dir, 'package-lock.json')).catch(() => null);
+    await fs.unlink(path.join(PKG_SOURCE_DIR, 'package.json')).catch(() => null);
+    await fs.unlink(path.join(PKG_SOURCE_DIR, 'package-lock.json')).catch(() => null);
   }
 }
 
@@ -124,7 +117,6 @@ export class PackageSourceLocal implements PackageSource {
   config: SnowpackConfig;
   arb: Arborist;
   packageRootDirectory: string;
-  lockfile: LockfileManifest = {dependencies: {}, lock: {}};
   memoizedResolve: Record<string, string> = {};
   allPackageImports: Record<string, PackageImportData> = {};
   allSymlinkImports: Record<string, string> = {};
@@ -160,7 +152,7 @@ export class PackageSourceLocal implements PackageSource {
             const {from, to} = aliasEntry;
             _packageName = _packageName.replace(from, to);
           }
-          if (!this.lockfile.dependencies[_packageName]) {
+          if (!config.dependencies[_packageName]) {
             return _packageName;
           }
           // Needed to make TS happy. Gets filtered out in next step.
@@ -178,24 +170,13 @@ export class PackageSourceLocal implements PackageSource {
     }
     if (packageNamesNeedInstall.size > 0) {
       const savedPackageLockfileLoc = path.join(PKG_SOURCE_DIR, 'package-lock.json');
-      const savedPackageLockfile = JSON.parse(await fs.readFile(savedPackageLockfileLoc, 'utf-8'));
-      const newLockfile: LockfileManifest = {
-        dependencies: {...this.lockfile.dependencies},
-        lock: savedPackageLockfile,
-      };
-      await writeLockfile(path.join(config.root, LOCKFILE_NAME), newLockfile);
+      const savedPackageLockfile = await fs.readFile(savedPackageLockfileLoc);
+      await fs.writeFile(path.join(PROJECT_CACHE_DIR, 'lock.json'), savedPackageLockfile);
     }
   }
 
   async prepare() {
-    this.lockfile = (await readLockfile(this.config.root)) || this.lockfile;
-    const {config, lockfile} = this;
-
-    const DEV_DEPENDENCIES_DIR = path.join(
-      PROJECT_CACHE_DIR,
-      process.env.NODE_ENV || 'development',
-    );
-    const installDirectoryHashLoc = path.join(DEV_DEPENDENCIES_DIR, '.meta');
+    const installDirectoryHashLoc = path.join(PROJECT_CACHE_DIR, '.meta');
     const installDirectoryHash = await fs
       .readFile(installDirectoryHashLoc, 'utf-8')
       .catch(() => null);
@@ -210,16 +191,15 @@ export class PackageSourceLocal implements PackageSource {
     } else {
       logger.info(
         `${colors.bold('Welcome to Snowpack!')} Because this is your first time running\n` +
-          `this project${
-            process.env.NODE_ENV === 'test' ? ` (mode: test)` : ``
-          }, Snowpack needs to prepare your dependencies. This is a one-time step\n` +
+          `this project, Snowpack needs to prepare your dependencies. This is a one-time step\n` +
           `and the results will be cached for the lifetime of your project. Please wait...`,
       );
     }
 
+    const {config} = this;
     // If we're managing the the packages directory, setup some basic files.
     if (config.packageOptions.source !== 'local') {
-      await setupPackageRootDirectory(this.packageRootDirectory, lockfile);
+      await setupPackageCacheDirectory(config);
     }
     // Scan your project for imports.
     const installTargets = await getInstallTargets(config, config.packageOptions.knownEntrypoints);
@@ -347,12 +327,11 @@ export class PackageSourceLocal implements PackageSource {
     installOptions.packageExportLookupFields = config.packageOptions.packageExportLookupFields;
     if (config.packageOptions.source !== 'local') {
       installOptions.cwd = this.packageRootDirectory;
-      this.lockfile = (await readLockfile(this.config.root)) || this.lockfile;
-      await setupPackageRootDirectory(this.packageRootDirectory, this.lockfile);
-    const buildArb = new Arborist({
-      ...(typeof config.packageOptions.source === 'string' ? {} : config.packageOptions.source),
-      path: PKG_SOURCE_DIR,
-    });
+      await setupPackageCacheDirectory(config);
+      const buildArb = new Arborist({
+        ...(typeof config.packageOptions.source === 'string' ? {} : config.packageOptions.source),
+        path: PKG_SOURCE_DIR,
+      });
       await buildArb.buildIdealTree();
       await buildArb.reify();
     }
@@ -385,20 +364,12 @@ export class PackageSourceLocal implements PackageSource {
 
     const arbNode = exactLookupNode.children.get(packageName);
     if (!arbNode) {
-      const packageNamesNeedInstall = [packageName];
       await arb.buildIdealTree({add: [packageName]});
       await arb.reify();
+      // TODO: log this to the user somehow? Tell them to add the package to dependencies obj?
       const savedPackageLockfileLoc = path.join(this.packageRootDirectory, 'package-lock.json');
-      const savedPackageLockfile = JSON.parse(await fs.readFile(savedPackageLockfileLoc, 'utf-8'));
-      const newDependencies = {...this.lockfile.dependencies};
-      for (const newPackage of packageNamesNeedInstall) {
-        newDependencies[newPackage] = '^' + this.arb.actualTree.children.get(newPackage).version;
-      }
-      const newLockfile: LockfileManifest = {
-        dependencies: newDependencies,
-        lock: savedPackageLockfile,
-      };
-      await writeLockfile(path.join(config.root, LOCKFILE_NAME), newLockfile);
+      const savedPackageLockfile = await fs.readFile(savedPackageLockfileLoc, 'utf-8');
+      await fs.writeFile(path.join(PROJECT_CACHE_DIR, 'lock.json'), savedPackageLockfile);
       // Retry.
       return this.installPackage(packageName, source);
     }
@@ -464,12 +435,8 @@ export class PackageSourceLocal implements PackageSource {
     const packageManifest = JSON.parse(packageManifestStr);
     const packageName = packageManifest.name || _packageName;
     const packageVersion = packageManifest.version || 'unknown';
-    const DEV_DEPENDENCIES_DIR = path.join(
-      PROJECT_CACHE_DIR,
-      process.env.NODE_ENV || 'development',
-    );
     const packageUID = packageName + '@' + packageVersion;
-    const installDest = path.join(DEV_DEPENDENCIES_DIR, packageUID);
+    const installDest = path.join(PKG_BUILD_DIR, packageUID);
     const isKnownSpec = allKnownSpecs.has(`${packageUID}:${spec}`);
     allKnownSpecs.add(`${packageUID}:${spec}`);
 
@@ -492,9 +459,7 @@ export class PackageSourceLocal implements PackageSource {
         logLine = true;
         // TODO: We need to confirm version match, not just package import match
         const isDedupe = depth > 0 && (isKnownSpec || this.allKnownProjectSpecs.has(spec));
-        logger.info(
-          `${lineBullet} ${packageFormatted}${isDedupe ? colors.dim(` (dedupe)`) : ''}`,
-        );
+        logger.info(`${lineBullet} ${packageFormatted}${isDedupe ? colors.dim(` (dedupe)`) : ''}`);
       }
       if (!importMap || needsBuild) {
         const installTargets = [...allKnownSpecs]
@@ -521,7 +486,7 @@ export class PackageSourceLocal implements PackageSource {
         const installOptions: InstallOptions = {
           dest: installDest,
           cwd: packageManifestLoc,
-          env: {NODE_ENV: process.env.NODE_ENV || 'development'},
+          env: {NODE_ENV: 'development'},
           treeshake: false,
           sourcemap: config.buildOptions.sourcemap,
           alias: config.alias,
