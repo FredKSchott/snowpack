@@ -103,9 +103,10 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
   for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
     logger.debug(`Mounting directory: '${mountKey}' as URL '${mountEntry.url}'`);
     const files = (await new fdir().withFullPaths().crawl(mountKey).withPromise()) as string[];
-    const excludePrivate = new RegExp(`\\${path.sep}\\.`);
+    const excludePrivate = new RegExp(`\\${path.sep}\\..+(?!\\${path.sep})`);
     const excludeGlobs = [...config.exclude, ...config.testOptions.files];
     const foundExcludeMatch = picomatch(excludeGlobs);
+
     for (const f of files) {
       if (excludePrivate.test(f) || foundExcludeMatch(f)) {
         continue;
