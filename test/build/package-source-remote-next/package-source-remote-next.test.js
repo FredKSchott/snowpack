@@ -12,21 +12,19 @@ describe('packageOptions.source: "remote-next"', () => {
   it('installs packages on-demand to your local cache directory', () => {
     expect(
       fs.existsSync(
-        path.join(__dirname, 'node_modules', '.cache', 'snowpack', 'source', 'package.json'),
+        path.join(__dirname, '.snowpack', 'source', 'package.json'),
       ),
     ).toBe(true);
     expect(
       fs.existsSync(
-        path.join(__dirname, 'node_modules', '.cache', 'snowpack', 'source', 'package-lock.json'),
+        path.join(__dirname, '.snowpack', 'source', 'package-lock.json'),
       ),
     ).toBe(true);
     expect(
       fs.existsSync(
         path.join(
           __dirname,
-          'node_modules',
-          '.cache',
-          'snowpack',
+          '.snowpack',
           'source',
           'node_modules',
           'array-flatten',

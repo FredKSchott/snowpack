@@ -4,7 +4,7 @@
   "name": "@snowpack/test-package-source-remote-next",
   "description": "This test ensures that optimize.treeshake can handle complex imports",
   "scripts": {
-    "testbuild": "snowpack build"
+    "testbuild": "snowpack build --reload"
   },
   "dependencies": {
     "array-flatten": "^3.0.0",
