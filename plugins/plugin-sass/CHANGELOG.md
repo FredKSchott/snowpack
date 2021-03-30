@@ -18,3 +18,7 @@
 * 7b38b486 - get tests passing 
 * 71bb73b5 - [ci] yarn format 
 * 48d8b9c7 - skip failing windows sass test 
+
+## @snowpack/plugin-sass@1.4.0 [2021-03-23]
+
+* c71a3888 - Improve @snowpack/plugin-sass resolution (#2964) <Drew Powers>

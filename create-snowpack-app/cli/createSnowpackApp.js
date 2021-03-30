@@ -23,8 +23,9 @@ function hasPmInstalled(packageManager) {
 }
 
 function validateArgs(args) {
-  const {template, useYarn, usePnpm, force, target, install, verbose, _} = yargs(args);
+  const {template, useYarn, usePnpm, force, target, install, verbose, git = true, _} = yargs(args);
   const toInstall = install !== undefined ? install : true;
+  const toInitializeGitRepo = git !== undefined ? git : true;
   if (useYarn && usePnpm) {
     logError('You can not use Yarn and pnpm at the same time.');
   }
@@ -55,6 +56,7 @@ function validateArgs(args) {
     targetDirectoryRelative,
     targetDirectory,
     toInstall,
+    toInitializeGitRepo,
     verbose,
   };
 }
@@ -120,11 +122,26 @@ async function cleanProject(dir) {
   }
 }
 
+async function initializeGitRepo(targetDirectory) {
+  console.log(`\n  - Initializing git repo.\n`);
+  try {
+    await execa('git', ['init'], {cwd: targetDirectory});
+    await execa('git', ['add', '-A'], {cwd: targetDirectory});
+    await execa('git', ['commit', '-m', 'initial commit'], {
+      cwd: targetDirectory,
+    });
+    console.log(`  - ${colors.green('Success!')}`);
+  } catch (err) {
+    console.log(`  - ${colors.yellow('Could not complete git repository initialization.')}`);
+  }
+}
+
 const {
   template,
   useYarn,
   usePnpm,
   toInstall,
+  toInitializeGitRepo,
   targetDirectoryRelative,
   targetDirectory,
   verbose,
@@ -206,16 +223,8 @@ const installedTemplate = isLocalTemplate
     console.log(`  - Skipping "${installer} install" step\n`);
   }
 
-  console.log(`\n  - Initializing git repo.\n`);
-  try {
-    await execa('git', ['init'], {cwd: targetDirectory});
-    await execa('git', ['add', '-A'], {cwd: targetDirectory});
-    await execa('git', ['commit', '-m', 'initial commit'], {
-      cwd: targetDirectory,
-    });
-    console.log(`  - ${colors.green('Success!')}`);
-  } catch (err) {
-    console.log(`  - ${colors.yellow('Could not complete.')}`);
+  if (toInitializeGitRepo) {
+    await initializeGitRepo(targetDirectory);
   }
 
   function formatCommand(command, description) {

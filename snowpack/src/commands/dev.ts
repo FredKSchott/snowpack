@@ -295,7 +295,7 @@ export async function startServer(
     ...config.exclude,
     ...(process.env.NODE_ENV === 'test' ? [] : config.testOptions.files),
   ];
-  const excludePrivate = new RegExp(`\\${path.sep}\\.`);
+
   const foundExcludeMatch = picomatch(excludeGlobs);
 
   for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
@@ -305,7 +305,7 @@ export async function startServer(
       // Note: exclude() only matches directories, and not files. However, the cost
       // of false positives here is minor, so do this as a quick check to possibly
       // skip scanning into entire folder trees.
-      .exclude((_, dirPath) => excludePrivate.test(dirPath) || foundExcludeMatch(dirPath))
+      .exclude((_, dirPath) => foundExcludeMatch(dirPath))
       .crawl(mountKey)
       .withPromise()) as string[];
 
