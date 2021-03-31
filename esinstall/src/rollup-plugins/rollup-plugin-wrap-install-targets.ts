@@ -28,6 +28,7 @@ const TRUSTED_CJS_PACKAGES = ['chai/index.js', 'events/events.js', 'uuid/index.j
 const UNSCANNABLE_CJS_PACKAGES = [
   'chai/index.js',
   'events/events.js',
+  'property-expr/index.js',
   // Note: resolved in v4.x release
   'react-transition-group/index.js',
 ];
