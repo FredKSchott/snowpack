@@ -694,10 +694,19 @@ export async function startServer(
    */
   const knownETags = new Map<string, string>();
 
-  function matchRoute(
+
+  function matchRouteHandler(
     reqUrl: string,
-    expectHandler: 'dest' | 'upgrade' = 'dest',
-  ): RouteConfigObject | null {
+    expectHandler: 'dest',
+  ): RouteConfigObject['dest'] | null;
+  function matchRouteHandler(
+    reqUrl: string,
+    expectHandler: 'upgrade',
+  ): RouteConfigObject['upgrade'] | null;
+  function matchRouteHandler(
+    reqUrl: string,
+    expectHandler: 'dest' | 'upgrade',
+  ): RouteConfigObject['dest'] | RouteConfigObject['upgrade'] | null {
     if (reqUrl.startsWith(config.buildOptions.metaUrlPath)) {
       return null;
     }
@@ -712,7 +721,7 @@ export async function startServer(
         continue;
       }
       if (route._srcRegex.test(reqPath)) {
-        return route;
+        return route[expectHandler];
       }
     }
     return null;
@@ -729,13 +738,13 @@ export async function startServer(
     {handleError}: {handleError?: boolean} = {},
   ) {
     let reqUrl = req.url!;
-    const matchedRoute = matchRoute(reqUrl);
+    const matchedRouteHandler = matchRouteHandler(reqUrl, 'dest');
     // If a route is matched, rewrite the URL or call the route function
-    if (matchedRoute) {
-      if (typeof matchedRoute.dest === 'string') {
-        reqUrl = matchedRoute.dest;
+    if (matchedRouteHandler) {
+      if (typeof matchedRouteHandler === 'string') {
+        reqUrl = matchedRouteHandler;
       } else {
-        return matchedRoute.dest!(req, res);
+        return matchedRouteHandler(req, res);
       }
     }
     // Check if we can send back an optimized 304 response
@@ -788,17 +797,12 @@ export async function startServer(
     }
   }
 
-  async function handleUpgrade(
-    req: http.IncomingMessage,
-    socket: Socket,
-    head: Buffer,
-  ) {
+  async function handleUpgrade(req: http.IncomingMessage, socket: Socket, head: Buffer) {
     let reqUrl = req.url!;
-    const matchedRoute = matchRoute(reqUrl, 'upgrade');
-    if (matchedRoute && typeof matchedRoute.upgrade === 'function') {
-      return matchedRoute.upgrade(req, socket, head);
+    const matchedRouteHandler = matchRouteHandler(reqUrl, 'upgrade');
+    if (matchedRouteHandler) {
+      return matchedRouteHandler(req, socket, head);
     }
-
     socket.destroy();
   }
 
