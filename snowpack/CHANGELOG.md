@@ -4,6 +4,10 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.1.2 [2021-03-30]
+
+Release notes coming soon.
+
 ## snowpack@3.1.1 [2021-03-19]
 
 * f53498ba - Fix preact regression (#2926) 

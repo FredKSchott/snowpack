@@ -2,7 +2,11 @@
 
 > *For older releses, check our curated [release update thread](https://github.com/snowpackjs/snowpack/discussions/1183) or the raw [commit history](https://github.com/snowpackjs/snowpack/commits/main/plugins/plugin-sass).*
 
-## @snowpack/plugin-sass@1.3.1 [2021-03-16]
+## @snowpack/plugin-sass@1.4.0 [2021-03-23]
+
+* c71a3888 - Improve @snowpack/plugin-sass resolution (#2964) <Drew Powers>
+
+* ## @snowpack/plugin-sass@1.3.1 [2021-03-16]
 
 * 85377715 - fix wrong argument to parseCompilerOption(array[]) (#2547) <Danzo7>
 * edef1986 - Fix Sass partial changes not triggering recompiles in Dev (#2792) <Mark Miller>
@@ -19,6 +23,3 @@
 * 71bb73b5 - [ci] yarn format 
 * 48d8b9c7 - skip failing windows sass test 
 
-## @snowpack/plugin-sass@1.4.0 [2021-03-23]
-
-* c71a3888 - Improve @snowpack/plugin-sass resolution (#2964) <Drew Powers>
