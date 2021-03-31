@@ -891,7 +891,7 @@ export async function startServer(
     // Defer "chokidar" loading to here, to reduce impact on overall startup time
     const chokidar = await import('chokidar');
     watcher = chokidar.watch(Object.keys(config.mount), {
-      ignored: config.exclude,
+      ignored: config.exclude.filter((k) => k !== '**/_*.{sass,scss}'), // Sass partials ignored for builds, but not for dev changes
       persistent: true,
       ignoreInitial: true,
       disableGlobbing: false,
