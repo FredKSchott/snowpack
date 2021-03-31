@@ -2,6 +2,17 @@
 
 > _For older releases, check our curated [release update thread](https://github.com/snowpackjs/snowpack/discussions/1183) or the raw [commit history](https://github.com/snowpackjs/snowpack/commits/main/esinstall)._
 
+<!-- add changelog entries here - do not delete! -->
+
+## esinstall@1.1.2 [2021-03-31]
+
+* 56c5a231 - fix typo in changelog 
+* 836338b5 - add react-transition-group to bad cjs scanner list 
+* 22dd802e - no longer need tslib workaround 
+* 74c4661e - add "events" to bad cjs scanning packages list 
+* 40f02cf4 - reorder changelog entries 
+* fc6c1417 - Improve CSS error message (#2973) <Drew Powers>
+
 ## esinstall@1.1.1 [2021-03-20]
 
 * e50cb745 - fix better handling for unscannable cjs packages 
