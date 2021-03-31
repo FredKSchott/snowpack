@@ -221,15 +221,8 @@ export interface OptimizeOptions {
 
 export interface RouteConfigObject {
   src: string;
-  dest: string | ((
-    req: http.IncomingMessage,
-    res: http.ServerResponse,
-  ) => void) | undefined;
-  upgrade: ((
-    req: http.IncomingMessage,
-    socket: net.Socket,
-    head: Buffer,
-  ) => void) | undefined;
+  dest: string | ((req: http.IncomingMessage, res: http.ServerResponse) => void) | undefined;
+  upgrade: ((req: http.IncomingMessage, socket: net.Socket, head: Buffer) => void) | undefined;
   match: 'routes' | 'all';
   _srcRegex: RegExp;
 }

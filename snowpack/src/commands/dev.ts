@@ -788,11 +788,7 @@ export async function startServer(
     }
   }
 
-  async function handleUpgrade(
-    req: http.IncomingMessage,
-    socket: Socket,
-    head: Buffer,
-  ) {
+  async function handleUpgrade(req: http.IncomingMessage, socket: Socket, head: Buffer) {
     let reqUrl = req.url!;
     const matchedRoute = matchRoute(reqUrl, 'upgrade');
     if (matchedRoute && typeof matchedRoute.upgrade === 'function') {
