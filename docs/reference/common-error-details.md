@@ -22,11 +22,13 @@ Node.js recently added support for a package.json "exports" entry that defines w
 
 If you see this error message, that means that you've imported a file path not allowed in the export map. If you believe this to be an error, reach out to the package author to request the file be added to their export map.
 
-### Uncaught SyntaxError: The requested module '/\_snowpack/pkg/XXXXXX.js' does not provide an export named 'YYYYYY'
+### Uncaught SyntaxError: The requested module './XXXXXX.js' does not provide an export named 'YYYYYY'
 
-If you are using TypeScript, this error could occur if you are importing something that only exists in TypeScript (like a type or interface) and doesn't actually exist in the final JavaScript code. This issue is rare since our built-in TypeScript support will automatically extract and remove only type-only imports.
+If you are using TypeScript, this error could occur if you are importing or exporting something that only exists in TypeScript (like a type or interface) and doesn't actually exist in the final JavaScript code.
 
-**To solve:** Make sure to use `import type { MyInterfaceName }` instead.
+Our built-in TypeScript support can detect type-only imports and will attempt to remove them automatically. This is however much more difficult for type-only export statements, because Snowpack cannot detect that an exported symbol is a type without keeping context across multiple files. For example, a statement such as `export { MyInterfaceName }` will not work in Snowpack.
+
+**To solve:** Enable [`isolatedModules`](https://www.typescriptlang.org/tsconfig#isolatedModules) in `tsconfig.json` to identify problematic cases. Use `import type { MyInterfaceName }` and `export type { MyInterfaceName }` to help Snowpack ignore types.
 
 This error could also appear if named imports are used with older, Common.js npm packages. Thanks to improvements in our package scanner this is no longer a common issue for most packages. However, some packages are written or compiled in a way that makes automatic import scanning impossible.
 
