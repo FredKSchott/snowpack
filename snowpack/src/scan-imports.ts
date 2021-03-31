@@ -1,7 +1,7 @@
 import {ImportSpecifier, init as initESModuleLexer, parse} from 'es-module-lexer';
 import {InstallTarget} from 'esinstall';
 import glob from 'glob';
-import micromatch from 'micromatch';
+import picomatch from 'picomatch';
 import {fdir} from 'fdir';
 import path from 'path';
 import stripComments from 'strip-comments';
@@ -24,7 +24,7 @@ import {
 // (?!.*(:\/\/)) - Ignore if previous match was a protocol (ex: http://)
 const BARE_SPECIFIER_REGEX = /^[@\w](?!.*(:\/\/))/;
 
-const ESM_IMPORT_REGEX = /import(?:["'\s]*([\w*${}\n\r\t, ]+)\s*from\s*)?\s*["'](.*?)["']/gm;
+const ESM_IMPORT_REGEX = /(?<![^;\n])[ ]*import(?:["'\s]*([\w*${}\n\r\t, ]+)\s*from\s*)?\s*["'](.*?)["']/gm;
 const ESM_DYNAMIC_IMPORT_REGEX = /(?<!\.)\bimport\((?:['"].+['"]|`[^$]+`)\)/gm;
 const HAS_NAMED_IMPORTS_REGEX = /^[\w\s\,]*\{(.*)\}/s;
 const STRIP_AS = /\s+as\s+.*/; // for `import { foo as bar }`, strips “as bar”
@@ -285,10 +285,11 @@ export async function scanImports(
   const excludeGlobs = includeTests
     ? config.exclude
     : [...config.exclude, ...config.testOptions.files];
+  const foundExcludeMatch = picomatch(excludeGlobs);
   const loadedFiles: (SnowpackSourceFile | null)[] = await Promise.all(
     includeFiles.map(
       async (filePath: string): Promise<SnowpackSourceFile | null> => {
-        if (micromatch.isMatch(filePath, excludeGlobs) || excludePrivate.test(filePath)) {
+        if (excludePrivate.test(filePath) || foundExcludeMatch(filePath)) {
           return null;
         }
         return {

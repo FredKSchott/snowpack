@@ -5,7 +5,8 @@ import etag from 'etag';
 import {EventEmitter} from 'events';
 import {createReadStream, promises as fs, statSync} from 'fs';
 import {fdir} from 'fdir';
-import micromatch from 'micromatch';
+import picomatch from 'picomatch';
+import type {Socket} from 'net';
 import http from 'http';
 import http2 from 'http2';
 import * as colors from 'kleur/colors';
@@ -257,11 +258,12 @@ export async function startServer(
     await pkgSource.prepare(commandOptions);
   }
   let serverStart = performance.now();
-  const {port: defaultPort, hostname, open} = config.devOptions;
+  const {port: defaultPort, hostname, open, openUrl} = config.devOptions;
   const messageBus = new EventEmitter();
   const PACKAGE_PATH_PREFIX = path.posix.join(config.buildOptions.metaUrlPath, 'pkg/');
   const PACKAGE_LINK_PATH_PREFIX = path.posix.join(config.buildOptions.metaUrlPath, 'link/');
   let port: number | undefined;
+  let warnedDeprecatedPackageImport = new Set();
   if (defaultPort !== 0) {
     port = await getPort(defaultPort);
     // Reset the clock if we had to wait for the user prompt to select a new port.
@@ -290,15 +292,25 @@ export async function startServer(
   const symlinkDirectories = new Set();
   const inMemoryBuildCache = new Map<string, FileBuilder>();
   let fileToUrlMapping = new OneToManyMap();
+  const excludeGlobs = [
+    ...config.exclude,
+    ...(process.env.NODE_ENV === 'test' ? [] : config.testOptions.files),
+  ];
+
+  const foundExcludeMatch = picomatch(excludeGlobs);
 
   for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
     logger.debug(`Mounting directory: '${mountKey}' as URL '${mountEntry.url}'`);
-    const files = (await new fdir().withFullPaths().crawl(mountKey).withPromise()) as string[];
-    const excludePrivate = new RegExp(`\\${path.sep}\\.`);
+    const files = (await new fdir()
+      .withFullPaths()
+      // Note: exclude() only matches directories, and not files. However, the cost
+      // of false positives here is minor, so do this as a quick check to possibly
+      // skip scanning into entire folder trees.
+      .exclude((_, dirPath) => foundExcludeMatch(dirPath))
+      .crawl(mountKey)
+      .withPromise()) as string[];
+
     for (const f of files) {
-      if (micromatch.isMatch(f, config.exclude) || excludePrivate.test(f)) {
-        continue;
-      }
       fileToUrlMapping.add(f, getUrlsForFile(f, config)!);
     }
   }
@@ -306,10 +318,18 @@ export async function startServer(
   logger.debug(`Using in-memory cache: ${fileToUrlMapping}`);
 
   const readCredentials = async (cwd: string) => {
-    const [cert, key] = await Promise.all([
-      fs.readFile(path.join(cwd, 'snowpack.crt')),
-      fs.readFile(path.join(cwd, 'snowpack.key')),
-    ]);
+    const secure = config.devOptions.secure;
+    let cert: Buffer;
+    let key: Buffer;
+
+    if (typeof secure === 'object') {
+      cert = secure.cert as Buffer;
+      key = secure.key as Buffer;
+    } else {
+      const certPath = path.join(cwd, 'snowpack.crt');
+      const keyPath = path.join(cwd, 'snowpack.key');
+      [cert, key] = await Promise.all([fs.readFile(certPath), fs.readFile(keyPath)]);
+    }
 
     return {
       cert,
@@ -323,12 +343,15 @@ export async function startServer(
       logger.debug(`reading credentials`);
       credentials = await readCredentials(config.root);
     } catch (e) {
-      logger.error(
-        `✘ No HTTPS credentials found! Missing Files:  ${colors.bold(
-          'snowpack.crt',
-        )}, ${colors.bold('snowpack.key')}`,
-      );
-      logger.info(`You can automatically generate credentials for your project via either:
+      logger.error(`✘ No HTTPS credentials found!`);
+      logger.info(`You can specify HTTPS credentials via either:
+
+  - Including credentials in your project config under ${colors.yellow(`devOptions.secure`)}.
+  - Including ${colors.yellow('snowpack.crt')} and ${colors.yellow(
+        'snowpack.key',
+      )} files in your project's root directory.
+
+    You can automatically generate credentials for your project via either:
 
   - ${colors.cyan('devcert')}: ${colors.yellow('npx devcert-cli generate localhost')}
     https://github.com/davewasmer/devcert-cli (no install required)
@@ -336,7 +359,6 @@ export async function startServer(
   - ${colors.cyan('mkcert')}: ${colors.yellow(
         'mkcert -install && mkcert -key-file snowpack.key -cert-file snowpack.crt localhost',
       )}
-
     https://github.com/FiloSottile/mkcert (install required)`);
       process.exit(1);
     }
@@ -367,6 +389,31 @@ export async function startServer(
     }
   }
 
+  function getOutputExtensionMatch() {
+    let outputExts: string[] = [];
+    for (const plugin of config.plugins) {
+      if (plugin.resolve) {
+        for (const outputExt of plugin.resolve.output) {
+          const ext = outputExt.toLowerCase();
+          if (!outputExts.includes(ext)) {
+            outputExts.push(ext);
+          }
+        }
+      }
+    }
+    outputExts = outputExts.sort((a, b) => b.split('.').length - a.split('.').length);
+
+    return (base: string): string => {
+      const basename = base.toLowerCase();
+      for (const ext of outputExts) {
+        if (basename.endsWith(ext)) return ext;
+      }
+      return path.extname(basename);
+    };
+  }
+
+  const matchOutputExt = getOutputExtensionMatch();
+
   async function loadUrl(
     reqUrl: string,
     {
@@ -382,7 +429,7 @@ export async function startServer(
     const isHMR = _isHMR ?? (!!config.devOptions.hmr && !isSSR);
     const encoding = _encoding ?? null;
     const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
-    const reqPath = decodeURI(url.parse(reqUrl).pathname!);
+    let reqPath = decodeURI(url.parse(reqUrl).pathname!);
 
     if (reqPath === getMetaUrlPath('/hmr-client.js', config)) {
       return {
@@ -402,7 +449,10 @@ export async function startServer(
     }
     if (reqPath === getMetaUrlPath('/env.js', config)) {
       return {
-        contents: encodeResponse(generateEnvModule({mode: 'development', isSSR}), encoding),
+        contents: encodeResponse(
+          generateEnvModule({mode: 'development', isSSR, configEnv: config.env}),
+          encoding,
+        ),
         imports: [],
         originalFileLoc: null,
         contentType: 'application/javascript',
@@ -413,6 +463,22 @@ export async function startServer(
     // but as a general rule all URLs contained within are managed by the package source loader. When this URL
     // prefix is hit, we load the file through the selected package source loader.
     if (reqPath.startsWith(PACKAGE_PATH_PREFIX)) {
+      // Backwards-compatable redirect for legacy package URLs: If someone has created an import URL manually
+      // (ex: /_snowpack/pkg/react.js) then we need to redirect and warn to use our new API in the future.
+      if (reqUrl.split('.').length <= 2) {
+        if (!warnedDeprecatedPackageImport.has(reqUrl)) {
+          logger.warn(
+            `(${reqUrl}) Deprecated manual package import. Please use snowpack.getUrlForPackage() to create package URLs instead.`,
+          );
+          warnedDeprecatedPackageImport.add(reqUrl);
+        }
+        const redirectUrl = await pkgSource.resolvePackageImport(
+          path.join(config.root, 'package.json'),
+          reqUrl.replace(PACKAGE_PATH_PREFIX, '').replace(/\.js/, ''),
+          config,
+        );
+        reqPath = decodeURI(url.parse(redirectUrl).pathname!);
+      }
       const resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
       const webModuleUrl = resourcePath.substr(PACKAGE_PATH_PREFIX.length);
       let loadedModule = await pkgSource.load(webModuleUrl, isSSR, commandOptions);
@@ -445,7 +511,7 @@ export async function startServer(
     // directory, so we can't strip that info just yet. Try the exact match first, and then strip
     // it later on if there is no match.
     let resourcePath = reqPath;
-    let resourceType = path.extname(reqPath) || '.html';
+    let resourceType = matchOutputExt(reqPath) || '.html';
     let foundFile: FoundFile;
 
     // * Workspaces & Linked Packages:
@@ -628,19 +694,33 @@ export async function startServer(
    */
   const knownETags = new Map<string, string>();
 
-  function matchRoute(reqUrl: string): RouteConfigObject | null {
+  function matchRouteHandler(
+    reqUrl: string,
+    expectHandler: 'dest',
+  ): RouteConfigObject['dest'] | null;
+  function matchRouteHandler(
+    reqUrl: string,
+    expectHandler: 'upgrade',
+  ): RouteConfigObject['upgrade'] | null;
+  function matchRouteHandler(
+    reqUrl: string,
+    expectHandler: 'dest' | 'upgrade',
+  ): RouteConfigObject['dest'] | RouteConfigObject['upgrade'] | null {
     if (reqUrl.startsWith(config.buildOptions.metaUrlPath)) {
       return null;
     }
     const reqPath = decodeURI(url.parse(reqUrl).pathname!);
-    const reqExt = path.extname(reqPath);
+    const reqExt = matchOutputExt(reqPath);
     const isRoute = !reqExt || reqExt.toLowerCase() === '.html';
     for (const route of config.routes) {
       if (route.match === 'routes' && !isRoute) {
         continue;
       }
+      if (!route[expectHandler]) {
+        continue;
+      }
       if (route._srcRegex.test(reqPath)) {
-        return route;
+        return route[expectHandler];
       }
     }
     return null;
@@ -657,13 +737,13 @@ export async function startServer(
     {handleError}: {handleError?: boolean} = {},
   ) {
     let reqUrl = req.url!;
-    const matchedRoute = matchRoute(reqUrl);
+    const matchedRouteHandler = matchRouteHandler(reqUrl, 'dest');
     // If a route is matched, rewrite the URL or call the route function
-    if (matchedRoute) {
-      if (typeof matchedRoute.dest === 'string') {
-        reqUrl = matchedRoute.dest;
+    if (matchedRouteHandler) {
+      if (typeof matchedRouteHandler === 'string') {
+        reqUrl = matchedRouteHandler;
       } else {
-        return matchedRoute.dest(req, res);
+        return matchedRouteHandler(req, res);
       }
     }
     // Check if we can send back an optimized 304 response
@@ -675,6 +755,25 @@ export async function startServer(
       res.end();
       return;
     }
+    // Backwards-compatable redirect for legacy package URLs: If someone has created an import URL manually
+    // (ex: /_snowpack/pkg/react.js) then we need to redirect and warn to use our new API in the future.
+    if (reqUrl.startsWith(PACKAGE_PATH_PREFIX) && reqUrl.split('.').length <= 2) {
+      if (!warnedDeprecatedPackageImport.has(reqUrl)) {
+        logger.warn(
+          `(${reqUrl}) Deprecated manual package import. Please use snowpack.getUrlForPackage() to create package URLs instead.`,
+        );
+        warnedDeprecatedPackageImport.add(reqUrl);
+      }
+      const redirectUrl = await pkgSource.resolvePackageImport(
+        path.join(config.root, 'package.json'),
+        reqUrl.replace(PACKAGE_PATH_PREFIX, '').replace(/\.js/, ''),
+        config,
+      );
+      res.writeHead(301, {Location: redirectUrl});
+      res.end();
+      return;
+    }
+
     // Otherwise, load the file and respond if successful.
     try {
       const result = await loadUrl(reqUrl, {allowStale: true, encoding: null});
@@ -695,6 +794,15 @@ export async function startServer(
       }
       handleResponseError(req, res, err);
     }
+  }
+
+  async function handleUpgrade(req: http.IncomingMessage, socket: Socket, head: Buffer) {
+    let reqUrl = req.url!;
+    const matchedRouteHandler = matchRouteHandler(reqUrl, 'upgrade');
+    if (matchedRouteHandler) {
+      return matchedRouteHandler(req, socket, head);
+    }
+    socket.destroy();
   }
 
   type Http2RequestListener = (
@@ -724,6 +832,9 @@ export async function startServer(
       // Otherwise, pass requests directly to Snowpack's request handler.
       handleRequest(req, res);
     })
+      .on('upgrade', (req, socket, head) => {
+        handleUpgrade(req, socket, head);
+      })
       .on('error', (err: Error) => {
         logger.error(colors.red(`  ✘ Failed to start server at port ${colors.bold(port!)}.`), err);
         server!.close();
@@ -807,7 +918,7 @@ export async function startServer(
   // Open the user's browser (ignore if failed)
   if (server && port && open && open !== 'none') {
     const protocol = config.devOptions.secure ? 'https:' : 'http:';
-    await openInBrowser(protocol, hostname, port, open).catch((err) => {
+    await openInBrowser(protocol, hostname, port, open, openUrl).catch((err) => {
       logger.debug(`Browser open error: ${err}`);
     });
   }
@@ -820,6 +931,13 @@ export async function startServer(
     handleRequest,
     sendResponseFile,
     sendResponseError,
+    getUrlForPackage: (pkgSpec: string) => {
+      return pkgSource.resolvePackageImport(
+        path.join(config.root, 'package.json'),
+        pkgSpec,
+        config,
+      );
+    },
     getUrlForFile: (fileLoc: string) => {
       const result = getUrlsForFile(fileLoc, config);
       return result ? result[0] : result;

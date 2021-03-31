@@ -287,14 +287,20 @@ export async function wrapImportProxy({
 export function generateEnvModule({
   mode,
   isSSR,
+  configEnv,
 }: {
   mode: 'development' | 'production';
   isSSR: boolean;
+  configEnv?: Record<string, string | boolean | undefined>;
 }) {
-  const envObject: Record<string, string | boolean | undefined> = getSnowpackPublicEnvVariables();
-  envObject.MODE = mode;
-  envObject.NODE_ENV = mode;
-  envObject.SSR = isSSR;
+  const envObject: Record<string, string | boolean | undefined> = {
+    ...getSnowpackPublicEnvVariables(),
+    ...(configEnv ?? {}),
+    MODE: mode,
+    NODE_ENV: mode,
+    SSR: isSSR,
+  };
+
   return Object.entries(envObject)
     .map(([key, val]) => {
       return `export const ${key} = ${JSON.stringify(val)};`;

@@ -46,6 +46,7 @@ function readFiles(directory, {ignore} = {}) {
   const allFiles = glob.sync(`**/*.{${UTF8_FRIENDLY_EXTS.join(',')}}`, {
     cwd: directory,
     nodir: true,
+    dot: true,
     ignore,
   });
 

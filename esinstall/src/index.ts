@@ -334,10 +334,9 @@ ${colors.dim(
       rollupPluginReplace(generateReplacements(env)),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'],
-        esmExternals: (id) =>
-          Array.isArray(externalEsm)
-            ? externalEsm.some((packageName) => isImportOfPackage(id, packageName))
-            : externalEsm,
+        esmExternals: Array.isArray(externalEsm)
+          ? (id) => externalEsm.some((packageName) => isImportOfPackage(id, packageName))
+          : externalEsm,
         requireReturnsDefault: 'auto',
       } as RollupCommonJSOptions),
       rollupPluginWrapInstallTargets(!!isTreeshake, installTargets, logger),

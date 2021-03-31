@@ -29,7 +29,7 @@ import {
 import type {Awaited} from './util';
 
 const CONFIG_NAME = 'snowpack';
-const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/_*.{sass,scss}', '**/*.d.ts'];
+const ALWAYS_EXCLUDE = ['**/node_modules/**', '**/_*.{sass,scss}', '**.d.ts'];
 
 // default settings
 const DEFAULT_ROOT = process.cwd();
@@ -88,6 +88,7 @@ const configSchema = {
     extends: {type: 'string'},
     exclude: {type: 'array', items: {type: 'string'}},
     plugins: {type: 'array'},
+    env: {type: 'object'},
     alias: {
       type: 'object',
       additionalProperties: {type: 'string'},
@@ -111,8 +112,20 @@ const configSchema = {
     devOptions: {
       type: 'object',
       properties: {
-        secure: {type: 'boolean'},
+        secure: {
+          oneOf: [
+            {type: 'boolean'},
+            {
+              type: 'object',
+              properties: {
+                cert: {},
+                key: {},
+              },
+            },
+          ],
+        },
         port: {type: 'number'},
+        openUrl: {type: 'string'},
         open: {type: 'string'},
         output: {type: 'string', enum: ['stream', 'dashboard']},
         hmr: {type: 'boolean'},
@@ -164,6 +177,7 @@ const configSchema = {
         htmlFragments: {type: 'boolean'},
         jsxFactory: {type: 'string'},
         jsxFragment: {type: 'string'},
+        jsxInject: {type: 'string'},
       },
     },
     testOptions: {
@@ -375,7 +389,7 @@ function normalizeMount(config: SnowpackConfig) {
 }
 
 function normalizeRoutes(routes: RouteConfigObject[]): RouteConfigObject[] {
-  return routes.map(({src, dest, match}, i) => {
+  return routes.map(({src, dest, upgrade, match}, i) => {
     // Normalize
     if (typeof dest === 'string') {
       dest = addLeadingSlash(dest);
@@ -388,7 +402,7 @@ function normalizeRoutes(routes: RouteConfigObject[]): RouteConfigObject[] {
     }
     // Validate
     try {
-      return {src, dest, match: match || 'all', _srcRegex: new RegExp(src)};
+      return {src, dest, upgrade, match: match || 'all', _srcRegex: new RegExp(src)};
     } catch (err) {
       throw new Error(`config.routes[${i}].src: invalid regular expression syntax "${src}"`);
     }
@@ -406,7 +420,7 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
     config.packageOptions.rollup.plugins = config.packageOptions.rollup.plugins || [];
   }
   config.exclude = Array.from(
-    new Set([...ALWAYS_EXCLUDE, `${config.buildOptions.out}/**/*`, ...config.exclude]),
+    new Set([...ALWAYS_EXCLUDE, `${config.buildOptions.out}/**`, ...config.exclude]),
   );
   // normalize config URL/path values
   config.buildOptions.out = removeTrailingSlash(config.buildOptions.out);

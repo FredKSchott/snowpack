@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-import-dot-folder",
+  "description": "A test to make sure importing folders with dots in them works",
+  "scripts": {
+    "start": "snowpack dev",
+    "testbuild": "snowpack build"
+  },
+  "devDependencies": {
+    "snowpack": "^3.0.0"
+  }
+}

@@ -1,23 +1,22 @@
-import {Service, startService} from 'esbuild';
+import * as esbuild from 'esbuild';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import {promises as fs} from 'fs';
 import {SnowpackPlugin, SnowpackConfig} from '../types';
 import {logger} from '../logger';
 
-let esbuildService: Service | null = null;
-
 const IS_PREACT = /from\s+['"]preact['"]/;
-function checkIsPreact(filePath: string, contents: string) {
-  return (filePath.endsWith('.jsx') || filePath.endsWith('.tsx')) && IS_PREACT.test(contents);
+function checkIsPreact(contents: string) {
+  return IS_PREACT.test(contents);
 }
 
-function getLoader(filePath: string): 'js' | 'jsx' | 'ts' | 'tsx' {
+type Loader = 'js' | 'jsx' | 'ts' | 'tsx';
+
+function getLoader(filePath: string): {loader: Loader; isJSX: boolean} {
   const ext = path.extname(filePath);
-  if (ext === '.mjs') {
-    return 'js';
-  }
-  return ext.substr(1) as 'jsx' | 'ts' | 'tsx';
+  const loader: Loader = ext === '.mjs' ? 'js' : (ext.substr(1) as Loader);
+  const isJSX = loader.endsWith('x');
+  return {loader, isJSX};
 }
 
 export function esbuildPlugin(config: SnowpackConfig, {input}: {input: string[]}): SnowpackPlugin {
@@ -28,13 +27,18 @@ export function esbuildPlugin(config: SnowpackConfig, {input}: {input: string[]}
       output: ['.js'],
     },
     async load({filePath}) {
-      esbuildService = esbuildService || (await startService());
-      const contents = await fs.readFile(filePath, 'utf8');
-      const isPreact = checkIsPreact(filePath, contents);
+      let contents = await fs.readFile(filePath, 'utf8');
+      const {loader, isJSX} = getLoader(filePath);
+      if (isJSX) {
+        const jsxInject = config.buildOptions.jsxInject ? `${config.buildOptions.jsxInject}\n` : '';
+        contents = jsxInject + contents;
+      }
+      const isPreact = isJSX && checkIsPreact(contents);
       let jsxFactory = config.buildOptions.jsxFactory ?? (isPreact ? 'h' : undefined);
       let jsxFragment = config.buildOptions.jsxFragment ?? (isPreact ? 'Fragment' : undefined);
-      const {code, map, warnings} = await esbuildService!.transform(contents, {
-        loader: getLoader(filePath),
+
+      const {code, map, warnings} = await esbuild.transform(contents, {
+        loader: loader,
         jsxFactory,
         jsxFragment,
         sourcefile: filePath,
@@ -52,8 +56,6 @@ export function esbuildPlugin(config: SnowpackConfig, {input}: {input: string[]}
         },
       };
     },
-    cleanup() {
-      esbuildService && esbuildService.stop();
-    },
+    cleanup() {},
   };
 }

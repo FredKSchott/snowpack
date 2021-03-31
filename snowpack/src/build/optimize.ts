@@ -18,22 +18,6 @@ import {
 } from '../util';
 import {getUrlsForFile} from './file-urls';
 
-interface ESBuildMetaInput {
-  bytes: number;
-  imports: {path: string}[];
-}
-interface ESBuildMetaOutput {
-  imports: [];
-  exports?: [];
-  // unclear what this exact interface is, and we don't use it
-  inputs: any;
-  bytes: number;
-}
-interface ESBuildMetaManifest {
-  inputs: Record<string, ESBuildMetaInput>;
-  outputs?: Record<string, ESBuildMetaOutput>;
-}
-
 interface ScannedHtmlEntrypoint {
   file: string;
   root: cheerio.Root;
@@ -42,6 +26,9 @@ interface ScannedHtmlEntrypoint {
   getLinks: (rel: 'stylesheet') => cheerio.Cheerio;
 }
 
+// The manifest type is the one from ESBuild, but we might delete the outputs key
+type SnowpackMetaManifest = Omit<esbuild.Metafile, 'outputs'> & Partial<esbuild.Metafile>;
+
 // We want to output our bundled build directly into our build directory, but esbuild
 // has a bug where it complains about overwriting source files even when write: false.
 // We create a fake bundle directory for now. Nothing ever actually gets written here.
@@ -49,7 +36,7 @@ const FAKE_BUILD_DIRECTORY = path.join(process.cwd(), '~~bundle~~');
 const FAKE_BUILD_DIRECTORY_REGEX = /.*\~\~bundle\~\~[\\\/]/;
 
 /** Collect deep imports in the given set, recursively. */
-function collectDeepImports(url: string, manifest: ESBuildMetaManifest, set: Set<string>): void {
+function collectDeepImports(url: string, manifest: SnowpackMetaManifest, set: Set<string>): void {
   if (set.has(url)) {
     return;
   }
@@ -190,7 +177,7 @@ async function restitchInlineScripts(htmlData: ScannedHtmlEntrypoint): Promise<v
 /** Add new bundled CSS files to the HTML entrypoint file, if not already there. */
 function addNewBundledCss(
   htmlData: ScannedHtmlEntrypoint,
-  manifest: ESBuildMetaManifest,
+  manifest: SnowpackMetaManifest,
   baseUrl: string,
 ): void {
   if (!manifest.outputs) {
@@ -226,7 +213,7 @@ function addNewBundledCss(
  */
 function preloadEntrypoint(
   htmlData: ScannedHtmlEntrypoint,
-  manifest: ESBuildMetaManifest,
+  manifest: SnowpackMetaManifest,
   config: SnowpackConfig,
 ): void {
   const {root, getScripts} = htmlData;
@@ -383,9 +370,8 @@ async function runEsbuildOnBuildDirectory(
   bundleEntrypoints: string[],
   allFiles: string[],
   config: SnowpackConfig,
-  esbuildService: esbuild.Service,
-): Promise<{manifest: ESBuildMetaManifest; outputFiles: esbuild.OutputFile[]}> {
-  const {outputFiles, warnings} = await esbuildService.build({
+): Promise<{manifest: SnowpackMetaManifest; outputFiles: esbuild.OutputFile[]}> {
+  const {outputFiles, warnings, metafile} = await esbuild.build({
     entryPoints: bundleEntrypoints,
     outdir: FAKE_BUILD_DIRECTORY,
     outbase: config.buildOptions.out,
@@ -395,7 +381,7 @@ async function runEsbuildOnBuildDirectory(
     splitting: config.optimize!.splitting,
     format: 'esm',
     platform: 'browser',
-    metafile: path.join(config.buildOptions.out, 'build-manifest.json'),
+    metafile: true,
     publicPath: config.buildOptions.baseUrl,
     minify: config.optimize!.minify,
     target: config.optimize!.target,
@@ -404,9 +390,7 @@ async function runEsbuildOnBuildDirectory(
     ),
     charset: 'utf8',
   });
-  const manifestFile = outputFiles!.find((f) => f.path.endsWith('build-manifest.json'))!;
-  const manifestContents = manifestFile.text;
-  const manifest = JSON.parse(manifestContents);
+
   if (!outputFiles) {
     throw new Error('EMPTY BUILD');
   }
@@ -420,8 +404,9 @@ async function runEsbuildOnBuildDirectory(
         addTrailingSlash(config.buildOptions.out),
       )),
   );
+  const manifest = metafile!;
   if (!config.optimize?.bundle) {
-    delete manifest.outputs;
+    delete (manifest as SnowpackMetaManifest).outputs;
   } else {
     Object.entries(manifest.outputs).forEach(([f, val]) => {
       const newKey = f.replace(FAKE_BUILD_DIRECTORY_REGEX, '/');
@@ -429,7 +414,7 @@ async function runEsbuildOnBuildDirectory(
       delete manifest.outputs[f];
     });
   }
-  logger.debug(`outputFiles: ${JSON.stringify(outputFiles)}`);
+  logger.debug(`outputFiles: ${JSON.stringify(outputFiles.map((f) => f.path))}`);
   logger.debug(`manifest: ${JSON.stringify(manifest)}`);
 
   return {outputFiles, manifest};
@@ -479,31 +464,23 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
     );
   }
 
-  // NOTE: esbuild has no `cwd` support, and assumes that you're always bundling the
-  // current working directory. To get around this, we change the current working directory
-  // for this run only, and then reset it on exit.
-  process.chdir(buildDirectoryLoc);
-
   // * Run esbuild on the entire build directory. Even if you are not writing the result
   // to disk (bundle: false), we still use the bundle manifest as an in-memory representation
   // of our import graph, saved to disk.
-  const esbuildService = await esbuild.startService();
   const {manifest, outputFiles} = await runEsbuildOnBuildDirectory(
     bundleEntrypoints,
     allBuildFiles,
     config,
-    esbuildService,
   );
 
   // * BUNDLE: TRUE - Save the bundle result to the build directory, and clean up to remove all original
   // build files that now live in the bundles.
   if (options.bundle) {
     for (const bundledInput of Object.keys(manifest.inputs)) {
-      if (!manifest.outputs![bundledInput]) {
-        logger.debug(
-          `Removing bundled source file: ${path.resolve(buildDirectoryLoc, bundledInput)}`,
-        );
-        await fs.unlink(path.resolve(buildDirectoryLoc, bundledInput));
+      const outputKey = path.relative(buildDirectoryLoc, path.resolve(process.cwd(), bundledInput));
+      if (!manifest.outputs![`/` + outputKey]) {
+        logger.debug(`Removing bundled source file: ${path.resolve(buildDirectoryLoc, outputKey)}`);
+        deleteFromBuildSafe(path.resolve(buildDirectoryLoc, outputKey), config);
       }
     }
     deleteFromBuildSafe(
@@ -528,7 +505,7 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
     for (const f of allBuildFiles) {
       if (['.js', '.css'].includes(path.extname(f))) {
         let code = await fs.readFile(f, 'utf8');
-        const minified = await esbuildService.transform(code, {
+        const minified = await esbuild.transform(code, {
           sourcefile: path.basename(f),
           loader: path.extname(f).slice(1) as 'js' | 'css',
           minify: options.minify,
@@ -585,9 +562,6 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
       JSON.stringify(manifest),
     );
   }
-
-  // Cleanup and exit.
-  esbuildService.stop();
   process.chdir(originalCwd);
   return;
 }

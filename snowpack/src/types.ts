@@ -1,4 +1,5 @@
 import type {InstallOptions as EsinstallOptions, InstallTarget} from 'esinstall';
+import type * as net from 'net';
 import type * as http from 'http';
 import type * as http2 from 'http2';
 import type {EsmHmrEngine} from './hmr-server-engine';
@@ -77,6 +78,7 @@ export interface SnowpackDevServer {
   getServerRuntime: (options?: {invalidateOnChange?: boolean}) => ServerRuntime;
   sendResponseError: (req: http.IncomingMessage, res: http.ServerResponse, status: number) => void;
   getUrlForFile: (fileLoc: string) => string | null;
+  getUrlForPackage: (packageSpec: string) => Promise<string>;
   onFileChange: (callback: OnFileChangeCallback) => void;
   shutdown(): Promise<void>;
 }
@@ -219,7 +221,8 @@ export interface OptimizeOptions {
 
 export interface RouteConfigObject {
   src: string;
-  dest: string | ((req: http.IncomingMessage, res: http.ServerResponse) => void);
+  dest: string | ((req: http.IncomingMessage, res: http.ServerResponse) => void) | undefined;
+  upgrade: ((req: http.IncomingMessage, socket: net.Socket, head: Buffer) => void) | undefined;
   match: 'routes' | 'all';
   _srcRegex: RegExp;
 }
@@ -249,13 +252,15 @@ export interface SnowpackConfig {
   workspaceRoot?: string | false;
   extends?: string;
   exclude: string[];
+  env?: Record<string, string | boolean | undefined>;
   mount: Record<string, MountEntry>;
   alias: Record<string, string>;
   plugins: SnowpackPlugin[];
   devOptions: {
-    secure: boolean;
+    secure: boolean | {cert: string | Buffer; key: string | Buffer};
     hostname: string;
     port: number;
+    openUrl?: string;
     open?: string;
     output?: 'stream' | 'dashboard';
     hmr?: boolean;
@@ -273,6 +278,7 @@ export interface SnowpackConfig {
     htmlFragments: boolean;
     jsxFactory: string | undefined;
     jsxFragment: string | undefined;
+    jsxInject: string | undefined;
     ssr: boolean;
     resolveProxyImports: boolean;
   };

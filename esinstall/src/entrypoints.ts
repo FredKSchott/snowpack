@@ -5,7 +5,7 @@ import validatePackageName from 'validate-npm-package-name';
 import {ExportField, ExportMapEntry, PackageManifestWithExports, PackageManifest} from './types';
 import {parsePackageImportSpecifier, resolveDependencyManifest} from './util';
 import resolve from 'resolve';
-import pm from 'picomatch';
+import picomatch from 'picomatch';
 
 export const MAIN_FIELDS = [
   'browser:module',
@@ -207,6 +207,16 @@ export function resolveEntrypoint(
   }
 
   if (!depManifestLoc || !depManifest) {
+    if (path.extname(dep) === '.css') {
+      const parts = dep.split('/');
+      let npmName = parts.shift();
+      if (npmName && npmName.startsWith('@')) npmName += '/' + parts.shift();
+      throw new Error(
+        `Module "${dep}" not found.
+    If you‘re trying to CSS file from your project, try "./${dep}".
+    If you‘re trying to import an NPM package, try running \`npm install ${npmName}\` and re-running Snowpack.`,
+      );
+    }
     throw new Error(
       `Package "${dep}" not found. Have you installed it? ${depManifestLoc ? depManifestLoc : ''}`,
     );
@@ -277,7 +287,7 @@ function* forEachWildcardEntry(
   cwd: string,
 ): Generator<[string, string], any, undefined> {
   // Creates a regex from a pattern like ./src/extras/*
-  let expr = pm.makeRe(value, picoMatchGlobalOptions);
+  let expr = picomatch.makeRe(value, picoMatchGlobalOptions);
 
   // The directory, ie ./src/extras
   let valueDirectoryName = path.dirname(value);

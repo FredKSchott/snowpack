@@ -1,5 +1,10 @@
 import crypto from 'crypto';
-import {InstallOptions, InstallTarget, resolveEntrypoint} from 'esinstall';
+import {
+  InstallOptions,
+  InstallTarget,
+  resolveEntrypoint,
+  resolveDependencyManifest as _resolveDependencyManifest,
+} from 'esinstall';
 import projectCacheDir from 'find-cache-dir';
 import findUp from 'find-up';
 import {existsSync, promises as fs} from 'fs';
@@ -46,7 +51,23 @@ const NEVER_PEER_PACKAGES: string[] = [
   'node-fetch',
   'whatwg-fetch',
   'tslib',
+  '@ant-design/icons-svg',
 ];
+
+const memoizedResolve: Record<string, Record<string, string>> = {};
+
+function isPackageCJS(manifest: any): boolean {
+  return (
+    // If a "module" entrypoint is defined, we'll use that.
+    !manifest.module &&
+    // If "type":"module", assume ESM.
+    manifest.type !== 'module' &&
+    // If export map exists, assume ESM exists somewhere within it.
+    !manifest.exports &&
+    // If "main" exists and ends in ".mjs", assume ESM.
+    !manifest.main?.endsWith('.mjs')
+  );
+}
 
 function getRootPackageDirectory(loc: string) {
   const parts = loc.split('node_modules');
@@ -220,8 +241,13 @@ export default {
       return;
     }
     await Promise.all(
-      [...new Set(installTargets.map((t) => t.specifier))].map((spec) => {
-        return this.resolvePackageImport(path.join(config.root, 'package.json'), spec, config);
+      [...new Set(installTargets.map((t) => t.specifier))].map(async (spec) => {
+        // Note: the "await" is important here for error messages! Do not remove
+        return await this.resolvePackageImport(
+          path.join(config.root, 'package.json'),
+          spec,
+          config,
+        );
       }),
     );
     await inProgressBuilds.onIdle();
@@ -239,6 +265,17 @@ export default {
     depth = 0,
   ) {
     config = config || _config;
+    // Imports in the same project should never change once resolved. Check the memoized cache here to speed up faster repeat page loads.
+    // NOTE(fks): This is mainly needed because `resolveEntrypoint` can be slow and blocking, which creates issues when many files
+    // are loaded/resolved at once (ex: antd). If we can improve the performance there and make that async, this may no longer be
+    // necessary.
+    if (!importMap) {
+      if (!memoizedResolve[source]) {
+        memoizedResolve[source] = {};
+      } else if (memoizedResolve[source][spec]) {
+        return memoizedResolve[source][spec];
+      }
+    }
 
     const aliasEntry = findMatchingAliasEntry(config, spec);
     if (aliasEntry && aliasEntry.type === 'package') {
@@ -334,6 +371,17 @@ export default {
           ...Object.keys(packageManifest.peerDependencies || {}),
         ].filter((ext) => ext !== _packageName && !NEVER_PEER_PACKAGES.includes(ext));
 
+        function getMemoizedResolveDependencyManifest() {
+          const results = {};
+          return (packageName: string) => {
+            results[packageName] =
+              results[packageName] ||
+              _resolveDependencyManifest(packageName, rootPackageDirectory!);
+            return results[packageName];
+          };
+        }
+        const resolveDependencyManifest = getMemoizedResolveDependencyManifest();
+
         const installOptions: InstallOptions = {
           dest: installDest,
           cwd: packageManifestLoc,
@@ -342,7 +390,17 @@ export default {
           sourcemap: config.buildOptions.sourcemap,
           alias: config.alias,
           external: externalPackages,
-          externalEsm: true,
+          // ESM<>CJS Compatability: If we can detect that a dependency is common.js vs. ESM, then
+          // we can provide this hint to esinstall to improve our cross-package import support.
+          externalEsm: (imp) => {
+            const specParts = imp.split('/');
+            let _packageName: string = specParts.shift()!;
+            if (_packageName?.startsWith('@')) {
+              _packageName += '/' + specParts.shift();
+            }
+            const [, result] = resolveDependencyManifest(_packageName);
+            return !result || !isPackageCJS(result);
+          },
         };
         if (config.packageOptions.source === 'local') {
           if (config.packageOptions.polyfillNode !== undefined) {
@@ -355,7 +413,7 @@ export default {
             installOptions.namedExports = config.packageOptions.namedExports;
           }
         }
-        const {importMap: newImportMap, needsSsrBuild} = await installPackages({
+        const installResult = await installPackages({
           config,
           isDev: true,
           isSSR: false,
@@ -363,7 +421,7 @@ export default {
           installOptions,
         });
         logger.debug(`${lineBullet} ${packageFormatted} DONE`);
-        if (needsSsrBuild) {
+        if (installResult.needsSsrBuild) {
           logger.info(`${lineBullet} ${packageFormatted} ${colors.dim(`(ssr)`)}`);
           await installPackages({
             config,
@@ -377,7 +435,7 @@ export default {
           });
           logger.debug(`${lineBullet} ${packageFormatted} (ssr) DONE`);
         }
-        const dependencyFileLoc = path.join(installDest, newImportMap.imports[spec]);
+        const dependencyFileLoc = path.join(installDest, installResult.importMap.imports[spec]);
         const loadedFile = await fs.readFile(dependencyFileLoc!);
         if (isJavaScript(dependencyFileLoc)) {
           const packageImports = new Set<string>();
@@ -400,7 +458,7 @@ export default {
           // above have a chance to enter the queue. Prevents a premature exit.
           await new Promise((resolve) => setTimeout(resolve, 5));
         }
-        return newImportMap;
+        return installResult.importMap;
       },
       {priority: depth},
     );
@@ -420,7 +478,13 @@ export default {
       packageName,
       packageVersion,
     };
-    return path.posix.join(config.buildOptions.metaUrlPath, 'pkg', importId);
+    // Memoize the result, for faster repeat lookups.
+    memoizedResolve[source][spec] = path.posix.join(
+      config.buildOptions.metaUrlPath,
+      'pkg',
+      importId,
+    );
+    return memoizedResolve[source][spec];
   },
 
   clearCache() {

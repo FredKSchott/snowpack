@@ -1,6 +1,7 @@
 const dotenvPlugin = require('../plugin');
+const params = JSON.parse(process.argv[2]);
 
-dotenvPlugin();
+dotenvPlugin(null, params);
 
 const testEnvs = Object.keys(process.env)
   .filter((key) => key.startsWith('__DOTENV_'))

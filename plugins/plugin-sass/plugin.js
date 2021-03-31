@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const execa = require('execa');
 const npmRunPath = require('npm-run-path');
+const findUp = require('find-up');
 
 const IMPORT_REGEX = /\@(use|import|forward)\s*['"](.*?)['"]/g;
 const PARTIAL_REGEX = /([\/\\])_(.+)(?![\/\\])/;
@@ -148,11 +149,21 @@ module.exports = function sassPlugin(snowpackConfig, {native, compilerOptions = 
         [...sassImports].forEach((imp) => addImportsToMap(filePath, imp));
       }
 
+      const args = ['--stdin'];
+
       // If file is `.sass`, use YAML-style. Otherwise, use default.
-      const args = ['--stdin', '--load-path', path.dirname(filePath)];
       if (fileExt === '.sass') {
         args.push('--indented');
       }
+
+      // keep track of load paths later
+      const loadPaths = new Set([path.dirname(filePath)]);
+      const DEFAULT_LOAD_PATHS = new Set([root, process.cwd()]);
+      const nodeModulesPath = await findUp('node_modules', {
+        type: 'directory',
+        cwd: root || __dirname,
+      });
+      if (nodeModulesPath) DEFAULT_LOAD_PATHS.add(nodeModulesPath);
 
       // Pass in user-defined options
       function parseCompilerOption([flag, value]) {
@@ -164,7 +175,11 @@ module.exports = function sassPlugin(snowpackConfig, {native, compilerOptions = 
           }
           case 'string':
           case 'number': {
-            args.push(`--${flagName}=${value}`);
+            if (flagName === 'loadPath') {
+              loadPaths.add(value); // don’t add these until default load paths are collected
+            } else {
+              args.push(`--${flagName}=${value}`);
+            }
             break;
           }
           default: {
@@ -181,6 +196,16 @@ module.exports = function sassPlugin(snowpackConfig, {native, compilerOptions = 
         }
       }
       Object.entries(compilerOptions).forEach(parseCompilerOption);
+
+      // --load-path
+      for (const dir of loadPaths) {
+        args.push(`--load-path=${dir}`); // load user-specified loadPaths first
+      }
+      for (const dir of DEFAULT_LOAD_PATHS) {
+        if (!loadPaths.has(dir)) {
+          args.push(`--load-path=${dir}`); // then add default loadPaths (only if different)
+        }
+      }
 
       // Build the file.
       const execaOptions = {

@@ -55,3 +55,59 @@ Object {
   "__DOTENV_TEST_LOCAL": "LOCAL",
 }
 `;
+
+exports[`with dir NODE_ENV= development 1`] = `
+Object {
+  "__DOTENV_DEVELOPMENT": "DEVELOPMENT",
+  "__DOTENV_DEVELOPMENT_LOCAL": "DEVELOPMENT_LOCAL",
+  "__DOTENV_ENV": "ENV",
+  "__DOTENV_LOCAL": "LOCAL",
+  "__DOTENV_PRESET": "PRESET",
+  "__DOTENV_PRODUCTION": "ENV",
+  "__DOTENV_PRODUCTION_LOCAL": "LOCAL",
+  "__DOTENV_TEST": "ENV",
+  "__DOTENV_TEST_LOCAL": "LOCAL",
+}
+`;
+
+exports[`with dir NODE_ENV= production 1`] = `
+Object {
+  "__DOTENV_DEVELOPMENT": "ENV",
+  "__DOTENV_DEVELOPMENT_LOCAL": "LOCAL",
+  "__DOTENV_ENV": "ENV",
+  "__DOTENV_LOCAL": "LOCAL",
+  "__DOTENV_PRESET": "PRESET",
+  "__DOTENV_PRODUCTION": "PRODUCTION",
+  "__DOTENV_PRODUCTION_LOCAL": "PRODUCTION_LOCAL",
+  "__DOTENV_TEST": "ENV",
+  "__DOTENV_TEST_LOCAL": "LOCAL",
+}
+`;
+
+exports[`with dir NODE_ENV= test 1`] = `
+Object {
+  "__DOTENV_DEVELOPMENT": "ENV",
+  "__DOTENV_DEVELOPMENT_LOCAL": "ENV",
+  "__DOTENV_ENV": "ENV",
+  "__DOTENV_LOCAL": "TEST",
+  "__DOTENV_PRESET": "PRESET",
+  "__DOTENV_PRODUCTION": "ENV",
+  "__DOTENV_PRODUCTION_LOCAL": "ENV",
+  "__DOTENV_TEST": "TEST",
+  "__DOTENV_TEST_LOCAL": "TEST_LOCAL",
+}
+`;
+
+exports[`with dir NODE_ENV= undefined 1`] = `
+Object {
+  "__DOTENV_DEVELOPMENT": "ENV",
+  "__DOTENV_DEVELOPMENT_LOCAL": "LOCAL",
+  "__DOTENV_ENV": "ENV",
+  "__DOTENV_LOCAL": "LOCAL",
+  "__DOTENV_PRESET": "PRESET",
+  "__DOTENV_PRODUCTION": "ENV",
+  "__DOTENV_PRODUCTION_LOCAL": "LOCAL",
+  "__DOTENV_TEST": "ENV",
+  "__DOTENV_TEST_LOCAL": "LOCAL",
+}
+`;

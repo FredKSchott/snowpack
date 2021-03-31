@@ -77,18 +77,15 @@ export function createLoader({load}: ServerRuntimeConfig): ServerRuntime {
       {
         name: names.__export,
         value: (name, get) => {
-          Object.defineProperty(exports, name, {get, enumerable: true});
+          Object.defineProperty(exports, name, {get});
         },
       },
       {
         name: names.__export_all,
         value: (mod) => {
-          for (const name in mod) {
-            Object.defineProperty(exports, name, {
-              get: () => mod[name],
-              enumerable: true,
-            });
-          }
+          // Copy over all of the descriptors.
+          const descriptors = Object.getOwnPropertyDescriptors(mod);
+          Object.defineProperties(exports, descriptors);
         },
       },
       {

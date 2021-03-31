@@ -99,6 +99,20 @@ You can further customize this the build behavior for any mounted directory by u
 }
 ```
 
+## env
+
+**Type**: `Record<string, string|boolean|undefined>`
+
+Declare any environment variables that should be exposed on `import.meta.env` at runtime. See [Environment Variables](/reference/environment-variables) for more information.
+
+```js
+{
+  "env": {
+    "API_URL": "api.google.com"
+  }
+}
+```
+
 ## alias
 
 **Type**: `object` (package: package or path)
@@ -151,10 +165,25 @@ Configure the Snowpack dev server.
 
 ### devOptions.secure
 
-**Type**: `boolean`  
+**Type**: `boolean` or `object`  
 **Default**: `false`
 
-Toggles whether Snowpack dev server should use HTTPS with HTTP2 enabled.
+Toggles whether Snowpack dev server should use HTTPS with HTTP2 enabled. See the [SSL Certificates](/guides/https-ssl-certificates) Guide for more information.
+
+If the value is `true`, Snowpack will look for a `snowpack.crt` and `snowpack.key` file in your `root` directory. If the value is an `object`, you may pass your custom `cert` and `key` files directly to it.
+
+```js
+const fs = require('fs');
+
+const cert = fs.readFileSync('/path/to/server.crt');
+const key = fs.readFileSync('/path/to/server.key');
+
+module.exports = {
+  devOptions: {
+    secure: {cert, key},
+  },
+};
+```
 
 ### devOptions.hostname
 
@@ -169,6 +198,12 @@ The hostname that the dev server is running on. Snowpack uses this information t
 **Default**: `8080`
 
 The port the dev server runs on.
+
+### devOptions.openUrl
+
+**Type**: `string`
+
+Optional path to append to dev server url. May also include querystring parameters, example: `test/foo.html?bar=123`.
 
 ### devOptions.fallback
 
@@ -456,6 +491,14 @@ Set the name of the function used to create JSX elements.
 **Default**: `React.Fragment` (or `Fragment` if Preact import is detected)
 
 Set the name of the function used to create JSX fragments.
+
+### buildOptions.jsxInject
+
+**Type**: `string`  
+**Default**: `undefined`
+
+If set, this string can be used to automatically inject JSX imports for every JSX/TSX file.
+React users might use `import React from 'react'` whereas Preact users might use `import { h, Fragment } from 'preact'`.
 
 ## testOptions
 

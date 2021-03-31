@@ -6,12 +6,12 @@ const postcssrc = require('postcss-load-config');
 
 let process = null;
 
-async function transformAsync(css, {config, cwd, map}) {
+async function transformAsync(css, {filepath, config, cwd, map}) {
   // Initialize processor. `config`, `cwd` won't change until Snowpack is restarted
   if (!process) {
     const {plugins, rcOptions} = await postcssrc({}, config || cwd);
     const processor = postcss(plugins);
-    process = (css) => processor.process(css, {...rcOptions, from: 'stdin', map});
+    process = (css) => processor.process(css, {...rcOptions, from: filepath, map});
   }
 
   const result = await process(css);

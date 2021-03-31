@@ -13,9 +13,8 @@ const reactRefreshCode = fs
   .replace(`process.env.NODE_ENV`, JSON.stringify('development'));
 
 function transformHtml(contents) {
-  return contents.replace(
-    /<body.*?>/s,
-    `$&
+  return contents.replace(/(.*)(<body.*?>)(.*)/s, function (match, p1, p2, p3) {
+    return `${p1}${p2}
 <script>
   function debounce(e,t){let u;return()=>{clearTimeout(u),u=setTimeout(e,t)}}
   {
@@ -27,8 +26,8 @@ function transformHtml(contents) {
     window.$RefreshReg$ = () => {};
     window.$RefreshSig$ = () => (type) => type;
   }
-</script>`,
-  );
+</script>${p3}`;
+  });
 }
 
 const babel = require('@babel/core');
