@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import slash from 'slash';
 import {SnowpackConfig} from '../types';
 import {
   addExtension,
@@ -11,6 +12,7 @@ import {
   replaceExtension,
 } from '../util';
 import {getUrlsForFile} from './file-urls';
+import glob from 'glob';
 
 /** Perform a file disk lookup for the requested import specifier. */
 export function getFsStat(importedFileOnDisk: string): fs.Stats | false {
@@ -121,5 +123,68 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
       return resolveSourceSpecifier(importedFileLoc, {parentFile: fileLoc, config}) || spec;
     }
     return false;
+  };
+}
+
+function toPath(url: string) {
+  return url.replace(/\//g, path.sep);
+}
+
+/**
+ * Create a import glob resolver function, which converts any import globs relative to the given file at "fileLoc"
+ * to a local file. These will additionally be transformed by the regular import resolver, so they do not need
+ * to be finalized just yet
+ */
+export function createImportGlobResolver({
+  fileLoc,
+  config,
+}: {
+  fileLoc: string;
+  config: SnowpackConfig;
+}) {
+  const rootDir = path.parse(process.cwd()).root;
+  return async function importGlobResolver(spec: string): Promise<string[]> {
+    let searchSpec = toPath(spec);
+    if (spec.startsWith('/')) {
+      searchSpec = path.join(config.root, spec);
+    }
+
+    const aliasEntry = findMatchingAliasEntry(config, spec);
+    if (aliasEntry && aliasEntry.type === 'path') {
+      const {from, to} = aliasEntry;
+      searchSpec = searchSpec.replace(from, to);
+      searchSpec = path.resolve(config.root, searchSpec);
+    }
+
+    if (!searchSpec.startsWith(rootDir) && !searchSpec.startsWith('.')) {
+      throw new Error(
+        `Glob imports must be relative (starting with ".") or absolute (starting with "/", which is treated as relative to project root)`,
+      );
+    }
+
+    if (searchSpec.startsWith(rootDir)) {
+      searchSpec = path.resolve(config.root, searchSpec);
+      searchSpec = path.relative(path.dirname(fileLoc), searchSpec);
+    }
+
+
+
+    const resolved = await new Promise<string[]>((resolve, reject) => 
+      glob(searchSpec, { cwd: path.dirname(fileLoc), nodir: true }, (err, matches) => {
+        if (err) {
+          return reject(err)
+        }
+        return resolve(matches)
+      })
+    );
+    return resolved.map((fileLoc) => {
+      const normalized = slash(fileLoc);
+      if (normalized.startsWith('.') || normalized.startsWith('/')) return normalized;
+      return `./${normalized}`;
+    }).filter(_fileLoc => {
+      // If final import *might* be the same as the source file, double check to avoid importing self
+      const finalImportAbsolute = slash(path.resolve(path.dirname(fileLoc), toPath(_fileLoc)));
+      return slash(finalImportAbsolute) !== slash(fileLoc);
+    });
   };
 }

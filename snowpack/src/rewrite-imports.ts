@@ -1,5 +1,5 @@
 import {matchDynamicImportValue} from './scan-imports';
-import {CSS_REGEX, HTML_JS_REGEX, HTML_STYLE_REGEX} from './util';
+import {spliceString, CSS_REGEX, HTML_JS_REGEX, HTML_STYLE_REGEX} from './util';
 
 const {parse} = require('es-module-lexer');
 
@@ -128,7 +128,7 @@ export async function transformFileImports(
   replaceImport: (specifier: string) => string | Promise<string>,
 ) {
   if (type === '.js') {
-    return transformEsmImports(contents, replaceImport);
+    return transformEsmImports(contents, replaceImport)
   }
   if (type === '.html') {
     return transformHtmlImports(contents, replaceImport);

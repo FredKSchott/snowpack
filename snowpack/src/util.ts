@@ -487,6 +487,11 @@ export function removeTrailingSlash(path: string) {
   return path.replace(/[/\\]+$/, '');
 }
 
+/** It's `Array.splice`, but for Strings! */
+export function spliceString(source: string, withSlice: string, start: number, end: number) {
+  return source.slice(0, start) + (withSlice || '') + source.slice(end);
+}
+
 export const HMR_CLIENT_CODE = fs.readFileSync(
   path.resolve(__dirname, '../assets/hmr-client.js'),
   'utf8',
