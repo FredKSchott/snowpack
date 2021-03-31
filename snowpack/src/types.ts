@@ -1,4 +1,5 @@
 import type {InstallOptions as EsinstallOptions, InstallTarget} from 'esinstall';
+import type * as net from 'net';
 import type * as http from 'http';
 import type * as http2 from 'http2';
 import type {EsmHmrEngine} from './hmr-server-engine';
@@ -220,7 +221,15 @@ export interface OptimizeOptions {
 
 export interface RouteConfigObject {
   src: string;
-  dest: string | ((req: http.IncomingMessage, res: http.ServerResponse) => void);
+  dest: string | ((
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+  ) => void) | undefined;
+  upgrade: ((
+    req: http.IncomingMessage,
+    socket: net.Socket,
+    head: Buffer,
+  ) => void) | undefined;
   match: 'routes' | 'all';
   _srcRegex: RegExp;
 }

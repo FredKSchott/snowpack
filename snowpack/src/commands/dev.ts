@@ -6,6 +6,7 @@ import {EventEmitter} from 'events';
 import {createReadStream, promises as fs, statSync} from 'fs';
 import {fdir} from 'fdir';
 import picomatch from 'picomatch';
+import type {Socket} from 'net';
 import http from 'http';
 import http2 from 'http2';
 import * as colors from 'kleur/colors';
@@ -693,7 +694,10 @@ export async function startServer(
    */
   const knownETags = new Map<string, string>();
 
-  function matchRoute(reqUrl: string): RouteConfigObject | null {
+  function matchRoute(
+    reqUrl: string,
+    expectHandler: 'dest' | 'upgrade' = 'dest',
+  ): RouteConfigObject | null {
     if (reqUrl.startsWith(config.buildOptions.metaUrlPath)) {
       return null;
     }
@@ -702,6 +706,9 @@ export async function startServer(
     const isRoute = !reqExt || reqExt.toLowerCase() === '.html';
     for (const route of config.routes) {
       if (route.match === 'routes' && !isRoute) {
+        continue;
+      }
+      if (!route[expectHandler]) {
         continue;
       }
       if (route._srcRegex.test(reqPath)) {
@@ -728,7 +735,7 @@ export async function startServer(
       if (typeof matchedRoute.dest === 'string') {
         reqUrl = matchedRoute.dest;
       } else {
-        return matchedRoute.dest(req, res);
+        return matchedRoute.dest!(req, res);
       }
     }
     // Check if we can send back an optimized 304 response
@@ -781,6 +788,20 @@ export async function startServer(
     }
   }
 
+  async function handleUpgrade(
+    req: http.IncomingMessage,
+    socket: Socket,
+    head: Buffer,
+  ) {
+    let reqUrl = req.url!;
+    const matchedRoute = matchRoute(reqUrl, 'upgrade');
+    if (matchedRoute && typeof matchedRoute.upgrade === 'function') {
+      return matchedRoute.upgrade(req, socket, head);
+    }
+
+    socket.destroy();
+  }
+
   type Http2RequestListener = (
     request: http2.Http2ServerRequest,
     response: http2.Http2ServerResponse,
@@ -808,6 +829,9 @@ export async function startServer(
       // Otherwise, pass requests directly to Snowpack's request handler.
       handleRequest(req, res);
     })
+      .on('upgrade', (req, socket, head) => {
+        handleUpgrade(req, socket, head);
+      })
       .on('error', (err: Error) => {
         logger.error(colors.red(`  ✘ Failed to start server at port ${colors.bold(port!)}.`), err);
         server!.close();
