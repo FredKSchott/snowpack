@@ -25,7 +25,7 @@ const TRUSTED_CJS_PACKAGES = ['chai/index.js', 'events/events.js', 'uuid/index.j
 // headache.
 // We use "/index.js here to match the official package, but not any ESM aliase packages
 // that the user may have installed instead (ex: react-esm).
-const UNSCANNABLE_CJS_PACKAGES = ['chai/index.js'];
+const UNSCANNABLE_CJS_PACKAGES = ['chai/index.js', 'events/events.js'];
 
 /**
  * rollup-plugin-wrap-install-targets
