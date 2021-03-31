@@ -4,6 +4,27 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.2.0 [2021-03-31]
+
+* 56c5a231 - fix typo in changelog 
+* c3971f10 - add snowpack release notes 
+* 40f02cf4 - reorder changelog entries 
+* a25f407d - Update CHANGELOG.md 
+* c9dacc29 - Update CHANGELOG.md 
+* a676d665 - fix website package.json 
+* 68df7237 - support remote import if specifier has version in it 
+* 16f58b99 - [ci] yarn format 
+* d3859c8d - fix lint 
+* 598f05a7 - Feat: import.meta.glob and import.meta.globEager support (#2881) <Nate Moore>
+* 57a65bb8 - [ci] yarn format 
+* 685f2200 - add docs, cleanup handler 
+* 5fe83d4d - [ci] yarn format 
+* 844cbcbe - routes support upgrade event (#2988) <dishuostec>
+* a17dd97c - Fix: Only import directory/index.js as a fallback mechanism (#3018) <François Wouts>
+* e340dea9 - Do not exclude folders starting with a dot (#2962) <Matthew Phillips>
+* fc6c1417 - Improve CSS error message (#2973) <Drew Powers>
+* b41b14b0 - Await promises in local source (#2972) <Drew Powers>
+
 ## snowpack@3.1.2 [2021-03-20]
 
 * e50cb745 - fix better handling for unscannable cjs packages
