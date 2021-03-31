@@ -382,7 +382,10 @@ export interface PackageSource {
     options?: {source?: string; importMap?: ImportMap; depth?: number},
   ): Promise<string>;
   /** Modify the build install config for optimized build install. */
-  modifyBuildInstallOptions(installOptions: EsinstallOptions, installTargets: InstallTarget[]): Promise<EsinstallOptions>;
+  modifyBuildInstallOptions(
+    installOptions: EsinstallOptions,
+    installTargets: InstallTarget[],
+  ): Promise<EsinstallOptions>;
   getCacheFolder(): string;
   clearCache(): void | Promise<void>;
 }
