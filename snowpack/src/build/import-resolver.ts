@@ -167,24 +167,24 @@ export function createImportGlobResolver({
       searchSpec = path.relative(path.dirname(fileLoc), searchSpec);
     }
 
-
-
-    const resolved = await new Promise<string[]>((resolve, reject) => 
-      glob(searchSpec, { cwd: path.dirname(fileLoc), nodir: true }, (err, matches) => {
+    const resolved = await new Promise<string[]>((resolve, reject) =>
+      glob(searchSpec, {cwd: path.dirname(fileLoc), nodir: true}, (err, matches) => {
         if (err) {
-          return reject(err)
+          return reject(err);
         }
-        return resolve(matches)
-      })
+        return resolve(matches);
+      }),
     );
-    return resolved.map((fileLoc) => {
-      const normalized = slash(fileLoc);
-      if (normalized.startsWith('.') || normalized.startsWith('/')) return normalized;
-      return `./${normalized}`;
-    }).filter(_fileLoc => {
-      // If final import *might* be the same as the source file, double check to avoid importing self
-      const finalImportAbsolute = slash(path.resolve(path.dirname(fileLoc), toPath(_fileLoc)));
-      return slash(finalImportAbsolute) !== slash(fileLoc);
-    });
+    return resolved
+      .map((fileLoc) => {
+        const normalized = slash(fileLoc);
+        if (normalized.startsWith('.') || normalized.startsWith('/')) return normalized;
+        return `./${normalized}`;
+      })
+      .filter((_fileLoc) => {
+        // If final import *might* be the same as the source file, double check to avoid importing self
+        const finalImportAbsolute = slash(path.resolve(path.dirname(fileLoc), toPath(_fileLoc)));
+        return slash(finalImportAbsolute) !== slash(fileLoc);
+      });
   };
 }

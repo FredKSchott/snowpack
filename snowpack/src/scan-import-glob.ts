@@ -1,4 +1,4 @@
-import { keywordStart, checkIdent, isEOL } from './lexer-util';
+import {keywordStart, checkIdent, isEOL} from './lexer-util';
 
 export interface ImportGlobStatement {
   start: number;
@@ -33,12 +33,12 @@ export function scanImportGlob(code: string) {
   let state = ScannerState.idle;
 
   let importGlobs: ImportGlobStatement[] = [];
-  let importGlob: ImportGlobStatement|null = null;
+  let importGlob: ImportGlobStatement | null = null;
   let glob: string = '';
 
   while (pos++ < code.length) {
     const ch = code.charAt(pos);
-    
+
     if (isInQuote(state)) {
       switch (ch) {
         case '"':
@@ -56,7 +56,7 @@ export function scanImportGlob(code: string) {
 
     if (isInComment(state)) {
       if (state === ScannerState.inSingleLineComment && isEOL(code, pos)) {
-         state = ScannerState.idle;
+        state = ScannerState.idle;
       } else if (state === ScannerState.inMutliLineComment && checkIdent(code, pos, '*/')) {
         state = ScannerState.idle;
       } else {
@@ -98,7 +98,7 @@ export function scanImportGlob(code: string) {
         if (state === ScannerState.onImportMeta && checkIdent(code, pos, 'glob')) {
           state = ScannerState.onImportMetaGlob;
           const isEager = checkIdent(code, pos, 'globEager');
-          importGlob = { start, isEager } as any;
+          importGlob = {start, isEager} as any;
         }
         break;
       }
@@ -112,7 +112,7 @@ export function scanImportGlob(code: string) {
         glob = '';
         break;
       }
-      case "`": {
+      case '`': {
         state = ScannerState.inTemplateLiteral;
         glob = '';
         break;
@@ -125,7 +125,7 @@ export function scanImportGlob(code: string) {
         state = ScannerState.idle;
         end = pos + 1;
         if (importGlob) {
-          Object.assign(importGlob, { glob, end });
+          Object.assign(importGlob, {glob, end});
           importGlobs.push(importGlob);
           importGlob = null;
           start = 0;
@@ -140,9 +140,13 @@ export function scanImportGlob(code: string) {
 }
 
 function isInQuote(state: ScannerState): boolean {
-  return state === ScannerState.inDoubleQuote || state === ScannerState.inSingleQuote || state === ScannerState.inTemplateLiteral
+  return (
+    state === ScannerState.inDoubleQuote ||
+    state === ScannerState.inSingleQuote ||
+    state === ScannerState.inTemplateLiteral
+  );
 }
 
 function isInComment(state: ScannerState): boolean {
-  return state === ScannerState.inSingleLineComment || state === ScannerState.inMutliLineComment
+  return state === ScannerState.inSingleLineComment || state === ScannerState.inMutliLineComment;
 }

@@ -3,7 +3,13 @@ import postCss from 'postcss';
 import postCssModules from 'postcss-modules';
 import {logger} from '../logger';
 import {SnowpackConfig} from '../types';
-import {appendHtmlToHead, hasExtension, spliceString, HMR_CLIENT_CODE, HMR_OVERLAY_CODE} from '../util';
+import {
+  appendHtmlToHead,
+  hasExtension,
+  spliceString,
+  HMR_CLIENT_CODE,
+  HMR_OVERLAY_CODE,
+} from '../util';
 import {generateSRI} from './import-sri';
 import {scanImportGlob} from '../scan-import-glob';
 
@@ -164,35 +170,59 @@ if (typeof document !== 'undefined') {${
   return wrapImportMeta({code: cssImportProxyCode, hmr, env: false, config});
 }
 
-function createImportGlobValue(importGlob, i: number): { value: string, imports: string } {
+function createImportGlobValue(importGlob, i: number): {value: string; imports: string} {
   let value: string;
   let imports: string;
 
   if (importGlob.isEager) {
-    value = `{\n${importGlob.resolvedImports.map((spec: string, j: number, { length: len }) => `\t"${spec}": __glob__${i}_${j}${j === len - 1 ? '' : ','}`).join('\n')}\n}`;
-    imports = importGlob.resolvedImports.map((spec: string, j: number) => `import * as __glob__${i}_${j} from '${spec}';`).join('\n');
+    value = `{\n${importGlob.resolvedImports
+      .map(
+        (spec: string, j: number, {length: len}) =>
+          `\t"${spec}": __glob__${i}_${j}${j === len - 1 ? '' : ','}`,
+      )
+      .join('\n')}\n}`;
+    imports = importGlob.resolvedImports
+      .map((spec: string, j: number) => `import * as __glob__${i}_${j} from '${spec}';`)
+      .join('\n');
   } else {
-    value = `{\n${importGlob.resolvedImports.map((spec: string, j: number, { length: len }) => `\t"${spec}": () => import("${spec}")${j === len - 1 ? '' : ','}`).join('\n')}\n}`;
+    value = `{\n${importGlob.resolvedImports
+      .map(
+        (spec: string, j: number, {length: len}) =>
+          `\t"${spec}": () => import("${spec}")${j === len - 1 ? '' : ','}`,
+      )
+      .join('\n')}\n}`;
     imports = '';
   }
 
-  return { value, imports };
+  return {value, imports};
 }
 
-export async function transformGlobImports({ contents: _code, resolveImportGlobSpecifier = async (i) => [i] }: { contents: string, resolveImportGlobSpecifier: any }) {
+export async function transformGlobImports({
+  contents: _code,
+  resolveImportGlobSpecifier = async (i) => [i],
+}: {
+  contents: string;
+  resolveImportGlobSpecifier: any;
+}) {
   const importGlobs = scanImportGlob(_code);
   let rewrittenCode = _code;
-  const resolvedImportGlobs = await Promise.all(importGlobs.reverse().map(({ glob, ...importGlob }) => {
-    return resolveImportGlobSpecifier(glob).then(resolvedImports => ({ ...importGlob, glob, resolvedImports }))
-  }))
+  const resolvedImportGlobs = await Promise.all(
+    importGlobs.reverse().map(({glob, ...importGlob}) => {
+      return resolveImportGlobSpecifier(glob).then((resolvedImports) => ({
+        ...importGlob,
+        glob,
+        resolvedImports,
+      }));
+    }),
+  );
 
   resolvedImportGlobs.forEach((importGlob, i) => {
-    const { value, imports } = createImportGlobValue(importGlob, i);
+    const {value, imports} = createImportGlobValue(importGlob, i);
     rewrittenCode = spliceString(rewrittenCode, value, importGlob.start, importGlob.end);
     if (imports) {
       rewrittenCode = `${imports}\n${rewrittenCode}`;
     }
-  })
+  });
 
   return rewrittenCode;
 }

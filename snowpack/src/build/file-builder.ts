@@ -129,7 +129,7 @@ export class FileBuilder {
       }
       // Finalize the response
       contents = this.finalizeResult(type, contents);
-      // 
+      //
       const resolveImportGlobSpecifier = createImportGlobResolver({
         fileLoc: this.loc,
         config: this.config,
@@ -179,8 +179,8 @@ export class FileBuilder {
         ],
         this.config,
       );
-      contents = await transformGlobImports({ contents, resolveImportGlobSpecifier })
-      contents = await transformFileImports({type, contents }, async (spec) => {
+      contents = await transformGlobImports({contents, resolveImportGlobSpecifier});
+      contents = await transformFileImports({type, contents}, async (spec) => {
         let resolvedImportUrl = await resolveImport(spec);
 
         // Handle normal "./" & "../" import specifiers

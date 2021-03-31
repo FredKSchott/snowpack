@@ -128,7 +128,7 @@ export async function transformFileImports(
   replaceImport: (specifier: string) => string | Promise<string>,
 ) {
   if (type === '.js') {
-    return transformEsmImports(contents, replaceImport)
+    return transformEsmImports(contents, replaceImport);
   }
   if (type === '.html') {
     return transformHtmlImports(contents, replaceImport);
