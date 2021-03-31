@@ -2,6 +2,14 @@
 
 > _For older releases, check our curated [release update thread](https://github.com/snowpackjs/snowpack/discussions/1183) or the raw [commit history](https://github.com/snowpackjs/snowpack/commits/main/plugins/plugin-svelte)._
 
+<!-- add changelog entries here - do not delete! -->
+
+## @snowpack/plugin-svelte@3.6.1 [2021-03-31]
+
+* 56c5a231 - fix typo in changelog 
+* 40f02cf4 - reorder changelog entries 
+* 0694c5d3 - [plugin-svelte] upgrade svelte-hmr to 0.13.2, fix remote source support (#2909) <rixo>
+
 
 ## @snowpack/plugin-svelte@3.6.0 [2021-03-19]
 
