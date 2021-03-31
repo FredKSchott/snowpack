@@ -1,6 +1,6 @@
 # Changelog
 
-> _For older releses, check our curated [release update thread](https://github.com/snowpackjs/snowpack/discussions/1183) or the raw [commit history](https://github.com/snowpackjs/snowpack/commits/main/plugins/plugin-optimize)._
+> _For older releases, check our curated [release update thread](https://github.com/snowpackjs/snowpack/discussions/1183) or the raw [commit history](https://github.com/snowpackjs/snowpack/commits/main/plugins/plugin-optimize)._
 
 
 ## @snowpack/plugin-optimize@0.2.13 [2021-01-16]

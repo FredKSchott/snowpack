@@ -17,7 +17,7 @@ function formatDate() {
 const CHANGELOG_ENTRYPOINT = '<!-- add changelog entries here - do not delete! -->';
 
 function generateNewChangelog(pkgFolder) {
-  return `# Changelog\n\n> *For older releses, check our curated [release update thread](https://github.com/snowpackjs/snowpack/discussions/1183) or the raw [commit history](https://github.com/snowpackjs/snowpack/commits/main/${path.normalize(
+  return `# Changelog\n\n> *For older releases, check our curated [release update thread](https://github.com/snowpackjs/snowpack/discussions/1183) or the raw [commit history](https://github.com/snowpackjs/snowpack/commits/main/${path.normalize(
     pkgFolder,
   )}).*`;
 }

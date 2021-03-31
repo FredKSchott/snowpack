@@ -1,6 +1,6 @@
 # Changelog
 
-> _For older releses, check our curated [release update thread](https://github.com/snowpackjs/snowpack/discussions/1183) or the raw [commit history](https://github.com/snowpackjs/snowpack/commits/main/plugins/plugin-svelte)._
+> _For older releases, check our curated [release update thread](https://github.com/snowpackjs/snowpack/discussions/1183) or the raw [commit history](https://github.com/snowpackjs/snowpack/commits/main/plugins/plugin-svelte)._
 
 
 ## @snowpack/plugin-svelte@3.6.0 [2021-03-19]

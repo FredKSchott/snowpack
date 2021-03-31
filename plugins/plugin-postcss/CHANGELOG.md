@@ -1,6 +1,6 @@
 # Changelog
 
-> *For older releses, check our curated [release update thread](https://github.com/snowpackjs/snowpack/discussions/1183) or the raw [commit history](https://github.com/snowpackjs/snowpack/commits/main/plugins/plugin-postcss).*
+> *For older releases, check our curated [release update thread](https://github.com/snowpackjs/snowpack/discussions/1183) or the raw [commit history](https://github.com/snowpackjs/snowpack/commits/main/plugins/plugin-postcss).*
 
 ## @snowpack/plugin-postcss@1.2.1 [2021-03-19]
 
