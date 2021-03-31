@@ -1,6 +1,9 @@
 <p><a href="https://osawards.com/javascript/2020">
   <img src="https://www.snowpack.dev/img/JSAwardWinner.png"   />
 </a></p>
+<p><a href="https://2020.stateofjs.com/en-US/technologies/build-tools/">
+  <img src="https://www.snowpack.dev/img/StateofJSAwardWinner.png"   />
+</a></p>
 
 <a href="https://github.com/snowpackjs/snowpack/actions">
   <img src="https://github.com/snowpackjs/snowpack/workflows/CI/badge.svg" alt="CI" />
