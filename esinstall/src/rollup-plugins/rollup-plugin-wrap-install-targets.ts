@@ -20,12 +20,17 @@ function isValidNamedExport(name: string): boolean {
 // are built oddly, in a way that we can't statically analyze.
 const TRUSTED_CJS_PACKAGES = ['chai/index.js', 'events/events.js', 'uuid/index.js'];
 
-// These packages are written so strangely, that our CJS scanner succeeds at scanning the file
-// but fails to pick up some export. Add popular packages here to save everyone a bit of
-// headache.
-// We use "/index.js here to match the official package, but not any ESM aliase packages
+// These packages are written in such a way that the official CJS scanner succeeds at scanning
+// the file but fails to pick up some exports. Add popular packages here to save everyone a bit
+// of headache.
+// We use the exact file here to match the official package, but not any ESM aliase packages
 // that the user may have installed instead (ex: react-esm).
-const UNSCANNABLE_CJS_PACKAGES = ['chai/index.js', 'events/events.js'];
+const UNSCANNABLE_CJS_PACKAGES = [
+  'chai/index.js',
+  'events/events.js',
+  // Note: resolved in v4.x release
+  'react-transition-group/index.js',
+];
 
 /**
  * rollup-plugin-wrap-install-targets
