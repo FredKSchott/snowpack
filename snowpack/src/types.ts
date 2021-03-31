@@ -272,6 +272,7 @@ export interface SnowpackConfig {
     out: string;
     baseUrl: string;
     metaUrlPath: string;
+    cacheDirPath: string;
     clean: boolean;
     sourcemap: boolean;
     watch: boolean;

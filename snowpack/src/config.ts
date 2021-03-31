@@ -1,4 +1,6 @@
+import crypto from 'crypto';
 import {all as merge} from 'deepmerge';
+import projectCacheDir from 'find-cache-dir';
 import {existsSync} from 'fs';
 import {isPlainObject} from 'is-plain-object';
 import {validate} from 'jsonschema';
@@ -21,6 +23,7 @@ import {
 import {
   addLeadingSlash,
   addTrailingSlash,
+  GLOBAL_CACHE_DIR,
   NATIVE_REQUIRE,
   REQUIRE_OR_IMPORT,
   removeTrailingSlash,
@@ -30,6 +33,13 @@ import type {Awaited} from './util';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**', '**/_*.{sass,scss}', '**.d.ts'];
+
+const DEFAULT_PROJECT_CACHE_DIR =
+  projectCacheDir({name: 'snowpack'}) ||
+  // If `projectCacheDir()` is null, no node_modules directory exists.
+  // Use the current path (hashed) to create a cache entry in the global cache instead.
+  // Because this is specifically for dependencies, this fallback should rarely be used.
+  path.join(GLOBAL_CACHE_DIR, crypto.createHash('md5').update(process.cwd()).digest('hex'));
 
 // default settings
 const DEFAULT_ROOT = process.cwd();
@@ -51,6 +61,7 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
     out: 'build',
     baseUrl: '/',
     metaUrlPath: '_snowpack',
+    cacheDirPath: DEFAULT_PROJECT_CACHE_DIR,
     clean: true,
     sourcemap: false,
     watch: false,
@@ -170,6 +181,7 @@ const configSchema = {
       properties: {
         out: {type: 'string'},
         baseUrl: {type: 'string'},
+        cacheDirPath: {type: 'string'},
         clean: {type: 'boolean'},
         sourcemap: {type: 'boolean'},
         watch: {type: 'boolean'},

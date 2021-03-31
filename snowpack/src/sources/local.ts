@@ -1,11 +1,9 @@
-import crypto from 'crypto';
 import {
   InstallOptions,
   InstallTarget,
   resolveEntrypoint,
   resolveDependencyManifest as _resolveDependencyManifest,
 } from 'esinstall';
-import projectCacheDir from 'find-cache-dir';
 import findUp from 'find-up';
 import {existsSync, promises as fs} from 'fs';
 import * as colors from 'kleur/colors';
@@ -28,19 +26,11 @@ import {
 import {
   createInstallTarget,
   findMatchingAliasEntry,
-  GLOBAL_CACHE_DIR,
   isJavaScript,
   isPathImport,
   isRemoteUrl,
 } from '../util';
 import {installPackages} from './local-install';
-
-const PROJECT_CACHE_DIR =
-  projectCacheDir({name: 'snowpack'}) ||
-  // If `projectCacheDir()` is null, no node_modules directory exists.
-  // Use the current path (hashed) to create a cache entry in the global cache instead.
-  // Because this is specifically for dependencies, this fallback should rarely be used.
-  path.join(GLOBAL_CACHE_DIR, crypto.createHash('md5').update(process.cwd()).digest('hex'));
 
 const NEVER_PEER_PACKAGES: string[] = [
   '@babel/runtime',
@@ -212,7 +202,7 @@ export default {
   async prepare(commandOptions: CommandOptions) {
     config = commandOptions.config;
     const DEV_DEPENDENCIES_DIR = path.join(
-      PROJECT_CACHE_DIR,
+      this.getCacheFolder(config),
       process.env.NODE_ENV || 'development',
     );
     const installDirectoryHashLoc = path.join(DEV_DEPENDENCIES_DIR, '.meta');
@@ -335,7 +325,7 @@ export default {
     const packageName = packageManifest.name || _packageName;
     const packageVersion = packageManifest.version || 'unknown';
     const DEV_DEPENDENCIES_DIR = path.join(
-      PROJECT_CACHE_DIR,
+      this.getCacheFolder(config),
       process.env.NODE_ENV || 'development',
     );
     const packageUID = packageName + '@' + packageVersion;
@@ -488,10 +478,10 @@ export default {
   },
 
   clearCache() {
-    return rimraf.sync(PROJECT_CACHE_DIR);
+    return rimraf.sync(this.getCacheFolder(config));
   },
 
   getCacheFolder() {
-    return PROJECT_CACHE_DIR;
+    return path.resolve(config.buildOptions.cacheDirPath);
   },
 } as PackageSource;
