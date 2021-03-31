@@ -694,7 +694,6 @@ export async function startServer(
    */
   const knownETags = new Map<string, string>();
 
-
   function matchRouteHandler(
     reqUrl: string,
     expectHandler: 'dest',
