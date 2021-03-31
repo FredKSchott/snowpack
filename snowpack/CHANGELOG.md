@@ -4,9 +4,10 @@
 
 <!-- add changelog entries here - do not delete! -->
 
-## snowpack@3.1.2 [2021-03-30]
+## snowpack@3.1.2 [2021-03-20]
 
-Release notes coming soon.
+* e50cb745 - fix better handling for unscannable cjs packages
+* 1232e252 - add back cjs-cjs compat from an earlier pr (#2934)
 
 ## snowpack@3.1.1 [2021-03-19]
 
