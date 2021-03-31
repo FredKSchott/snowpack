@@ -4,11 +4,6 @@ const fs = require('fs');
 const path = require('path');
 const {createMakeHot} = require('svelte-hmr');
 
-let makeHot = (...args) => {
-  makeHot = createMakeHot({walk: svelte.walk});
-  return makeHot(...args);
-};
-
 module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   const isDev = process.env.NODE_ENV !== 'production';
   const useSourceMaps =
@@ -100,6 +95,15 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       importedByMap.set(imp, new Set([filePath]));
     }
   }
+
+  let makeHot = (...args) => {
+    makeHot = createMakeHot({
+      walk: svelte.walk,
+      absoluteImports: false,
+      versionNonAbsoluteImports: packageOptions.source === 'remote',
+    });
+    return makeHot(...args);
+  };
 
   return {
     name: '@snowpack/plugin-svelte',
