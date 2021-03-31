@@ -14,6 +14,8 @@ function formatDate() {
   return [year, month, day].join('-');
 }
 
+const CHANGELOG_ENTRYPOINT = '<!-- add changelog entries here - do not delete! -->';
+
 function generateNewChangelog(pkgFolder) {
   return `# Changelog\n\n> *For older releses, check our curated [release update thread](https://github.com/snowpackjs/snowpack/discussions/1183) or the raw [commit history](https://github.com/snowpackjs/snowpack/commits/main/${path.normalize(
     pkgFolder,
@@ -27,7 +29,7 @@ function generateChangelogUpdate(dir, newTag, oldTag) {
     {cwd: dir},
   );
   stdout = stdout.replace(/<Fred K. Schott>/g, '').replace(/<FredKSchott>/g, '');
-  return `\n\n## ${newTag} [${formatDate()}]\n\n${stdout}`;
+  return `## ${newTag} [${formatDate()}]\n\n${stdout}`;
 }
 
 module.exports = function release(pkgFolder, tag, bump, skipBuild) {
@@ -63,7 +65,15 @@ module.exports = function release(pkgFolder, tag, bump, skipBuild) {
     } catch (err) {
       changelog = generateNewChangelog(pkgFolder);
     }
-    changelog += generateChangelogUpdate(dir, newPkgTag, oldPkgTag);
+    if (!changelog.includes(CHANGELOG_ENTRYPOINT)) {
+      const changelogParts = changelog.split('\n'); 
+      changelogParts[3] = '\n' + CHANGELOG_ENTRYPOINT + '\n';
+      changelog = changelogParts.join('\n');
+    }
+    changelog = changelog.replace(
+      CHANGELOG_ENTRYPOINT, 
+      CHANGELOG_ENTRYPOINT + '\n\n' + generateChangelogUpdate(dir, newPkgTag, oldPkgTag)
+    );
     fs.writeFileSync(changelogLoc, changelog);
   }
 
