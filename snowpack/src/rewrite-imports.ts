@@ -1,5 +1,5 @@
 import {matchDynamicImportValue} from './scan-imports';
-import {spliceString, CSS_REGEX, HTML_JS_REGEX, HTML_STYLE_REGEX} from './util';
+import {CSS_REGEX, HTML_JS_REGEX, HTML_STYLE_REGEX} from './util';
 
 const {parse} = require('es-module-lexer');
 
