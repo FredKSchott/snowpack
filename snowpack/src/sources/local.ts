@@ -84,6 +84,20 @@ function getRootPackageDirectory(loc: string) {
   }
 }
 
+/**
+ * Return your source config, in object format. pacote, arborist, and cacahe
+ * all support the same set of options here for configuring your npm registry.
+ */
+function getNpmConnectionOptions(source: string | object): object {
+  if (source === 'local' || source === 'remote-next') {
+    return {};
+  } else if (typeof source === 'string') {
+    return {registry: source};
+  } else {
+    return source;
+  }
+}
+
 type PackageImportData = {
   entrypoint: string;
   loc: string;
@@ -95,6 +109,8 @@ type PackageImportData = {
 export class PackageSourceLocal implements PackageSource {
   config: SnowpackConfig;
   arb: Arborist;
+  npmConnectionOptions: object;
+  cacheDirectory: string;
   packageSourceDirectory: string;
   memoizedResolve: Record<string, string> = {};
   allPackageImports: Record<string, PackageImportData> = {};
@@ -103,20 +119,9 @@ export class PackageSourceLocal implements PackageSource {
   allKnownProjectSpecs = new Set<string>();
   hasWorkspaceWarningFired = false;
 
-  cacheDirectory: string;
-
-  // const PROJECT_CACHE_DIR =
-  //   projectCacheDir({name: 'snowpack'}) ||
-  //   // If `projectCacheDir()` is null, no node_modules directory exists.
-  //   // Use the current path (hashed) to create a cache entry in the global cache instead.
-  //   // Because this is specifically for dependencies, this fallback should rarely be used.
-  //   path.join(GLOBAL_CACHE_DIR, crypto.createHash('md5').update(process.cwd()).digest('hex'));
-
-  // const PKG_SOURCE_DIR = path.join(PROJECT_CACHE_DIR, 'source');
-  // const PKG_BUILD_DIR = path.join(PROJECT_CACHE_DIR, 'build');
-
   constructor(config: SnowpackConfig) {
     this.config = config;
+    this.npmConnectionOptions = getNpmConnectionOptions(config.packageOptions.source);
     if (config.packageOptions.source === 'local') {
       this.cacheDirectory =
         projectCacheDir({name: 'snowpack'}) ||
@@ -130,14 +135,14 @@ export class PackageSourceLocal implements PackageSource {
       this.cacheDirectory = path.join(config.root, '.snowpack');
       this.packageSourceDirectory = path.join(config.root, '.snowpack', 'source');
       this.arb = new Arborist({
-        ...(typeof config.packageOptions.source === 'string' ? {} : config.packageOptions.source),
+        ...this.npmConnectionOptions,
         path: this.packageSourceDirectory,
         packageLockOnly: true,
       });
     }
   }
 
-  private async setupPackageCacheDirectory() {
+  private async setupCacheDirectory() {
     const {config, packageSourceDirectory, cacheDirectory} = this;
     await mkdirp(packageSourceDirectory);
     if (config.dependencies) {
@@ -165,7 +170,7 @@ export class PackageSourceLocal implements PackageSource {
     }
   }
 
-  private async installPackageRootDirectory(installTargets: InstallTarget[]) {
+  private async setupPackageRootDirectory(installTargets: InstallTarget[]) {
     const {arb, config} = this;
     const result = await arb.loadVirtual().catch(() => null);
     const packageNamesNeedInstall = new Set(
@@ -223,16 +228,22 @@ export class PackageSourceLocal implements PackageSource {
     const {config} = this;
     // If we're managing the the packages directory, setup some basic files.
     if (config.packageOptions.source !== 'local') {
-      await this.setupPackageCacheDirectory();
+      await this.setupCacheDirectory();
     }
     // Scan your project for imports.
     const installTargets = await getInstallTargets(config, config.packageOptions.knownEntrypoints);
     this.allKnownProjectSpecs = new Set(installTargets.map((t) => t.specifier));
+    const allKnownPackageNames = new Set([
+      ...[...this.allKnownProjectSpecs].map((spec) => parsePackageImportSpecifier(spec)[0]),
+      ...Object.keys(config.dependencies),
+    ]);
     // If we're managing the the packages directory, lookup & resolve the packages.
     if (config.packageOptions.source !== 'local') {
-      await this.installPackageRootDirectory(installTargets);
+      await this.setupPackageRootDirectory(installTargets);
+      await Promise.all(
+        [...allKnownPackageNames].map((packageName) => this.installPackage(packageName)),
+      );
     }
-    // Build every imported package.
     for (const spec of this.allKnownProjectSpecs) {
       await this.buildPackageImport(spec);
     }
@@ -353,10 +364,10 @@ export class PackageSourceLocal implements PackageSource {
       return installOptions;
     }
     installOptions.cwd = this.packageSourceDirectory;
-    await this.setupPackageCacheDirectory();
-    await this.installPackageRootDirectory(installTargets);
+    await this.setupCacheDirectory();
+    await this.setupPackageRootDirectory(installTargets);
     const buildArb = new Arborist({
-      ...(typeof config.packageOptions.source === 'string' ? {} : config.packageOptions.source),
+      ...this.npmConnectionOptions,
       path: this.packageSourceDirectory,
     });
     await buildArb.buildIdealTree();
@@ -364,7 +375,7 @@ export class PackageSourceLocal implements PackageSource {
     return installOptions;
   }
 
-  private async installPackage(packageName: string, source: string): Promise<boolean> {
+  private async resolveArbNode(packageName: string, source: string): Promise<any> {
     const {config, arb} = this;
     if (config.packageOptions.source === 'local') {
       return false;
@@ -373,6 +384,8 @@ export class PackageSourceLocal implements PackageSource {
     const lookupParts = lookupStr.split(path.sep);
     let lookupNode = arb.actualTree || arb.virtualTree;
     let exactLookupNode = lookupNode;
+    // Use the souce file path to travel the dependency tree,
+    // looking for the most specific match for packageName.
     while (lookupNode && lookupNode.children && lookupParts.length > 0) {
       const part = lookupParts.shift();
       if (part !== 'node_modules') {
@@ -387,8 +400,17 @@ export class PackageSourceLocal implements PackageSource {
         exactLookupNode = lookupNode;
       }
     }
+    // If no nested match was found, exactLookupNode is still the root node.
+    return exactLookupNode.children.get(packageName);
+  }
 
-    const arbNode = exactLookupNode.children.get(packageName);
+  private async installPackage(packageName: string, _source?: string): Promise<boolean> {
+    const {config, arb} = this;
+    const source = _source || this.packageSourceDirectory;
+    if (config.packageOptions.source === 'local') {
+      return false;
+    }
+    const arbNode = await this.resolveArbNode(packageName, source);
     if (!arbNode) {
       await arb.buildIdealTree({add: [packageName]});
       await arb.reify();
@@ -402,7 +424,7 @@ export class PackageSourceLocal implements PackageSource {
     if (existsSync(arbNode.path)) {
       return false;
     }
-    await pacote.extract(arbNode.resolved, arbNode.path);
+    await pacote.extract(arbNode.resolved, arbNode.path, this.npmConnectionOptions);
     return true;
   }
 
@@ -490,21 +512,43 @@ export class PackageSourceLocal implements PackageSource {
         // TODO: external should be a function in esinstall
         const externalPackages = [
           ...Object.keys(packageManifest.dependencies || {}),
-          ...Object.keys(packageManifest.devDependencies || {}),
           ...Object.keys(packageManifest.peerDependencies || {}),
         ].filter((ext) => ext !== _packageName && !NEVER_PEER_PACKAGES.includes(ext));
+        const externalPackagesFull = [
+          ...externalPackages,
+          ...Object.keys(packageManifest.devDependencies || {}).filter(
+            (ext) => ext !== _packageName && !NEVER_PEER_PACKAGES.includes(ext),
+          ),
+        ];
 
-        function getMemoizedResolveDependencyManifest() {
+        // To improve our ESM<>CJS conversion, we need to know the status of all dependencies.
+        // This function returns a function, which can be used to fetch package.json manifests.
+        // - When source = "local", this happens on the local file system (/w memoization).
+        // - When source = "remote-next", this happens via remote manifest fetching (/w pacote caching).
+        const getMemoizedResolveDependencyManifest = async () => {
           const results = {};
+          if (config.packageOptions.source === 'local') {
+            return (packageName: string) => {
+              results[packageName] =
+                results[packageName] ||
+                _resolveDependencyManifest(packageName, rootPackageDirectory!)[1];
+              return results[packageName];
+            };
+          }
+          await Promise.all(
+            externalPackages.map(async (externalPackage) => {
+              const arbNode = await this.resolveArbNode(externalPackage, rootPackageDirectory!);
+              results[arbNode.name] = await pacote.manifest(`${arbNode.name}@${arbNode.version}`, {
+                ...this.npmConnectionOptions,
+                fullMetadata: true,
+              });
+            }),
+          );
           return (packageName: string) => {
-            results[packageName] =
-              results[packageName] ||
-              _resolveDependencyManifest(packageName, rootPackageDirectory!);
             return results[packageName];
           };
-        }
-        const resolveDependencyManifest = getMemoizedResolveDependencyManifest();
-
+        };
+        const resolveDependencyManifest = await getMemoizedResolveDependencyManifest();
         const installOptions: InstallOptions = {
           dest: installDest,
           cwd: packageManifestLoc,
@@ -512,12 +556,12 @@ export class PackageSourceLocal implements PackageSource {
           treeshake: false,
           sourcemap: config.buildOptions.sourcemap,
           alias: config.alias,
-          external: externalPackages,
+          external: externalPackagesFull,
           // ESM<>CJS Compatability: If we can detect that a dependency is common.js vs. ESM, then
           // we can provide this hint to esinstall to improve our cross-package import support.
           externalEsm: (imp) => {
             const [packageName] = parsePackageImportSpecifier(imp);
-            const [, result] = resolveDependencyManifest(packageName);
+            const result = resolveDependencyManifest(packageName);
             return !result || !isPackageCJS(result);
           },
         };
