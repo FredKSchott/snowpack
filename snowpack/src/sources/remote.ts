@@ -108,7 +108,7 @@ export default {
     ) {
       body = (await remotePackageSDK.fetch(`/${spec}`)).body;
     } else {
-      const [packageName, packagePath] = parseRawPackageImport(spec);
+      const [packageName, packagePath] = parseRawPackageImport(spec.replace(/(?<!^)\@.*\//, '/'));
       if (lockfile && lockfile.dependencies[packageName]) {
         const lockEntry = packageName + '#' + lockfile.dependencies[packageName];
         if (packagePath) {
@@ -163,7 +163,6 @@ export default {
     return {contents: body, imports: []};
   },
 
-  // TODO: Remove need for lookup URLs
   async resolvePackageImport(_source: string, spec: string, config: SnowpackConfig) {
     return path.posix.join(config.buildOptions.metaUrlPath, 'pkg', spec);
   },
