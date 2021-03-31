@@ -800,9 +800,11 @@ export async function startServer(
     let reqUrl = req.url!;
     const matchedRouteHandler = matchRouteHandler(reqUrl, 'upgrade');
     if (matchedRouteHandler) {
-      return matchedRouteHandler(req, socket, head);
+      matchedRouteHandler(req, socket, head);
+      // NOTE(fks): Why do we destory the socket here? Is it so that HMR client doesn't hijack?
+      socket.destroy();
+      return;
     }
-    socket.destroy();
   }
 
   type Http2RequestListener = (
