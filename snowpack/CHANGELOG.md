@@ -4,6 +4,10 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.2.1 [2021-03-31]
+
+* 0663c1ac - fix HMR issue 
+
 ## snowpack@3.2.0 [2021-03-31]
 
 * 56c5a231 - fix typo in changelog 
