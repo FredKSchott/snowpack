@@ -7,9 +7,10 @@ module.exports = {
   plugins: [
     '@snowpack/plugin-react-refresh',
     '@snowpack/plugin-dotenv',
-    '@snowpack/plugin-typescript',
-    // if using yarn v2 and have 27+ TypeScript errors replace with
-    // ['@snowpack/plugin-typescript', { tsc: 'yarn pnpify tsc' }],
+    ['@snowpack/plugin-typescript', {
+      /* Yarn PnP workaround: see https://www.npmjs.com/package/@snowpack/plugin-typescript */
+      ...(process.versions.pnp ? {tsc: 'yarn pnpify tsc'} : {})
+    }],
   ],
   routes: [
     /* Enable an SPA Fallback in development: */
