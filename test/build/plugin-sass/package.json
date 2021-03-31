@@ -7,7 +7,7 @@
     "testbuild": "snowpack build"
   },
   "devDependencies": {
-    "@snowpack/plugin-sass": "^1.0.0",
+    "@snowpack/plugin-sass": "^1.4.0",
     "snowpack": "^3.0.0"
   },
   "dependencies": {
