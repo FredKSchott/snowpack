@@ -1,6 +1,6 @@
 {
   "name": "create-snowpack-app",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "license": "MIT",
   "homepage": "https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/cli#readme",
   "repository": {
