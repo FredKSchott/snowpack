@@ -1,7 +1,5 @@
-const mkdirp = require('mkdirp');
 const rimraf = require('rimraf');
 const glob = require('glob');
-const os = require('os');
 const path = require('path');
 const fs = require('fs').promises;
 const snowpack = require('snowpack');
@@ -21,6 +19,9 @@ const UTF8_FRIENDLY_EXTS = [
   'json',
 ]; // only read non-binary files (add more exts here as needed)
 
+const writeFile = (file, data) =>
+  fs.mkdir(path.dirname(file), {recursive: true}).then((x) => fs.writeFile(file, data));
+
 exports.testFixture = async function testFixture(
   userConfig,
   testFiles,
@@ -32,7 +33,7 @@ exports.testFixture = async function testFixture(
     testFiles = {'index.js': testFiles};
   }
   for (const [fileLoc, fileContents] of Object.entries(testFiles)) {
-    await fs.writeFile(path.join(inDir, fileLoc), fileContents);
+    await writeFile(path.join(inDir, fileLoc), fileContents);
   }
 
   const config = await snowpack.createConfiguration({

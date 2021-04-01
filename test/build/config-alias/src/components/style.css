@@ -1,3 +1,0 @@
-/* Include 2+ imports to make sure regex isn't borked. */
-@import 'css-package-a/style.css';
-@import '@css/package-b/style.css';

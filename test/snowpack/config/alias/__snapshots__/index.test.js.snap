@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`config: alias generates imports as expected 1`] = `
+exports[`alias Rewrites imports as expected 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
   <head>
@@ -77,11 +77,10 @@ exports[`config: alias generates imports as expected 1`] = `
 
     <script></script>
   </body>
-</html>
-"
+</html>"
 `;
 
-exports[`config: alias generates imports as expected 2`] = `
+exports[`alias Rewrites imports as expected 2`] = `
 "// Path aliases
 import {flatten} from '../TEST_WMU/pkg/array-flatten.js';
 import * as aliasedDep from '../TEST_WMU/pkg/array-flatten.js';
@@ -141,16 +140,14 @@ console.log(adSvg);
 // Importing across mounted directories
 import robotsTxtRef from '../robots.txt.proxy.js';
 import robotsTxtRef_ from '../robots.txt.proxy.js';
-console.log(robotsTxtRef, robotsTxtRef_);
-"
+console.log(robotsTxtRef, robotsTxtRef_);"
 `;
 
-exports[`config: alias generates imports as expected 3`] = `
+exports[`alias Rewrites imports as expected 3`] = `
 "// importing index.js by shortcut
 import index from './index.js';
 import index_ from './index.js';
 import index__ from '../index.js';
 import index___ from '../index.js';
-console.log(index, index_, index__, index___);
-"
+console.log(index, index_, index__, index___);"
 `;
