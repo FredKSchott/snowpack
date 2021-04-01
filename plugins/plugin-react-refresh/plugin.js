@@ -14,8 +14,9 @@ const reactRefreshCode = fs
 
 function transformHtml(contents) {
   return contents.replace(
-    /<body.*?>/s,
-    `$&
+    /(<body.*?>)/s,
+    function (match, p1) {  
+      return `${p1}
 <script>
   function debounce(e,t){let u;return()=>{clearTimeout(u),u=setTimeout(e,t)}}
   {
@@ -27,7 +28,8 @@ function transformHtml(contents) {
     window.$RefreshReg$ = () => {};
     window.$RefreshSig$ = () => (type) => type;
   }
-</script>`,
+</script>`
+    },
   );
 }
 
