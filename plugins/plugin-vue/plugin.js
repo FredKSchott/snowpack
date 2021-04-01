@@ -70,8 +70,9 @@ module.exports = function plugin(snowpackConfig) {
         output['.js'].code += `const defaultExport = {};`;
       }
       await Promise.all(
-        descriptor.styles.map((stylePart) => {
-          const css = compiler.compileStyle({
+        descriptor.styles.map(async (stylePart) => {
+          // note: compileStyleAsync is required for SSR + CSS Modules
+          const css = await compiler.compileStyleAsync({
             filename: path.relative(snowpackConfig.root || process.cwd(), filePath),
             source: stylePart.content,
             id: `data-v-${id}`,
