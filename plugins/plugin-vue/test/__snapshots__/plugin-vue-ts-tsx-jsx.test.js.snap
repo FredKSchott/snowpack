@@ -35,14 +35,15 @@ const defaultExport = defineComponent({
     const name = \\"VueContentTs\\";
   }
 });
-import { createVNode as _createVNode, openBlock as _openBlock, createBlock as _createBlock } from \\"vue\\"
+import { openBlock as _openBlock, createBlock as _createBlock } from \\"vue\\"
 
 export function render(_ctx, _cache) {
   return (_openBlock(), _createBlock(\\"h1\\", null, \\"Vue Content Ts\\"))
-}
+};
 
-defaultExport.render = render
-export default defaultExport",
+defaultExport.render = render;
+
+export default defaultExport;",
     "map": "",
   },
 }
