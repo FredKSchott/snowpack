@@ -4,6 +4,10 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## esinstall@1.1.3 [2021-04-01]
+
+* 332d69ed - Adding property expr to solve #2945 (#3063) <Nahuel Veron>
+
 ## esinstall@1.1.2 [2021-03-31]
 
 * 56c5a231 - fix typo in changelog 
