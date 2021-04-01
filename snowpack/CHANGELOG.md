@@ -4,6 +4,10 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.2.2 [2021-04-01]
+
+* a643af33 - Detect Sass partial changes in dev (#3060) <Drew Powers>
+
 ## snowpack@3.2.1 [2021-03-31]
 
 * 0663c1ac - fix HMR issue 
