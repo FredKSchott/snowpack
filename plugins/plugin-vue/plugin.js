@@ -39,7 +39,7 @@ module.exports = function plugin(snowpackConfig) {
       input: ['.vue'],
       output: ['.js', '.css'],
     },
-    async load({filePath}) {
+    async load({filePath, isSSR}) {
       const {sourcemap, sourceMaps} = snowpackConfig.buildOptions;
 
       const id = hashsum(filePath);
@@ -67,20 +67,36 @@ module.exports = function plugin(snowpackConfig) {
         }
         output['.js'].code += scriptContent;
       } else {
-        output['.js'].code += `const defaultExport = {};`;
+        output['.js'].code += `const defaultExport = {};\n`;
       }
+
+      let hasCssModules = false;
+      const cssModules = {};
+
       await Promise.all(
-        descriptor.styles.map((stylePart) => {
-          const css = compiler.compileStyle({
+        descriptor.styles.map(async (stylePart) => {
+          // note: compileStyleAsync is required for SSR + CSS Modules
+          const css = await compiler.compileStyleAsync({
             filename: path.relative(snowpackConfig.root || process.cwd(), filePath),
             source: stylePart.content,
             id: `data-v-${id}`,
             scoped: stylePart.scoped != null,
             modules: stylePart.module != null,
+            ssr: isSSR,
             preprocessLang: stylePart.lang,
             // preprocessCustomRequire: (id: string) => require(resolve(root, id))
             // TODO load postcss config if present
           });
+
+          // gather CSS Module names
+          if (stylePart.module) {
+            hasCssModules = true;
+            for (const [k, v] of Object.entries(css.modules)) {
+              if (cssModules[k]) console.warn(`CSS Module name reused: ${k}`);
+              cssModules[k] = v;
+            }
+          }
+
           if (css.errors && css.errors.length > 0) {
             console.error(JSON.stringify(css.errors));
           }
@@ -94,6 +110,8 @@ module.exports = function plugin(snowpackConfig) {
           id,
           filename: path.relative(snowpackConfig.root || process.cwd(), filePath),
           source: descriptor.template.content,
+          ssr: isSSR,
+          ssrCssVars: [],
           preprocessLang: descriptor.template.lang,
           compilerOptions: {
             scopeId: descriptor.styles.some((s) => s.scoped) ? `data-v-${id}` : null,
@@ -102,9 +120,31 @@ module.exports = function plugin(snowpackConfig) {
         if (js.errors && js.errors.length > 0) {
           console.error(JSON.stringify(js.errors));
         }
-        output['.js'].code += `\n${js.code}\n`;
-        output['.js'].code += `\ndefaultExport.render = render`;
-        output['.js'].code += `\nexport default defaultExport`;
+
+        const renderFn = isSSR ? `ssrRender` : `render`;
+
+        if (output['.js'].code) output['.js'].code += '\n';
+        output['.js'].code += `${js.code.replace(/;?$/, ';')}`; // add trailing semicolon if missing (helps with some SSR cases)
+        output['.js'].code += `\n\ndefaultExport.${renderFn} = ${renderFn};`;
+
+        // inject CSS Module styles, if needed
+        if (hasCssModules) {
+          // Note: this injection code is inspired by the official vue-loader for webpack and plays nicely with Vue.
+          // But adjustments were needed to work with Snowpack.
+          // See https://github.com/vuejs/vue-loader/blob/master/lib/codegen/styleInjection.js#L51
+          const styleInjectionCode = `  const cssModules = ${JSON.stringify(cssModules)};
+  Object.defineProperty(_ctx, '$style', {
+    configurable: true,
+    get: function() {
+      return cssModules;
+    }
+  })\n`;
+          output['.js'].code = output['.js'].code.replace(
+            new RegExp(`(function ${renderFn}\\([^\n]+)`),
+            `$1\n${styleInjectionCode}`,
+          );
+        }
+        output['.js'].code += `\n\nexport default defaultExport;`;
 
         if ((sourcemap || sourceMaps) && js.map) output['.js'].map += JSON.stringify(js.map);
       }
