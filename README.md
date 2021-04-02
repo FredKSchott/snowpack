@@ -1,7 +1,6 @@
 <p><a href="https://osawards.com/javascript/2020">
   <img src="https://www.snowpack.dev/img/JSAwardWinner.png"   />
-</a></p>
-<p><a href="https://2020.stateofjs.com/en-US/technologies/build-tools/">
+</a><a href="https://2020.stateofjs.com/en-US/technologies/build-tools/">
   <img src="https://www.snowpack.dev/img/StateOfJSAwardWinner.png"   />
 </a></p>
 
