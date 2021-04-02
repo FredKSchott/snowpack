@@ -47,6 +47,7 @@
     "builtin-modules": "^3.2.0",
     "cjs-module-lexer": "^1.0.0",
     "es-module-lexer": "^0.3.24",
+    "execa": "^5.0.0",
     "is-valid-identifier": "^2.0.2",
     "kleur": "^4.1.1",
     "mkdirp": "^1.0.3",
