@@ -2,7 +2,7 @@
   <img src="https://www.snowpack.dev/img/JSAwardWinner.png"   />
 </a></p>
 <p><a href="https://2020.stateofjs.com/en-US/technologies/build-tools/">
-  <img src="https://www.snowpack.dev/img/StateofJSAwardWinner.png"   />
+  <img src="https://www.snowpack.dev/img/StateOfJSAwardWinner.png"   />
 </a></p>
 
 <a href="https://github.com/snowpackjs/snowpack/actions">
