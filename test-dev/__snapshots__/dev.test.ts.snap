@@ -49,7 +49,7 @@ exports[`snowpack dev smoke: js 1`] = `
  * When you're ready to start on your site, clear the file. Happy hacking!
  **/
 
-import confetti from '../_snowpack/pkg/canvas-confetti.v1.3.2.js';
+import confetti from '../_snowpack/pkg/canvas-confetti.v1.4.0.js';
 
 confetti.create(document.getElementById('canvas'), {
   resize: true,

@@ -53,7 +53,7 @@
     "pacote": "^11.3.1",
     "picomatch": "^2.2.2",
     "resolve": "^1.20.0",
-    "rollup": "^2.34.0"
+    "rollup": "~2.37.1"
   },
   "optionalDependencies": {
     "fsevents": "^2.2.0"

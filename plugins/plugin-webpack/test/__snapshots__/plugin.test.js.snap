@@ -52,7 +52,7 @@ Array [
 exports[`@snowpack/plugin-webpack minimal - no options: files 1`] = `
 Array [
   Object {
-    "content": "<!DOCTYPE html><html lang=\\"en\\"><head><meta charset=\\"UTF-8\\"><title>Minimal test</title></head><body><script src=\\"/js/webpack-runtime.5072755c7971ba0e8aa3.js\\" async=\\"\\" defer=\\"\\"></script><script src=\\"/js/index.1791fc45cde0448d21a2.js\\" async=\\"\\" defer=\\"\\"></script></body></html>",
+    "content": "<!DOCTYPE html><html lang=\\"en\\"><head><meta charset=\\"UTF-8\\"><title>Minimal test</title></head><body><script src=\\"/js/webpack-runtime.6299cfc524edc752fe95.js\\" async=\\"\\" defer=\\"\\"></script><script src=\\"/js/index.eab7357466f0f37a6b61.js\\" async=\\"\\" defer=\\"\\"></script></body></html>",
     "filename": "index.html",
   },
   Object {

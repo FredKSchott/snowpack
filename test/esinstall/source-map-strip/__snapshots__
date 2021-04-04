@@ -7,7 +7,7 @@ Array [
 ]
 `;
 
-exports[`source-map-strip matches the snapshot: cli output 1`] = `""`;
+exports[`source-map-strip matches the snapshot: cli output 1`] = `"@rollup/plugin-replace: 'preventAssignment' currently defaults to false. It is recommended to set this option to \`true\`, as the next major version will default this option to \`true\`."`;
 
 exports[`source-map-strip matches the snapshot: web_modules/@auth0/auth0-spa-js.js 1`] = `
 "/*! *****************************************************************************

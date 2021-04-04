@@ -8,7 +8,7 @@ Array [
 ]
 `;
 
-exports[`package-react matches the snapshot: cli output 1`] = `""`;
+exports[`package-react matches the snapshot: cli output 1`] = `"@rollup/plugin-replace: 'preventAssignment' currently defaults to false. It is recommended to set this option to \`true\`, as the next major version will default this option to \`true\`."`;
 
 exports[`package-react matches the snapshot: web_modules/import-map.json 1`] = `
 "{
