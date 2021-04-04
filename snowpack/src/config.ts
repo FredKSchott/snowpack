@@ -379,7 +379,7 @@ function normalizeMount(config: SnowpackConfig) {
   }
   // if no mounted directories, mount the root directory to the base URL
   if (!Object.keys(normalizedMount).length) {
-    normalizedMount[process.cwd()] = {
+    normalizedMount[config.root] = {
       url: '/',
       static: false,
       resolve: true,
