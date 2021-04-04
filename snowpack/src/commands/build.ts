@@ -1,4 +1,4 @@
-import {ImportMap, InstallTarget} from 'esinstall';
+import type {ImportMap, InstallTarget} from 'esinstall';
 import {promises as fs} from 'fs';
 import {fdir} from 'fdir';
 import picomatch from 'picomatch';

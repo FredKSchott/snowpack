@@ -756,7 +756,11 @@ export async function startServer(
     }
     // Backwards-compatable redirect for legacy package URLs: If someone has created an import URL manually
     // (ex: /_snowpack/pkg/react.js) then we need to redirect and warn to use our new API in the future.
-    if (reqUrl.startsWith(PACKAGE_PATH_PREFIX) && reqUrl.split('.').length <= 2) {
+    if (
+      reqUrl.startsWith(PACKAGE_PATH_PREFIX) &&
+      reqUrl.split('.').length <= 2 &&
+      config.packageOptions.source !== 'remote'
+    ) {
       if (!warnedDeprecatedPackageImport.has(reqUrl)) {
         logger.warn(
           `(${reqUrl}) Deprecated manual package import. Please use snowpack.getUrlForPackage() to create package URLs instead.`,

@@ -10,6 +10,7 @@ import {
   convertLockfileToSkypackImportMap,
   isJavaScript,
   parsePackageImportSpecifier,
+  readLockfile,
   remotePackageSDK,
 } from '../util';
 
@@ -24,8 +25,8 @@ function logFetching(origin: string, packageName: string, packageSemver: string 
       `→ ${origin}/${packageName}`,
     )}`,
   );
-  if (!packageSemver) {
-    logger.info(colors.yellow(`pin project to this version: \`snowpack add ${packageName}\``));
+  if (!packageSemver || packageSemver === 'latest') {
+    logger.info(colors.yellow(`pin dependency to this version: \`snowpack add ${packageName}\``));
   }
 }
 
@@ -34,17 +35,17 @@ function logFetching(origin: string, packageName: string, packageSemver: string 
  * Snowpack interacts with the Skypack CDN. Used to load dependencies
  * from the CDN during both development and optimized building.
  */
-let config: SnowpackConfig;
-let lockfile: LockfileManifest | null;
 export class PackageSourceRemote implements PackageSource {
   config: SnowpackConfig;
-  lockfile: LockfileManifest = {dependencies: {}, lock: {}};
+  lockfile: LockfileManifest | null = null;
 
   constructor(config: SnowpackConfig) {
     this.config = config;
   }
 
   async prepare() {
+    this.lockfile = await readLockfile(this.config.root);
+    const {config, lockfile} = this;
     // Only install types if `packageOptions.types=true`. Otherwise, no need to prepare anything.
     if (config.packageOptions.source === 'remote' && !config.packageOptions.types) {
       return;
@@ -78,6 +79,7 @@ export class PackageSourceRemote implements PackageSource {
   }
 
   async modifyBuildInstallOptions(installOptions) {
+    const {config, lockfile} = this;
     installOptions.importMap = lockfile
       ? convertLockfileToSkypackImportMap(
           (config.packageOptions as PackageOptionsRemote).origin,
@@ -102,6 +104,7 @@ export class PackageSourceRemote implements PackageSource {
   }
 
   async load(spec: string) {
+    const {config, lockfile} = this;
     let body: Buffer;
     if (
       spec.startsWith('-/') ||
@@ -168,7 +171,7 @@ export class PackageSourceRemote implements PackageSource {
 
   // TODO: Remove need for lookup URLs
   async resolvePackageImport(spec: string) {
-    return path.posix.join(config.buildOptions.metaUrlPath, 'pkg', spec);
+    return path.posix.join(this.config.buildOptions.metaUrlPath, 'pkg', spec);
   }
 
   static clearCache() {
@@ -181,6 +184,7 @@ export class PackageSourceRemote implements PackageSource {
   }
 
   getCacheFolder() {
+    const {config} = this;
     return (
       (config.packageOptions.source === 'remote' && config.packageOptions.cache) ||
       path.join(config.root, '.snowpack')
