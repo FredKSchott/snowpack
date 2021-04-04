@@ -253,9 +253,10 @@ export async function startServer(
   const isWatch = _isWatch ?? true;
   const isPreparePackages = _preparePackages ?? true;
   const {config} = commandOptions;
-  const pkgSource = getPackageSource(config.packageOptions.source);
+  const pkgSource = getPackageSource(config);
   if (isPreparePackages) {
-    await pkgSource.prepare(commandOptions);
+    await pkgSource.prepare();
+    logger.info(colors.bold('Ready!'));
   }
   let serverStart = performance.now();
   const {port: defaultPort, hostname, open, openUrl} = config.devOptions;
@@ -473,15 +474,13 @@ export async function startServer(
           warnedDeprecatedPackageImport.add(reqUrl);
         }
         const redirectUrl = await pkgSource.resolvePackageImport(
-          path.join(config.root, 'package.json'),
           reqUrl.replace(PACKAGE_PATH_PREFIX, '').replace(/\.js/, ''),
-          config,
         );
         reqPath = decodeURI(url.parse(redirectUrl).pathname!);
       }
       const resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
       const webModuleUrl = resourcePath.substr(PACKAGE_PATH_PREFIX.length);
-      let loadedModule = await pkgSource.load(webModuleUrl, isSSR, commandOptions);
+      let loadedModule = await pkgSource.load(webModuleUrl, {isSSR});
       if (!loadedModule) {
         throw new NotFoundError(reqPath);
       }
@@ -757,7 +756,11 @@ export async function startServer(
     }
     // Backwards-compatable redirect for legacy package URLs: If someone has created an import URL manually
     // (ex: /_snowpack/pkg/react.js) then we need to redirect and warn to use our new API in the future.
-    if (reqUrl.startsWith(PACKAGE_PATH_PREFIX) && reqUrl.split('.').length <= 2) {
+    if (
+      reqUrl.startsWith(PACKAGE_PATH_PREFIX) &&
+      reqUrl.split('.').length <= 2 &&
+      config.packageOptions.source !== 'remote'
+    ) {
       if (!warnedDeprecatedPackageImport.has(reqUrl)) {
         logger.warn(
           `(${reqUrl}) Deprecated manual package import. Please use snowpack.getUrlForPackage() to create package URLs instead.`,
@@ -765,9 +768,7 @@ export async function startServer(
         warnedDeprecatedPackageImport.add(reqUrl);
       }
       const redirectUrl = await pkgSource.resolvePackageImport(
-        path.join(config.root, 'package.json'),
         reqUrl.replace(PACKAGE_PATH_PREFIX, '').replace(/\.js/, ''),
-        config,
       );
       res.writeHead(301, {Location: redirectUrl});
       res.end();
@@ -874,6 +875,8 @@ export async function startServer(
     logger.info(
       colors.cyan('File changed: ') + path.relative(config.workspaceRoot || config.root, fileLoc),
     );
+    // TODO: If this needs to build a new dependency, report to the browser via HMR event.
+    await pkgSource.prepareSingleFile(fileLoc);
     const updatedUrls = getUrlsForFile(fileLoc, config);
     if (updatedUrls) {
       handleHmrUpdate && handleHmrUpdate(fileLoc, updatedUrls[0]);
@@ -892,7 +895,7 @@ export async function startServer(
     // Start watching the file system.
     // Defer "chokidar" loading to here, to reduce impact on overall startup time
     const chokidar = await import('chokidar');
-    watcher = chokidar.watch(Object.keys(config.mount), {
+    watcher = chokidar.watch([], {
       ignored: config.exclude.filter((k) => k !== '**/_*.{sass,scss}'), // Sass partials ignored for builds, but not for dev changes
       persistent: true,
       ignoreInitial: true,
@@ -912,9 +915,13 @@ export async function startServer(
     watcher.on('change', (fileLoc) => {
       onWatchEvent(fileLoc);
     });
-    if (config.devOptions.output !== 'dashboard' || !process.stdout.isTTY) {
-      logger.info(colors.cyan('watching for file changes... '));
-    }
+    // [hmrDelay] - Let users with noisy startups delay HMR (ex: 11ty, tsc builds)
+    setTimeout(() => {
+      watcher!.add(Object.keys(config.mount));
+      if (config.devOptions.output !== 'dashboard' || !process.stdout.isTTY) {
+        logger.info(colors.cyan('watching for file changes... '));
+      }
+    }, config.devOptions.hmrDelay);
   }
 
   // Open the user's browser (ignore if failed)
@@ -934,11 +941,7 @@ export async function startServer(
     sendResponseFile,
     sendResponseError,
     getUrlForPackage: (pkgSpec: string) => {
-      return pkgSource.resolvePackageImport(
-        path.join(config.root, 'package.json'),
-        pkgSpec,
-        config,
-      );
+      return pkgSource.resolvePackageImport(pkgSpec);
     },
     getUrlForFile: (fileLoc: string) => {
       const result = getUrlsForFile(fileLoc, config);

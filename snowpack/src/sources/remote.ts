@@ -5,8 +5,14 @@ import rimraf from 'rimraf';
 import {clearCache as clearSkypackCache, rollupPluginSkypack} from 'skypack';
 import util from 'util';
 import {logger} from '../logger';
-import {LockfileManifest, PackageSource, PackageSourceRemote, SnowpackConfig} from '../types';
-import {convertLockfileToSkypackImportMap, isJavaScript, remotePackageSDK} from '../util';
+import {LockfileManifest, PackageOptionsRemote, PackageSource, SnowpackConfig} from '../types';
+import {
+  convertLockfileToSkypackImportMap,
+  isJavaScript,
+  parsePackageImportSpecifier,
+  readLockfile,
+  remotePackageSDK,
+} from '../util';
 
 const fetchedPackages = new Set<string>();
 function logFetching(origin: string, packageName: string, packageSemver: string | undefined) {
@@ -19,19 +25,9 @@ function logFetching(origin: string, packageName: string, packageSemver: string 
       `→ ${origin}/${packageName}`,
     )}`,
   );
-  if (!packageSemver) {
-    logger.info(colors.yellow(`pin project to this version: \`snowpack add ${packageName}\``));
+  if (!packageSemver || packageSemver === 'latest') {
+    logger.info(colors.yellow(`pin dependency to this version: \`snowpack add ${packageName}\``));
   }
-}
-
-function parseRawPackageImport(spec: string): [string, string | null] {
-  const impParts = spec.split('/');
-  if (spec.startsWith('@')) {
-    const [scope, name, ...rest] = impParts;
-    return [`${scope}/${name}`, rest.join('/') || null];
-  }
-  const [name, ...rest] = impParts;
-  return [name, rest.join('/') || null];
 }
 
 /**
@@ -39,20 +35,28 @@ function parseRawPackageImport(spec: string): [string, string | null] {
  * Snowpack interacts with the Skypack CDN. Used to load dependencies
  * from the CDN during both development and optimized building.
  */
-export default {
-  async prepare(commandOptions) {
-    const {config, lockfile} = commandOptions;
+export class PackageSourceRemote implements PackageSource {
+  config: SnowpackConfig;
+  lockfile: LockfileManifest | null = null;
+
+  constructor(config: SnowpackConfig) {
+    this.config = config;
+  }
+
+  async prepare() {
+    this.lockfile = await readLockfile(this.config.root);
+    const {config, lockfile} = this;
     // Only install types if `packageOptions.types=true`. Otherwise, no need to prepare anything.
     if (config.packageOptions.source === 'remote' && !config.packageOptions.types) {
-      return {imports: {}};
+      return;
     }
     const lockEntryList = lockfile && (Object.keys(lockfile.lock) as string[]);
     if (!lockfile || !lockEntryList || lockEntryList.length === 0) {
-      return {imports: {}};
+      return;
     }
 
     logger.info('checking for new TypeScript types...', {name: 'packageOptions.types'});
-    await rimraf.sync(path.join(this.getCacheFolder(config), '.snowpack/types'));
+    await rimraf.sync(path.join(this.getCacheFolder(), '.snowpack/types'));
     for (const lockEntry of lockEntryList) {
       const [packageName, semverRange] = lockEntry.split('#');
       const exactVersion = lockfile.lock[lockEntry]?.substr(packageName.length + 1);
@@ -60,7 +64,7 @@ export default {
         .installTypes(
           packageName,
           exactVersion || semverRange,
-          path.join(this.getCacheFolder(config), 'types'),
+          path.join(this.getCacheFolder(), 'types'),
         )
         .catch((err) => logger.debug('dts fetch error: ' + err.message));
     }
@@ -68,12 +72,17 @@ export default {
     logger.info(`types updated. ${colors.dim('→ ./.snowpack/types')}`, {
       name: 'packageOptions.types',
     });
-  },
+  }
 
-  modifyBuildInstallOptions({installOptions, config, lockfile}) {
+  async prepareSingleFile() {
+    // Do nothing! Skypack loads packages on-demand.
+  }
+
+  async modifyBuildInstallOptions(installOptions) {
+    const {config, lockfile} = this;
     installOptions.importMap = lockfile
       ? convertLockfileToSkypackImportMap(
-          (config.packageOptions as PackageSourceRemote).origin,
+          (config.packageOptions as PackageOptionsRemote).origin,
           lockfile,
         )
       : undefined;
@@ -92,13 +101,10 @@ export default {
     );
     // config.installOptions.lockfile = lockfile || undefined;
     return installOptions;
-  },
+  }
 
-  async load(
-    spec: string,
-    _isSSR: boolean,
-    {config, lockfile}: {config: SnowpackConfig; lockfile: LockfileManifest | null},
-  ) {
+  async load(spec: string) {
+    const {config, lockfile} = this;
     let body: Buffer;
     if (
       spec.startsWith('-/') ||
@@ -108,7 +114,7 @@ export default {
     ) {
       body = (await remotePackageSDK.fetch(`/${spec}`)).body;
     } else {
-      const [packageName, packagePath] = parseRawPackageImport(spec.replace(/(?<!^)\@.*\//, '/'));
+      const [packageName, packagePath] = parsePackageImportSpecifier(spec);
       if (lockfile && lockfile.dependencies[packageName]) {
         const lockEntry = packageName + '#' + lockfile.dependencies[packageName];
         if (packagePath) {
@@ -120,7 +126,7 @@ export default {
       } else {
         const packageSemver = 'latest';
         logFetching(
-          (config.packageOptions as PackageSourceRemote).origin,
+          (config.packageOptions as PackageOptionsRemote).origin,
           packageName,
           packageSemver,
         );
@@ -137,12 +143,12 @@ export default {
         }
         // Trigger a type fetch asynchronously. We want to resolve the JS as fast as possible, and
         // the result of this is totally disconnected from the loading flow.
-        if (!existsSync(path.join(this.getCacheFolder(config), '.snowpack/types', packageName))) {
+        if (!existsSync(path.join(this.getCacheFolder(), '.snowpack/types', packageName))) {
           remotePackageSDK
             .installTypes(
               packageName,
               packageSemver,
-              path.join(this.getCacheFolder(config), '.snowpack/types'),
+              path.join(this.getCacheFolder(), '.snowpack/types'),
             )
             .catch(() => 'thats fine!');
         }
@@ -161,20 +167,27 @@ export default {
     }
 
     return {contents: body, imports: []};
-  },
+  }
 
-  async resolvePackageImport(_source: string, spec: string, config: SnowpackConfig) {
-    return path.posix.join(config.buildOptions.metaUrlPath, 'pkg', spec);
-  },
+  // TODO: Remove need for lookup URLs
+  async resolvePackageImport(spec: string) {
+    return path.posix.join(this.config.buildOptions.metaUrlPath, 'pkg', spec);
+  }
 
+  static clearCache() {
+    return clearSkypackCache();
+  }
+
+  /** @deprecated */
   clearCache() {
     return clearSkypackCache();
-  },
+  }
 
-  getCacheFolder(config) {
+  getCacheFolder() {
+    const {config} = this;
     return (
       (config.packageOptions.source === 'remote' && config.packageOptions.cache) ||
       path.join(config.root, '.snowpack')
     );
-  },
-} as PackageSource;
+  }
+}

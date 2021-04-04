@@ -5,7 +5,7 @@ published: true
 stream: Fetch your npm dependencies on-demand from a remote ESM CDN.
 ---
 
-Snowpack v3.0 introduces a new feature called **Streaming Imports** that fetches imported packages on-demand during development and building. By managing your frontend dependencies with Snowpack, you can leave `npm` for your tooling-only packages or even drop your dependency on `npm`/`yarn`/`pnpm` all togther.
+Snowpack v3.0 introduces a new feature called **Streaming Imports** that fetches imported packages on-demand during development and building. By managing your frontend dependencies with Snowpack, you can leave `npm` for your tooling-only packages or even drop your dependency on `npm`/`yarn`/`pnpm` all together.
 
 ## Enable Streaming Imports
 
@@ -16,7 +16,7 @@ Snowpack v3.0 introduces a new feature called **Streaming Imports** that fetches
 }
 ```
 
-Set `packageOptions.source` to "remote" to enable streaming imports. This tells Snowpack to fetch your imports from our remote CDN instead of bundling them locally. Read our [full documentation on `packageOptions`](/reference/configuration#packageoptions.source%3Dremote) to learn more about customizing this behavior.
+Set `packageOptions.source` to "remote" to enable streaming imports. This tells Snowpack to fetch your imports from the Skypack CDN instead of bundling them locally. Read our [full documentation on `packageOptions`](/reference/configuration#packageoptions.source%3Dremote) to learn more about customizing this behavior.
 
 ## How Streaming Imports Work
 

@@ -227,17 +227,17 @@ export interface RouteConfigObject {
   _srcRegex: RegExp;
 }
 
-export interface PackageSourceLocal
+export interface PackageOptionsLocal
   extends Omit<
     EsinstallOptions,
     'alias' | 'dest' | 'sourcemap' | 'verbose' | 'logger' | 'cwd' | 'dest' | 'treeshake'
   > {
-  source: 'local';
+  source: 'local' | 'remote-next' | {[key: string]: string};
   external: string[];
   knownEntrypoints: string[];
 }
 
-export interface PackageSourceRemote {
+export interface PackageOptionsRemote {
   source: 'remote';
   external: string[];
   knownEntrypoints: string[];
@@ -256,6 +256,7 @@ export interface SnowpackConfig {
   mount: Record<string, MountEntry>;
   alias: Record<string, string>;
   plugins: SnowpackPlugin[];
+  dependencies: Record<string, string>;
   devOptions: {
     secure: boolean | {cert: string | Buffer; key: string | Buffer};
     hostname: string;
@@ -285,7 +286,7 @@ export interface SnowpackConfig {
   testOptions: {
     files: string[];
   };
-  packageOptions: PackageSourceLocal | PackageSourceRemote;
+  packageOptions: PackageOptionsLocal | PackageOptionsRemote;
   /** Optimize your site for production. */
   optimize?: OptimizeOptions;
   /** Configure routes during development. */
@@ -306,6 +307,7 @@ export type SnowpackUserConfig = {
   mount?: Record<string, string | Partial<MountEntry>>;
   alias?: Record<string, string>;
   plugins?: (string | [string, any])[];
+  dependencies?: Record<string, string>;
   devOptions?: Partial<SnowpackConfig['devOptions']>;
   buildOptions?: Partial<SnowpackConfig['buildOptions']>;
   testOptions?: Partial<SnowpackConfig['testOptions']>;
@@ -341,7 +343,7 @@ export interface LockfileManifest {
 
 export interface CommandOptions {
   config: SnowpackConfig;
-  lockfile: LockfileManifest | null;
+  lockfile?: LockfileManifest | null;
 }
 
 export type LoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // same as Pino
@@ -360,30 +362,30 @@ export interface PackageSource {
    * for this to complete before continuing. Example: For "local", this involves
    * running esinstall (if needed) to prepare your local dependencies as ESM.
    */
-  prepare(commandOptions: CommandOptions): Promise<void>;
+  prepare(): Promise<void>;
+  /**
+   * Like prepare(), but only looks at a single file and meant to run at anytime,
+   * usually after the server has already started and is running.
+   */
+  prepareSingleFile(fileLoc: string): Promise<void>;
   /**
    * Load a dependency with the given spec (ex: "/pkg/react" -> "react")
    * If load fails or is unsuccessful, reject the promise.
    */
   load(
     spec: string,
-    isSSR: boolean,
-    options: {config: SnowpackConfig; lockfile: LockfileManifest | null},
+    options: {isSSR: boolean},
   ): Promise<undefined | {contents: Buffer | string; imports: InstallTarget[]}>;
   /** Resolve a package import to URL (ex: "react" -> "/pkg/react") */
   resolvePackageImport(
-    source: string,
     spec: string,
-    config: SnowpackConfig,
-    importMap?: ImportMap,
-    depth?: number,
+    options?: {source?: string; importMap?: ImportMap; depth?: number},
   ): Promise<string>;
   /** Modify the build install config for optimized build install. */
-  modifyBuildInstallOptions(options: {
-    installOptions: EsinstallOptions;
-    config: SnowpackConfig;
-    lockfile: LockfileManifest | null;
-  }): EsinstallOptions;
-  getCacheFolder(config: SnowpackConfig): string;
+  modifyBuildInstallOptions(
+    installOptions: EsinstallOptions,
+    installTargets: InstallTarget[],
+  ): Promise<EsinstallOptions>;
+  getCacheFolder(): string;
   clearCache(): void | Promise<void>;
 }
