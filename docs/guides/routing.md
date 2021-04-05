@@ -62,15 +62,24 @@ Proxied requests can be upgraded to a WebSocket connection via the "upgrade" eve
 
 ```js
 // snowpack.config.js
-const httpProxy = require('http-proxy');
-const proxy = httpProxy.createServer({target: 'http://localhost:3001'});
+const proxy = require('http2-proxy');
 
 module.exports = {
   routes: [
     {
-      src: '/socket.io/.*',
+      src: '/ws',
       upgrade: (req, socket, head) => {
-        proxy.ws(req, socket);
+        const defaultWSHandler = (err, req, socket, head) => {
+          if (err) {
+            console.error('proxy error', err);
+            socket.destroy();
+          }
+        };
+
+        proxy.ws(req, socket, head, {
+          hostname: 'localhost',
+          port: 3001
+        }, defaultWSHandler);
       },
     },
   ],
