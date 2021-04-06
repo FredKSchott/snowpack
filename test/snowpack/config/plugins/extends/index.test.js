@@ -1,7 +1,7 @@
-const {testFixture} = require('../../../fixture-utils');
+const {testFixture} = require('../../../../fixture-utils');
 const dedent = require('dedent');
 
-describe('extends-plugins', () => {
+describe('extends', () => {
   beforeAll(() => {
     // Needed until we make Snowpack's JS Build Interface quiet by default
     require('snowpack').logger.level = 'warn';
