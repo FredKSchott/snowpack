@@ -7,7 +7,7 @@ describe('buildOptions.metaUrlPath', () => {
     require('snowpack').logger.level = 'warn';
   });
 
-  it('Uses the configuration in the custom config path', async () => {
+  it('Uses the meta url path in the config with knownEntrypoints', async () => {
     const result = await testFixture(
       {
         packageOptions: {
@@ -26,6 +26,35 @@ describe('buildOptions.metaUrlPath', () => {
     );
     expect(result['index.js']).toEqual(
       expect.stringContaining(`import {flatten} from './other_folder/pkg/array-flatten.js';`),
+    );
+  });
+
+  it('Uses the meta url path in the config with mounted directory', async () => {
+    const result = await testFixture(
+      {
+        mount: {
+          './public': '/',
+        },
+        buildOptions: {
+          metaUrlPath: '/static/snowpack',
+        },
+      },
+      {
+        'public/index.js': dedent`
+          export default function doNothing() {}
+          console.log(import.meta.env);        
+        `,
+        'public/sub/index.js': dedent`
+          export default function doNothing() {}
+          console.log(import.meta.env);        
+        `,
+      },
+    );
+    expect(result['index.js']).toEqual(
+      expect.stringContaining(`import * as __SNOWPACK_ENV__ from './static/snowpack/env.js';`),
+    );
+    expect(result['sub/index.js']).toEqual(
+      expect.stringContaining(`import * as __SNOWPACK_ENV__ from '../static/snowpack/env.js';`),
     );
   });
 });
