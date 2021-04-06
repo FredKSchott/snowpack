@@ -237,7 +237,7 @@ export class FileBuilder {
         const isHmrEnabled = contents.includes('import.meta.hot');
         const rawImports = await scanCodeImportsExports(contents);
         const resolvedImports = rawImports.map((imp) => {
-          let spec = contents.substring(imp.s, imp.e);
+          let spec = contents.substring(imp.s, imp.e).replace(/(\/|\\)+$/, '');
           if (imp.d > -1) {
             spec = matchDynamicImportValue(spec) || '';
           }

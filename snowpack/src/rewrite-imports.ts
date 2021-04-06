@@ -48,7 +48,7 @@ export async function transformEsmImports(
   const collectedRewrites: RewriteInstruction[] = [];
   await Promise.all(
     imports.map(async (imp) => {
-      let spec = _code.substring(imp.s, imp.e);
+      let spec = _code.substring(imp.s, imp.e).replace(/(\/|\\)+$/, '');
       let webpackMagicCommentMatches;
       if (imp.d > -1) {
         // Extracting comments from spec as they are stripped in `matchDynamicImportValue`
