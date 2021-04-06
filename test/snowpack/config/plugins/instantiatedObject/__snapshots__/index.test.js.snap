@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`instantiatedObject Instantiated objects do not affect build 1`] = `"console.log('fooey');"`;
