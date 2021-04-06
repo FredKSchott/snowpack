@@ -36,11 +36,22 @@ exports.testFixture = async function testFixture(
     await writeFile(path.join(inDir, fileLoc), fileContents);
   }
 
-  const config = await snowpack.createConfiguration({
-    root: inDir,
-    mode: 'production',
-    ...userConfig,
-  });
+  const onFileConfig = Object.keys(testFiles).find((x) => x.match('snowpack.config'));
+  // || (JSON.parse(testFiles['package.json'] || {}).snowpack && 'package.json');
+
+  const config = onFileConfig
+    ? await snowpack.loadConfiguration(
+        {
+          root: inDir,
+          ...userConfig,
+        },
+        path.join(inDir, onFileConfig),
+      )
+    : await snowpack.createConfiguration({
+        root: inDir,
+        ...userConfig,
+      });
+
   const outDir = config.buildOptions.out;
   await snowpack.build({
     config,
