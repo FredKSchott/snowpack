@@ -255,7 +255,6 @@ describe('alias', () => {
             "dependencies": {
               "@fortawesome/fontawesome-free": "^5.14.0",
               "array-flatten": "^3.0.0",
-              "snowpack": "^3.0.0",
               "css-package-a": "file:./packages/css-package-a",
               "@css/package-b": "file:./packages/css-package-b"
             }

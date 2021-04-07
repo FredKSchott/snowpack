@@ -25,7 +25,7 @@ const writeFile = (file, data) =>
 exports.testFixture = async function testFixture(
   userConfig,
   testFiles,
-  {absolute} = {} /* options */,
+  {absolute = false} = {} /* options */,
 ) {
   const inDir = await fs.mkdtemp(path.join(__dirname, '__temp__', 'snowpack-fixture-'));
 
