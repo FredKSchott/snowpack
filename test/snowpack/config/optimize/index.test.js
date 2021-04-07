@@ -69,9 +69,9 @@ describe('optimize', () => {
           }
         `,
         'src/App.jsx': dedent`
-          import React, { useState, useEffect } from \'react\';
-          import logo from \'./logo.svg\';
-          import \'./App.css\';
+          import React, { useState, useEffect } from "react";
+          import logo from "./logo.svg";
+          import "./App.css";
           
           function App() {
             // Create the count state.
@@ -182,5 +182,30 @@ describe('optimize', () => {
       'dist/logo.svg',
       'index.html',
     ]);
+  });
+
+  it('Treeshakes imported modules', async () => {
+    const result = await testFixture(
+      {
+        optimize: {
+          treeshake: true,
+        },
+      },
+      {
+        'index.js': dedent`
+          // Test: complex comments intermixed with imports
+          import def, {
+            waterfall,
+            /* map, */
+            all /* , */,
+          } from 'async';
+          console.log(def, waterfall, all);
+          
+          import(/* webpackChunkName: "array-flatten" */ 'array-flatten');   
+        `,
+      },
+    );
+    expect(result['_snowpack/pkg/array-flatten.js']).toBeDefined();
+    expect(result['_snowpack/pkg/async.js']).toBeDefined();
   });
 });
