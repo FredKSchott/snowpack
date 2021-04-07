@@ -1,7 +1,7 @@
 const {testFixture} = require('../../../fixture-utils');
 const dedent = require('dedent');
 
-describe('suite', () => {
+describe('packageLookupFields', () => {
   beforeAll(() => {
     // Needed until we make Snowpack's JS Build Interface quiet by default
     require('snowpack').logger.level = 'silent';
