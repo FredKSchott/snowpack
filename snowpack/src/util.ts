@@ -3,16 +3,16 @@ import etag from 'etag';
 import execa from 'execa';
 import findUp from 'find-up';
 import fs from 'fs';
-import { isBinaryFile } from 'isbinaryfile';
+import {isBinaryFile} from 'isbinaryfile';
 import mkdirp from 'mkdirp';
 import open from 'open';
 import path from 'path';
 import rimraf from 'rimraf';
 import url from 'url';
 import getDefaultBrowserId from 'default-browser-id';
-import type { ImportMap, LockfileManifest, SnowpackConfig } from './types';
-import type { InstallTarget } from 'esinstall';
-import { SkypackSDK } from 'skypack';
+import type {ImportMap, LockfileManifest, SnowpackConfig} from './types';
+import type {InstallTarget} from 'esinstall';
+import {SkypackSDK} from 'skypack';
 
 // (!) Beware circular dependencies! No relative imports!
 // Because this file is imported from so many different parts of Snowpack,
@@ -31,7 +31,7 @@ export const REQUIRE_OR_IMPORT: (
   id: string,
 ) => Promise<any> = require('../assets/require-or-import.js');
 
-export const remotePackageSDK = new SkypackSDK({ origin: 'https://pkg.snowpack.dev' });
+export const remotePackageSDK = new SkypackSDK({origin: 'https://pkg.snowpack.dev'});
 
 // A note on cache naming/versioning: We currently version our global caches
 // with the version of the last breaking change. This allows us to re-use the
@@ -47,8 +47,13 @@ export const HTML_STYLE_REGEX = /(<style.*?>)(.*?)<\/style>/gims;
 export const CSS_REGEX = /@import\s*['"](.*?)['"];/gs;
 export const SVELTE_VUE_REGEX = /(<script[^>]*>)(.*?)<\/script>/gims;
 
+<<<<<<< HEAD
 export function getCacheKey(fileLoc: string, {isSSR, mode}) {
   return `${fileLoc}?mode=${mode}&isSSR=${isSSR ? '1' : '0'}`;
+=======
+export function getCacheKey(fileLoc: string, {isSSR, env}) {
+  return `${fileLoc}?env=${env}&isSSR=${isSSR ? '1' : '0'}`;
+>>>>>>> Run format on codebase
 }
 
 export type Awaited<T> = T extends PromiseLike<infer U> ? Awaited<U> : T;
@@ -57,7 +62,7 @@ export type Awaited<T> = T extends PromiseLike<infer U> ? Awaited<U> : T;
  * Like rimraf, but will fail if "dir" is outside of your configured build output directory.
  */
 export function deleteFromBuildSafe(dir: string, config: SnowpackConfig) {
-  const { out } = config.buildOptions;
+  const {out} = config.buildOptions;
   if (!path.isAbsolute(dir)) {
     throw new Error(`rimrafSafe(): dir ${dir} must be a absolute path`);
   }
@@ -76,9 +81,9 @@ export async function readFile(filepath: string): Promise<string | Buffer> {
   if (!data) {
     console.error(
       `Unexpected Node.js error: readFile(${filepath}) returned undefined.\n\n` +
-      `Somehow in Github CI / Jest its possible for fs.promises.readFile to return undefined.\n` +
-      `This should be impossible, and has not yet been reproduced in the real world, but we do see it in our own CI.\n` +
-      `If you are seeing this error, please report!`,
+        `Somehow in Github CI / Jest its possible for fs.promises.readFile to return undefined.\n` +
+        `This should be impossible, and has not yet been reproduced in the real world, but we do see it in our own CI.\n` +
+        `If you are seeing this error, please report!`,
     );
     data = fs.readFileSync(filepath);
   }
@@ -121,7 +126,7 @@ export function convertLockfileToSkypackImportMap(
   origin: string,
   lockfile: LockfileManifest,
 ): ImportMap {
-  const result = { imports: {} };
+  const result = {imports: {}};
   for (const [key, val] of Object.entries(lockfile.lock)) {
     result.imports[key.replace(/\#.*/, '')] = origin + '/' + val;
     result.imports[key.replace(/\#.*/, '') + '/'] = origin + '/' + val + '/';
@@ -133,7 +138,7 @@ export function convertSkypackImportMapToLockfile(
   dependencies: Record<string, string>,
   importMap: ImportMap,
 ): LockfileManifest {
-  const result = { dependencies, lock: {} };
+  const result = {dependencies, lock: {}};
   for (const [key, val] of Object.entries(dependencies)) {
     if (importMap.imports[key]) {
       const valPath = url.parse(importMap.imports[key]).pathname;
@@ -146,7 +151,7 @@ export function convertSkypackImportMapToLockfile(
 export async function writeLockfile(loc: string, importMap: LockfileManifest): Promise<void> {
   importMap.dependencies = sortObject(importMap.dependencies);
   importMap.lock = sortObject(importMap.lock);
-  fs.writeFileSync(loc, JSON.stringify(importMap, undefined, 2), { encoding: 'utf8' });
+  fs.writeFileSync(loc, JSON.stringify(importMap, undefined, 2), {encoding: 'utf8'});
 }
 
 export function isTruthy<T>(item: T | false | null | undefined): item is T {
@@ -192,7 +197,7 @@ export function resolveDependencyManifest(dep: string, cwd: string): [string | n
   // move on to our custom implementation.
   try {
     const depManifest = fs.realpathSync.native(
-      require.resolve(`${dep}/package.json`, { paths: [cwd] }),
+      require.resolve(`${dep}/package.json`, {paths: [cwd]}),
     );
     return [depManifest, NATIVE_REQUIRE(depManifest)];
   } catch (err) {
@@ -209,7 +214,7 @@ export function resolveDependencyManifest(dep: string, cwd: string): [string | n
   // established & move out of experimental mode.
   let result = [null, null] as [string | null, any | null];
   try {
-    const fullPath = fs.realpathSync.native(require.resolve(dep, { paths: [cwd] }));
+    const fullPath = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
     // Strip everything after the package name to get the package root path
     // NOTE: This find-replace is very gross, replace with something like upath.
     const searchPath = `${path.sep}node_modules${path.sep}${dep.replace('/', path.sep)}`;
@@ -218,7 +223,7 @@ export function resolveDependencyManifest(dep: string, cwd: string): [string | n
       const manifestPath =
         fullPath.substring(0, indexOfSearch + searchPath.length + 1) + 'package.json';
       result[0] = manifestPath;
-      const manifestStr = fs.readFileSync(manifestPath, { encoding: 'utf8' });
+      const manifestStr = fs.readFileSync(manifestPath, {encoding: 'utf8'});
       result[1] = JSON.parse(manifestStr);
     }
   } catch (err) {
@@ -232,7 +237,7 @@ export function resolveDependencyManifest(dep: string, cwd: string): [string | n
  * If Rollup erred parsing a particular file, show suggestions based on its
  * file extension (note: lowercase is fine).
  */
-export const MISSING_PLUGIN_SUGGESTIONS: { [ext: string]: string } = {
+export const MISSING_PLUGIN_SUGGESTIONS: {[ext: string]: string} = {
   '.svelte':
     'Try installing rollup-plugin-svelte and adding it to Snowpack (https://www.snowpack.dev/tutorials/svelte)',
   '.vue':
@@ -293,14 +298,14 @@ export async function openInBrowser(
   browser = /chrome/i.test(browser)
     ? appNames[process.platform]['chrome']
     : /brave/i.test(browser)
-      ? appNames[process.platform]['brave']
-      : browser;
+    ? appNames[process.platform]['brave']
+    : browser;
   const isMacChrome =
     process.platform === 'darwin' &&
     (/chrome/i.test(browser) ||
       (/default/i.test(browser) && /chrome/i.test(await getDefaultBrowserId())));
   if (!isMacChrome) {
-    await (browser === 'default' ? open(url) : open(url, { app: browser }));
+    await (browser === 'default' ? open(url) : open(url, {app: browser}));
     return;
   }
   try {
@@ -349,7 +354,7 @@ function getAliasType(val: string): 'package' | 'path' | 'url' {
 export function findMatchingAliasEntry(
   config: SnowpackConfig,
   spec: string,
-): { from: string; to: string; type: 'package' | 'path' | 'url' } | undefined {
+): {from: string; to: string; type: 'package' | 'path' | 'url'} | undefined {
   // Only match bare module specifiers. relative and absolute imports should not match
   if (isPathImport(spec) || isRemoteUrl(spec)) {
     return undefined;
