@@ -1,6 +1,6 @@
 # Snowpack docs
 
-We aim to follow the [Divio documentation system](https://documentation.divio.com/introduction/) though a lot of our docs are legacy and don't necessarily fit it yet.
+We aim to follow the [Diátaxis documentation system](https://diataxis.fr/) though a lot of our docs are legacy and don't necessarily fit it yet.
 
 ## Architecture
 

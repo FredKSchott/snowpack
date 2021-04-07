@@ -8,7 +8,7 @@ description: How to use Vue with Snowpack using the Vue Plugin.
 ---
 
 <div class="stub">
-This article is a stub, you can help expand it into <a href="https://documentation.divio.com/how-to-guides/">guide format</a>
+This article is a stub, you can help expand it into <a href="https://diataxis.fr/how-to-guides/">how-to guide format</a>
 </div>
 
 To support `.vue` files you will need the [Vue Plugin](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-vue), which uses Vue 3.
