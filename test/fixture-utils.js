@@ -71,7 +71,9 @@ exports.testFixture = async function testFixture(
     cwd: outDir,
     nodir: true,
     absolute: true,
+    dot: true,
   });
+
   for (const fileLoc of allFiles) {
     result[absolute ? fileLoc : path.relative(outDir, fileLoc)] = await fs.readFile(
       fileLoc,
@@ -79,7 +81,7 @@ exports.testFixture = async function testFixture(
     );
   }
   // TODO: Make it easier to turn this off when debugging.
-  await rimraf.sync(inDir);
+  // await rimraf.sync(inDir);
   // Return the result.
   return result;
 };
