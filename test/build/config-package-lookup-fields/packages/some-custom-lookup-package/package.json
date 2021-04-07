@@ -1,6 +1,0 @@
-{
-  "version": "1.0.0",
-  "name": "some-custom-lookup-package",
-  "custom-lookup": "good.js",
-  "module": "bad.js"
-}

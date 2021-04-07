@@ -36,9 +36,15 @@ exports.testFixture = async function testFixture(
     await writeFile(path.join(inDir, fileLoc), fileContents);
   }
 
-  const onFileConfig = Object.keys(testFiles).find((x) => x.match('snowpack.config'));
-  // || (JSON.parse(testFiles['package.json'] || {}).snowpack && 'package.json');
+  const hasPackageJson = testFiles['package.json'];
+  // Install any dependencies
+  hasPackageJson &&
+    require('child_process').execSync('yarn', {
+      cwd: inDir,
+      stdio: 'ignore',
+    });
 
+  const onFileConfig = Object.keys(testFiles).find((x) => x.match('snowpack.config'));
   const config = onFileConfig
     ? await snowpack.loadConfiguration(
         {
