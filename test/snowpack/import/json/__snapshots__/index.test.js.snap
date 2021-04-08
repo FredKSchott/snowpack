@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`json Imports JSON files correctly 1`] = `
+Object {
+  "_snowpack/pkg/import-map.json": "{
+  \\"imports\\": {
+    \\"json-test-pkg/file.json\\": \\"./json-test-pkg/file.json\\"
+  }
+}",
+  "_snowpack/pkg/json-test-pkg/file.json": "{\\"test-json-pkg\\": true}",
+  "_snowpack/pkg/json-test-pkg/file.json.proxy.js": "let json = {\\"test-json-pkg\\":true};
+export default json;",
+  "file.json": "{\\"test\\": true}",
+  "file.json.proxy.js": "let json = {\\"test\\":true};
+export default json;",
+  "index.js": "import testJsonData from './file.json.proxy.js';
+import testJsonPkgData from './_snowpack/pkg/json-test-pkg/file.json.proxy.js';
+console.log('loaded:', testJsonData, testJsonPkgData);",
+  "package.json": "{
+  \\"private\\": true,
+  \\"version\\": \\"1.0.1\\",
+  \\"name\\": \\"@snowpack/test-import-json\\",
+  \\"dependencies\\": {
+    \\"json-test-pkg\\": \\"file:./packages/json-test-pkg\\"
+  }
+}",
+  "packages/json-test-pkg/file.json": "{\\"test-json-pkg\\": true}",
+  "packages/json-test-pkg/package.json": "{
+  \\"name\\": \\"json-test-pkg\\",
+  \\"version\\": \\"0.1.0\\"
+}",
+}
+`;

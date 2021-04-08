@@ -81,7 +81,7 @@ exports.testFixture = async function testFixture(
     );
   }
   // TODO: Make it easier to turn this off when debugging.
-  // await rimraf.sync(inDir);
+  await rimraf.sync(inDir);
   // Return the result.
   return result;
 };
