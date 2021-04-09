@@ -746,13 +746,8 @@ export function createConfiguration(config: SnowpackUserConfig = {}): SnowpackCo
 }
 
 async function loadConfigurationFile(
-  filename: string,
+  loc: string,
 ): Promise<{filepath: string | undefined; config: SnowpackUserConfig} | null> {
-  const loc = path.resolve(process.cwd(), filename);
-  if (!existsSync(loc)) {
-    return null;
-  }
-
   const config = await REQUIRE_OR_IMPORT(loc);
   return {filepath: loc, config};
 }
@@ -781,13 +776,15 @@ export async function loadConfiguration(
   if (!result) {
     for (const potentialConfigurationFile of configs) {
       if (result) break;
-      result = await loadConfigurationFile(potentialConfigurationFile);
+      const loc = path.resolve(overrides.root || process.cwd(), potentialConfigurationFile);
+      if (existsSync(loc)) result = await loadConfigurationFile(loc);
     }
   }
 
   // Support package.json "snowpack" config
   if (!result) {
-    const potentialPackageJsonConfig = await loadConfigurationFile('package.json');
+    const loc = path.resolve(overrides.root || process.cwd(), 'package.json');
+    const potentialPackageJsonConfig = existsSync(loc) && (await loadConfigurationFile(loc));
     if (potentialPackageJsonConfig && (potentialPackageJsonConfig.config as any).snowpack) {
       result = {
         filepath: potentialPackageJsonConfig.filepath,
