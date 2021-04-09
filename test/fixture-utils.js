@@ -44,19 +44,10 @@ exports.testFixture = async function testFixture(
       stdio: 'ignore',
     });
 
-  const onFileConfig = Object.keys(testFiles).find((x) => x.match('snowpack.config'));
-  const config = onFileConfig
-    ? await snowpack.loadConfiguration(
-        {
-          root: inDir,
-          ...userConfig,
-        },
-        path.join(inDir, onFileConfig),
-      )
-    : await snowpack.createConfiguration({
-        root: inDir,
-        ...userConfig,
-      });
+  const config = await snowpack.loadConfiguration({
+    root: inDir,
+    ...userConfig,
+  });
 
   const outDir = config.buildOptions.out;
   await snowpack.build({
