@@ -71,6 +71,20 @@ exports.testFixture = async function testFixture(
       'utf8',
     );
   }
+
+  const snowpackCache = glob.sync(`.snowpack/**/*.{${UTF8_FRIENDLY_EXTS.join(',')}}`, {
+    cwd: inDir,
+    nodir: true,
+    absolute: true,
+  });
+
+  for (const fileLoc of snowpackCache) {
+    result[absolute ? fileLoc : path.relative(outDir, fileLoc)] = await fs.readFile(
+      fileLoc,
+      'utf8',
+    );
+  }
+
   // TODO: Make it easier to turn this off when debugging.
   await rimraf.sync(inDir);
   // Return the result.
