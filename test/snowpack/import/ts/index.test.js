@@ -38,6 +38,19 @@ describe('ts', () => {
             });
           });
         `,
+        'package.json': dedent`
+          {
+            "version": "1.0.1",
+            "name": "@snowpack/test-include-ts",
+            "dependencies": {
+              "array-flatten": "^3.0.0",
+              "http-vue-loader": "^1.4.1",
+              "shallow-equal": "^1.2.1",
+              "vue": "^2.0.0",
+              "vue-router": "^3.0.0"
+            }
+          }
+        `,
       },
     );
     expect(result['a.js']).toBeDefined();
