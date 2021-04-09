@@ -7,7 +7,7 @@ describe('invalid', () => {
     require('snowpack').logger.level = 'warn';
   });
 
-  it('Warns of invalid config values', async () => {
+  it.skip('Warns of invalid config values', async () => {
     await testFixture(
       {
         buildOptions: {
