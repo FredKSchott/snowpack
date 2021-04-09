@@ -78,7 +78,7 @@ describe('withExtension', () => {
 
   // Seems like loadConfiguration can't extract the snowpack options
   // when given a package.json path as the second argument
-  it.skip('Picks up a snowpack config within package.json', async () => {
+  it('Picks up a snowpack config within package.json', async () => {
     const result = await testFixture(
       {},
       {
