@@ -52,6 +52,7 @@ export async function installPackages({
     stats: false,
     rollup: {
       plugins: [
+        ...(config?.packageOptions?.rollup?.plugins ?? []),
         {
           name: 'esinstall:snowpack',
           async load(id: string) {
