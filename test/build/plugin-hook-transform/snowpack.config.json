@@ -1,9 +1,0 @@
-{
-  "mount": {
-    "./src": "/_dist_"
-  },
-  "buildOptions": {
-    "sourcemap": true
-  },
-  "plugins": ["./custom-transform-plugin.js"]
-}
