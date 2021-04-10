@@ -963,7 +963,7 @@ export async function command(commandOptions: CommandOptions) {
     commandOptions.config.devOptions.output =
       commandOptions.config.devOptions.output || 'dashboard';
     commandOptions.config.devOptions.open = commandOptions.config.devOptions.open || 'default';
-    commandOptions.config.devOptions.hmr = true;
+    commandOptions.config.devOptions.hmr = commandOptions.config.devOptions.hmr !== false;
     // Start the server
     await startServer(commandOptions, {isWatch: true});
   } catch (err) {
