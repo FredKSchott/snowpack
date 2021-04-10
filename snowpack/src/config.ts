@@ -436,7 +436,7 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
       entrypoints: config.optimize.entrypoints ?? 'auto',
       preload: config.optimize.preload ?? false,
       bundle: config.optimize.bundle ?? false,
-      sourcemap: config.optimize.splitting ?? true,
+      sourcemap: config.optimize.sourcemap ?? true,
       splitting: config.optimize.splitting ?? false,
       treeshake: config.optimize.treeshake ?? true,
       manifest: config.optimize.manifest ?? false,
