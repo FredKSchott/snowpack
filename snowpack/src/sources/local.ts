@@ -606,7 +606,7 @@ export class PackageSourceLocal implements PackageSource {
         const packageImports = new Set<string>();
         const code = loadedFile.toString('utf8');
         for (const imp of await scanCodeImportsExports(code)) {
-          const spec = code.substring(imp.s, imp.e);
+          const spec = code.substring(imp.s, imp.e).replace(/(\/|\\)+$/, ''); // remove trailing slash from end of specifier (easier for Node to resolve)
           if (isRemoteUrl(spec)) {
             continue;
           }
