@@ -107,7 +107,7 @@ export class FileBuilder {
     importMap?: ImportMap,
   ): Promise<InstallTarget[]> {
     const urlPathDirectory = path.posix.dirname(this.urls[0]!);
-    const pkgSource = getPackageSource(this.config.packageOptions.source);
+    const pkgSource = getPackageSource(this.config);
     const resolvedImports: InstallTarget[] = [];
     for (const [type, outputResult] of Object.entries(this.buildOutput)) {
       if (!(type === '.js' || type === '.html' || type === '.css')) {
@@ -152,12 +152,9 @@ export class FileBuilder {
         // Handle a package import
         if (!resolvedImportUrl) {
           try {
-            return await pkgSource.resolvePackageImport(
-              this.loc,
-              spec,
-              this.config,
-              importMap || (isResolve ? undefined : {imports: {}}),
-            );
+            return await pkgSource.resolvePackageImport(spec, {
+              importMap: importMap || (isResolve ? undefined : {imports: {}}),
+            });
           } catch (err) {
             if (!isResolve && /not included in import map./.test(err.message)) {
               return spec;
@@ -240,7 +237,7 @@ export class FileBuilder {
         const isHmrEnabled = contents.includes('import.meta.hot');
         const rawImports = await scanCodeImportsExports(contents);
         const resolvedImports = rawImports.map((imp) => {
-          let spec = contents.substring(imp.s, imp.e);
+          let spec = contents.substring(imp.s, imp.e).replace(/(\/|\\)+$/, '');
           if (imp.d > -1) {
             spec = matchDynamicImportValue(spec) || '';
           }

@@ -76,10 +76,11 @@ export function render(_ctx, _cache) {
       _createVNode(\\"a\\", _hoisted_5, _toDisplayString(_ctx.message), 1 /* TEXT */)
     ])
   ]))
-}
+};
 
-defaultExport.render = render
-export default defaultExport",
+defaultExport.render = render;
+
+export default defaultExport;",
     "map": "",
   },
 }
@@ -89,14 +90,16 @@ exports[`plugin base only tpl 1`] = `
 Object {
   ".js": Object {
     "code": "const defaultExport = {};
-import { createVNode as _createVNode, openBlock as _openBlock, createBlock as _createBlock } from \\"vue\\"
+
+import { openBlock as _openBlock, createBlock as _createBlock } from \\"vue\\"
 
 export function render(_ctx, _cache) {
   return (_openBlock(), _createBlock(\\"h1\\", null, \\"Vue Content Only Tpl\\"))
-}
+};
 
-defaultExport.render = render
-export default defaultExport",
+defaultExport.render = render;
+
+export default defaultExport;",
     "map": "",
   },
 }
@@ -178,10 +181,11 @@ export function render(_ctx, _cache) {
       _createVNode(\\"a\\", _hoisted_5, _toDisplayString(_ctx.message), 1 /* TEXT */)
     ])
   ]))
-}
+};
 
-defaultExport.render = render
-export default defaultExport",
+defaultExport.render = render;
+
+export default defaultExport;",
     "map": "",
   },
 }

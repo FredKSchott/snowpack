@@ -51,7 +51,7 @@
     "mkdirp": "^1.0.3",
     "p-queue": "^6.2.1",
     "rimraf": "^3.0.0",
-    "rollup": "^2.23.0",
+    "rollup": "~2.37.1",
     "validate-npm-package-name": "^3.0.0"
   }
 }

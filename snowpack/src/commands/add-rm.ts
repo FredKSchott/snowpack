@@ -10,7 +10,7 @@ import {
   writeLockfile,
   remotePackageSDK,
 } from '../util';
-import remotePackageSource from '../sources/remote';
+import {getPackageSource} from '../sources/util';
 
 function pkgInfoFromString(str) {
   const idx = str.lastIndexOf('@');
@@ -20,6 +20,11 @@ function pkgInfoFromString(str) {
 
 export async function addCommand(addValue: string, commandOptions: CommandOptions) {
   const {lockfile, config} = commandOptions;
+  if (config.packageOptions.source === 'remote-next') {
+    throw new Error(
+      `[remote-next] add command has been deprecated. Manually add dependencies to the "dependencies" object in your snowpack config file.`,
+    );
+  }
   if (config.packageOptions.source !== 'remote') {
     throw new Error(`add command requires packageOptions.source="remote".`);
   }
@@ -53,11 +58,16 @@ export async function addCommand(addValue: string, commandOptions: CommandOption
     ),
   );
   await writeLockfile(path.join(config.root, LOCKFILE_NAME), newLockfile);
-  await remotePackageSource.prepare(commandOptions);
+  await getPackageSource(config).prepare();
 }
 
 export async function rmCommand(addValue: string, commandOptions: CommandOptions) {
   const {lockfile, config} = commandOptions;
+  if (config.packageOptions.source === 'remote-next') {
+    throw new Error(
+      `[remote-next] rm command has been deprecated. Manually remove dependencies from the "dependencies" object in your snowpack config file.`,
+    );
+  }
   if (config.packageOptions.source !== 'remote') {
     throw new Error(`rm command requires packageOptions.source="remote".`);
   }
@@ -74,5 +84,5 @@ export async function rmCommand(addValue: string, commandOptions: CommandOptions
   );
   delete newLockfile.dependencies[pkgName];
   await writeLockfile(path.join(config.root, LOCKFILE_NAME), newLockfile);
-  await remotePackageSource.prepare(commandOptions);
+  await getPackageSource(config).prepare();
 }

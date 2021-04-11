@@ -64,14 +64,18 @@ From the repository's root folder, run
 ```bash
 yarn build
 yarn test
-yarn test:dev # might fail on windows, see #1171
+yarn test:dev # sometimes flaky on windows, see #1171
 ```
 
 ### Snapshot tests
 
-_Update Dec 2020: we’re working on improving this! Snapshots are now mostly gone from `test/build`, and we’ll be working through `test/esinstall` next. We‘ll wait to finish the work before updating this section, but know that this may become outdated soon._
+_Update March 2021: we’re working on improving this and would love your help converting old test directories to smaller TypeScript tests/fixtures!_
 
-The way our snapshot tests work is they test Snowpack by building the codebases in `test/build`. You'll almost always have a "failed" snapshot test when you make a contribution because your new change will make the final build different. You'll want to take a new snapshot. To do this run:
+All new tests should live in either `test/snowpack`, `test/esinstall`, or the `test` directory of one of our plugins (ex: `plugins/plugin-dotenv/test/plugin.test.js`). `test/build` is considered legacy and is in the process of getting converted into `test/snowpack`.
+
+The way our snapshot tests work is they test Snowpack by building a project. Because Snowpack's build method uses the dev server internally, this is a good way to test the build behavior of both dev & build together.
+
+You'll almost always have a "failed" snapshot test when you make a contribution because your new change will make the final build different. You'll want to take a new snapshot. To do this run:
 
 ```bash
 yarn test -u
@@ -81,10 +85,10 @@ You'll notice this changes the snapshot file. Commit this change and submit it a
 
 ### Filtering tests
 
-You can filter the tests that are being run using Jest's [`--testNamePattern`](https://jestjs.io/docs/en/cli#--testnamepatternregex) (alias: `-t`) CLI option. You can ignore the `123 snapshots obsolete` messages.
+Jest supports basic test filtering to only run a subset of our test suite. The [`--testNamePattern`](https://jestjs.io/docs/en/cli#--testnamepatternregex) flag also works as well.
 
 ```bash
-yarn test --testNamePattern treeshake
+yarn test treeshake
 ```
 
 ## Run local snowpack in another project

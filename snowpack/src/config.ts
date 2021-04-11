@@ -12,8 +12,8 @@ import {esbuildPlugin} from './plugins/plugin-esbuild';
 import {
   CLIFlags,
   MountEntry,
-  PackageSourceLocal,
-  PackageSourceRemote,
+  PackageOptionsLocal,
+  PackageOptionsRemote,
   PluginLoadResult,
   RouteConfigObject,
   SnowpackConfig,
@@ -49,6 +49,7 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
   alias: {},
   exclude: [],
   routes: [],
+  dependencies: {},
   devOptions: {
     secure: false,
     hostname: 'localhost',
@@ -75,7 +76,7 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
   packageOptions: {source: 'local'},
 };
 
-export const DEFAULT_PACKAGES_LOCAL_CONFIG: PackageSourceLocal = {
+export const DEFAULT_PACKAGES_LOCAL_CONFIG: PackageOptionsLocal = {
   source: 'local',
   external: [],
   packageLookupFields: [],
@@ -84,7 +85,7 @@ export const DEFAULT_PACKAGES_LOCAL_CONFIG: PackageSourceLocal = {
 
 const REMOTE_PACKAGE_ORIGIN = 'https://pkg.snowpack.dev';
 
-const DEFAULT_PACKAGES_REMOTE_CONFIG: PackageSourceRemote = {
+const DEFAULT_PACKAGES_REMOTE_CONFIG: PackageOptionsRemote = {
   source: 'remote',
   origin: REMOTE_PACKAGE_ORIGIN,
   external: [],
@@ -391,7 +392,7 @@ function normalizeMount(config: SnowpackConfig) {
   }
   // if no mounted directories, mount the root directory to the base URL
   if (!Object.keys(normalizedMount).length) {
-    normalizedMount[process.cwd()] = {
+    normalizedMount[config.root] = {
       url: '/',
       static: false,
       resolve: true,
@@ -447,7 +448,7 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
       entrypoints: config.optimize.entrypoints ?? 'auto',
       preload: config.optimize.preload ?? false,
       bundle: config.optimize.bundle ?? false,
-      sourcemap: config.optimize.splitting ?? true,
+      sourcemap: config.optimize.sourcemap ?? true,
       splitting: config.optimize.splitting ?? false,
       treeshake: config.optimize.treeshake ?? true,
       manifest: config.optimize.manifest ?? false,
@@ -465,7 +466,7 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
 
   // If any plugins defined knownEntrypoints, add them here
   for (const {knownEntrypoints} of config.plugins) {
-    if (knownEntrypoints && config.packageOptions.source === 'local') {
+    if (knownEntrypoints) {
       config.packageOptions.knownEntrypoints = config.packageOptions.knownEntrypoints.concat(
         knownEntrypoints,
       );

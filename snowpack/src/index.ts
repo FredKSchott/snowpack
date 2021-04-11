@@ -27,9 +27,9 @@ export function getUrlForFile(fileLoc: string, config: SnowpackConfig) {
   const result = getUrlsForFile(fileLoc, config);
   return result ? result[0] : result;
 }
-export function preparePackages({config, lockfile}: CommandOptions) {
-  const pkgSource = getPackageSource(config.packageOptions.source);
-  return pkgSource.prepare({config, lockfile});
+export function preparePackages({config}: CommandOptions) {
+  const pkgSource = getPackageSource(config);
+  return pkgSource.prepare();
 }
 
 // Deprecated API

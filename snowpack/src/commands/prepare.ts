@@ -26,7 +26,7 @@ export async function command(commandOptions: CommandOptions) {
       return;
     }
   }
-  const pkgSource = getPackageSource(config.packageOptions.source);
-  await pkgSource.prepare(commandOptions);
+  const pkgSource = getPackageSource(config);
+  await pkgSource.prepare();
   logger.info(colors.green('✔') + ' project ready!');
 }

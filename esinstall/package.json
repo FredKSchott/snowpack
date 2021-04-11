@@ -1,6 +1,6 @@
 {
   "name": "esinstall",
-  "version": "1.1.2",
+  "version": "1.1.4",
   "description": "Convert packages to ESM.",
   "license": "MIT",
   "keywords": [
@@ -47,13 +47,14 @@
     "builtin-modules": "^3.2.0",
     "cjs-module-lexer": "^1.0.0",
     "es-module-lexer": "^0.3.24",
+    "execa": "^5.0.0",
     "is-valid-identifier": "^2.0.2",
     "kleur": "^4.1.1",
     "mkdirp": "^1.0.3",
     "picomatch": "^2.2.2",
     "resolve": "^1.20.0",
     "rimraf": "^3.0.0",
-    "rollup": "2.37.1",
+    "rollup": "~2.37.1",
     "rollup-plugin-polyfill-node": "^0.6.2",
     "slash": "^3.0.0",
     "validate-npm-package-name": "^3.0.0",

@@ -18,8 +18,8 @@ module.exports = {
     // types: true,
   },
   devOptions: {
-    // Eleventy updates multiple files at once, so add a 1000ms delay before we trigger a browser update
-    hmrDelay: 1000,
+    // Eleventy updates multiple files at once, so add a delay before we trigger file watching
+    hmrDelay: 5000,
   },
   buildOptions: {
     out: '_site',

@@ -4,6 +4,15 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## esinstall@1.1.4 [2021-04-05]
+
+* 9eb50368 - update deps (#2928) 
+* d542762a - Add execa dependency for esinstall (#3075) <Matthew Phillips>
+
+## esinstall@1.1.3 [2021-04-01]
+
+* 332d69ed - Adding property expr to solve #2945 (#3063) <Nahuel Veron>
+
 ## esinstall@1.1.2 [2021-03-31]
 
 * 56c5a231 - fix typo in changelog 

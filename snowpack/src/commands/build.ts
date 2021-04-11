@@ -1,4 +1,4 @@
-import {ImportMap, InstallTarget} from 'esinstall';
+import type {ImportMap, InstallTarget} from 'esinstall';
 import {promises as fs} from 'fs';
 import {fdir} from 'fdir';
 import picomatch from 'picomatch';
@@ -64,12 +64,11 @@ async function installOptimizedDependencies(
       : commandOptions.config.optimize?.treeshake !== false,
   };
 
-  const pkgSource = getPackageSource(commandOptions.config.packageOptions.source);
-  const installOptions = pkgSource.modifyBuildInstallOptions({
-    installOptions: baseInstallOptions,
-    config: commandOptions.config,
-    lockfile: commandOptions.lockfile,
-  });
+  const pkgSource = getPackageSource(commandOptions.config);
+  const installOptions = await pkgSource.modifyBuildInstallOptions(
+    baseInstallOptions,
+    installTargets,
+  );
   // 2. Install dependencies, based on the scan of your final build.
   const installResult = await installPackages({
     config: commandOptions.config,
@@ -188,13 +187,11 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
   logger.info(colors.yellow('! building dependencies...'));
   const packagesStart = performance.now();
   if (isWatch) {
-    const pkgSource = getPackageSource(commandOptions.config.packageOptions.source);
-    await pkgSource.prepare(commandOptions);
+    const pkgSource = getPackageSource(commandOptions.config);
+    await pkgSource.prepare();
   } else {
     const installDest = path.join(buildDirectoryLoc, config.buildOptions.metaUrlPath, 'pkg');
     const installResult = await installOptimizedDependencies(
-      // TODO (v4): We should add `...config.packageOptions.knownEntrypoints` to this array
-      // now that knownEntrypoints is no longer needed for dev/test imports.
       [...allBareModuleSpecifiers],
       installDest,
       commandOptions,
