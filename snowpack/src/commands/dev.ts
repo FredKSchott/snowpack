@@ -451,7 +451,7 @@ export async function startServer(
     if (reqPath === getMetaUrlPath('/env.js', config)) {
       return {
         contents: encodeResponse(
-          generateEnvModule({mode: 'development', isSSR, configEnv: config.env}),
+          generateEnvModule({mode: isDev ? 'development' : 'production', isSSR, configEnv: config.env}),
           encoding,
         ),
         imports: [],

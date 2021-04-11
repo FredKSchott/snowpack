@@ -7458,8 +7458,8 @@ exports[`create-snowpack-app app-template-preact-typescript > build: index.html 
 `;
 
 exports[`create-snowpack-app app-template-react > build: _snowpack/env.js 1`] = `
-"export const MODE = \\"development\\";
-export const NODE_ENV = \\"development\\";
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
 export const SSR = false;"
 `;
 
@@ -8000,8 +8000,8 @@ exports[`create-snowpack-app app-template-react > build: index.html 1`] = `
 `;
 
 exports[`create-snowpack-app app-template-react-typescript > build: _snowpack/env.js 1`] = `
-"export const MODE = \\"development\\";
-export const NODE_ENV = \\"development\\";
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
 export const SSR = false;"
 `;
 
@@ -8542,8 +8542,8 @@ exports[`create-snowpack-app app-template-react-typescript > build: index.html 1
 `;
 
 exports[`create-snowpack-app app-template-svelte > build: _snowpack/env.js 1`] = `
-"export const MODE = \\"development\\";
-export const NODE_ENV = \\"development\\";
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
 export const SSR = false;"
 `;
 
@@ -8738,8 +8738,8 @@ exports[`create-snowpack-app app-template-svelte > build: index.html 1`] = `
 `;
 
 exports[`create-snowpack-app app-template-svelte-typescript > build: _snowpack/env.js 1`] = `
-"export const MODE = \\"development\\";
-export const NODE_ENV = \\"development\\";
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
 export const SSR = false;"
 `;
 
@@ -8932,8 +8932,8 @@ exports[`create-snowpack-app app-template-svelte-typescript > build: index.html 
 `;
 
 exports[`create-snowpack-app app-template-vue > build: _snowpack/env.js 1`] = `
-"export const MODE = \\"development\\";
-export const NODE_ENV = \\"development\\";
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
 export const SSR = false;"
 `;
 
@@ -14103,8 +14103,8 @@ exports[`create-snowpack-app app-template-vue > build: index.html 1`] = `
 `;
 
 exports[`create-snowpack-app app-template-vue-typescript > build: _snowpack/env.js 1`] = `
-"export const MODE = \\"development\\";
-export const NODE_ENV = \\"development\\";
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
 export const SSR = false;"
 `;
 
