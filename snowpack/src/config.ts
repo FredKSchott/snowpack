@@ -29,7 +29,7 @@ import {
 import type {Awaited} from './util';
 
 const CONFIG_NAME = 'snowpack';
-const ALWAYS_EXCLUDE = ['**/node_modules/**', '**/_*.{sass,scss}', '**.d.ts'];
+const ALWAYS_EXCLUDE = ['**/_*.{sass,scss}', '**.d.ts'];
 
 // default settings
 const DEFAULT_ROOT = process.cwd();
@@ -423,9 +423,6 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
     config.packageOptions.rollup = config.packageOptions.rollup || {};
     config.packageOptions.rollup.plugins = config.packageOptions.rollup.plugins || [];
   }
-  config.exclude = Array.from(
-    new Set([...ALWAYS_EXCLUDE, `${config.buildOptions.out}/**`, ...config.exclude]),
-  );
   // normalize config URL/path values
   config.buildOptions.out = removeTrailingSlash(config.buildOptions.out);
   config.buildOptions.baseUrl = addTrailingSlash(config.buildOptions.baseUrl);
@@ -434,6 +431,21 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
   );
   config.mount = normalizeMount(config);
   config.routes = normalizeRoutes(config.routes);
+
+  config.exclude = Array.from(
+    new Set([
+      ...ALWAYS_EXCLUDE,
+      // Always ignore the final build directory.
+      `${config.buildOptions.out}/**`,
+      // In general, we want to ignore node_modules directories. However, if you've mounted one
+      // to a URL it should be treated as source. In that case, we can't ignore.
+      ...(Object.keys(config.mount).some((entry) => entry.includes('node_modules'))
+        ? []
+        : [`${config.root}/node_modules/**`]),
+      ...config.exclude,
+    ]),
+  );
+
   if (config.optimize && JSON.stringify(config.optimize) !== '{}') {
     config.optimize = {
       entrypoints: config.optimize.entrypoints ?? 'auto',
