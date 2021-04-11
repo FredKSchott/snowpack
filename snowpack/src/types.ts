@@ -249,6 +249,7 @@ export interface PackageOptionsRemote {
 // interface this library uses internally
 export interface SnowpackConfig {
   root: string;
+  mode: 'test' | 'development' | 'production';
   workspaceRoot?: string | false;
   extends?: string;
   exclude: string[];
@@ -300,6 +301,7 @@ export interface SnowpackConfig {
 
 export type SnowpackUserConfig = {
   root?: string;
+  mode?: SnowpackConfig['mode'];
   workspaceRoot?: string;
   install?: string[];
   extends?: string;

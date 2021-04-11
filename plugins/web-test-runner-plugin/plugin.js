@@ -11,19 +11,13 @@ function isTestRunnerFile(url) {
 }
 
 module.exports = function () {
-  if (process.env.NODE_ENV !== 'test') {
-    throw new Error(`@snowpack/web-test-runner-plugin: NODE_ENV must === "test" to build files correctly.
-To Resolve:
-  1. Set "process.env.NODE_ENV = 'test';" at the top of your web-test-runner.config.js file (before all imports).
-  2. Prefix your web-test-runner CLI command: "NODE_ENV=test web-test-runner ...".
-`);
-  }
   let server, config;
 
   return {
     name: 'snowpack-plugin',
     async serverStart({fileWatcher}) {
       config = await snowpack.loadConfiguration({
+        mode: 'test',
         packageOptions: {external: ['/__web-dev-server__web-socket.js']},
         devOptions: {open: 'none', output: 'stream', hmr: false},
       });

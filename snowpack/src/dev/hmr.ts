@@ -80,7 +80,7 @@ export function startHmrEngine(
     // Otherwise, reload the page if the file exists in our hot cache (which
     // means that the file likely exists on the current page, but is not
     // supported by HMR (HTML, image, etc)).
-    if (inMemoryBuildCache.has(getCacheKey(fileLoc, {isSSR: false, env: process.env.NODE_ENV}))) {
+    if (inMemoryBuildCache.has(getCacheKey(fileLoc, {isSSR: false, mode: config.mode}))) {
       hmrEngine.broadcastMessage({type: 'reload'});
       return;
     }

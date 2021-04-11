@@ -319,7 +319,7 @@ export function generateEnvModule({
   isSSR,
   configEnv,
 }: {
-  mode: 'development' | 'production';
+  mode: SnowpackConfig['mode'];
   isSSR: boolean;
   configEnv?: Record<string, string | boolean | undefined>;
 }) {

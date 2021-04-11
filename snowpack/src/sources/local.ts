@@ -552,6 +552,8 @@ export class PackageSourceLocal implements PackageSource {
         const installOptions: InstallOptions = {
           dest: installDest,
           cwd: packageManifestLoc,
+          // This installer is only ever run in development. In production, many packages
+          // are installed together to take advantage of tree-shaking and package bundling.
           env: {NODE_ENV: 'development'},
           treeshake: false,
           sourcemap: config.buildOptions.sourcemap,

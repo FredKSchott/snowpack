@@ -58,7 +58,7 @@ async function installOptimizedDependencies(
   const baseInstallOptions = {
     dest: installDest,
     external: commandOptions.config.packageOptions.external,
-    env: {NODE_ENV: process.env.NODE_ENV || 'production'},
+    env: {NODE_ENV: commandOptions.config.mode},
     treeshake: commandOptions.config.buildOptions.watch
       ? false
       : commandOptions.config.optimize?.treeshake !== false,

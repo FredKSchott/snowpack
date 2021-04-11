@@ -86,6 +86,7 @@ const DEFAULT_PACKAGES_REMOTE_CONFIG: PackageOptionsRemote = {
 const configSchema = {
   type: 'object',
   properties: {
+    mode: {type: 'string', enum: ['test', 'development', 'production']},
     extends: {type: 'string'},
     exclude: {type: 'array', items: {type: 'string'}},
     plugins: {type: 'array'},
@@ -416,6 +417,7 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
   // SnowpackUserConfig type, we can have this function construct a fresh config object
   // from scratch instead of trying to modify the user's config object in-place.
   let config: SnowpackConfig = (_config as any) as SnowpackConfig;
+  config.mode = config.mode || (process.env.NODE_ENV as SnowpackConfig['mode']);
   if (config.packageOptions.source === 'local') {
     config.packageOptions.rollup = config.packageOptions.rollup || {};
     config.packageOptions.rollup.plugins = config.packageOptions.rollup.plugins || [];
