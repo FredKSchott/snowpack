@@ -39,8 +39,8 @@ describe('extends', () => {
       },
     );
 
-    expect(result['_snowpack/env.js']).toEqual(
-      expect.stringContaining(`export const SNOWPACK_PUBLIC_SECRET_VALUE = "pumpernickel";`),
+    expect(result['_snowpack/env.js']).toContain(
+      `export const SNOWPACK_PUBLIC_SECRET_VALUE = "pumpernickel";`,
     );
   });
 });

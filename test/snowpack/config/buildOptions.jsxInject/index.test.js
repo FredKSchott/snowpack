@@ -36,9 +36,11 @@ describe('buildOptions.jsxInject', () => {
       },
     );
     const injected = 'import {h, Fragment} from "./_snowpack/pkg/preact.js";';
-    expect(result['js-file.js']).not.toEqual(expect.stringContaining(injected));
-    expect(result['ts-file.js']).not.toEqual(expect.stringContaining(injected));
-    expect(result['jsx-file.js']).toEqual(expect.stringContaining(injected));
-    expect(result['tsx-file.js']).toEqual(expect.stringContaining(injected));
+    // Don't inject JSX factory functions where there is no JSX
+    expect(result['js-file.js']).not.toContain(injected);
+    expect(result['ts-file.js']).not.toContain(injected);
+    // Inject JSX factory functions where there is JSX
+    expect(result['jsx-file.js']).toContain(injected);
+    expect(result['tsx-file.js']).toContain(injected);
   });
 });

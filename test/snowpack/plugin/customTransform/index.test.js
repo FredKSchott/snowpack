@@ -56,7 +56,7 @@ describe('plugin', () => {
     );
 
     const SEARCH_STRING = `console.log('transformed');`;
-    expect(result['index.js']).toEqual(expect.stringContaining(SEARCH_STRING));
-    expect(result['submodule.js']).toEqual(expect.stringContaining(SEARCH_STRING));
+    expect(result['index.js']).toContain(SEARCH_STRING);
+    expect(result['submodule.js']).toContain(SEARCH_STRING);
   });
 });

@@ -33,10 +33,8 @@ describe('cdnUrls', () => {
         `,
       },
     );
-    expect(result['index.html']).toEqual(
-      expect.stringContaining(
-        '<script src="https://unpkg.com/browse/preact@10.4.5/dist/preact.js"></script>',
-      ),
+    expect(result['index.html']).toContain(
+      '<script src="https://unpkg.com/browse/preact@10.4.5/dist/preact.js"></script>',
     );
   });
 
@@ -52,11 +50,11 @@ describe('cdnUrls', () => {
         `,
       },
     );
-    expect(result['index.js']).toEqual(
-      expect.stringContaining('import React from "https://cdn.skypack.dev/react@^17.0.0";'),
+    expect(result['index.js']).toContain(
+      'import React from "https://cdn.skypack.dev/react@^17.0.0";',
     );
-    expect(result['index.js']).toEqual(
-      expect.stringContaining('import ReactDOM from "https://cdn.skypack.dev/react-dom@^17.0.0";'),
+    expect(result['index.js']).toContain(
+      'import ReactDOM from "https://cdn.skypack.dev/react-dom@^17.0.0";',
     );
   });
 

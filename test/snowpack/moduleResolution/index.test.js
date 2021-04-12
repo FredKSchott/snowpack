@@ -57,12 +57,10 @@ describe('moduleResolution', () => {
     expect(result['_snowpack/pkg/array-flatten.js']).toBeDefined();
     expect(result['_snowpack/pkg/css-package/style.css']).toBeDefined();
     // HTML imports of packages are rewritten
-    expect(result['index.html']).toEqual(
-      expect.stringContaining(`import {flatten} from './_snowpack/pkg/array-flatten.js';`),
+    expect(result['index.html']).toContain(
+      `import {flatten} from './_snowpack/pkg/array-flatten.js';`,
     );
-    expect(result['index.html']).toEqual(
-      expect.stringContaining(`@import "./_snowpack/pkg/css-package/style.css";`),
-    );
+    expect(result['index.html']).toContain(`@import "./_snowpack/pkg/css-package/style.css";`);
   });
 
   it('Resolves modules in both JS and nested HTML documents', async () => {
@@ -104,18 +102,12 @@ describe('moduleResolution', () => {
         `,
       },
     );
-    expect(result['deep/nested/index.html']).toEqual(
-      expect.stringContaining("import preact from '../../_snowpack/pkg/preact.js';"),
+    expect(result['deep/nested/index.html']).toContain(
+      "import preact from '../../_snowpack/pkg/preact.js';",
     );
-    expect(result['deep/index.html']).toEqual(
-      expect.stringContaining("import preact from '../_snowpack/pkg/preact.js';"),
-    );
-    expect(result['index.html']).toEqual(
-      expect.stringContaining("import preact from './_snowpack/pkg/preact.js';"),
-    );
-    expect(result['index.js']).toEqual(
-      expect.stringContaining("import './_snowpack/pkg/preact.js';"),
-    );
+    expect(result['deep/index.html']).toContain("import preact from '../_snowpack/pkg/preact.js';");
+    expect(result['index.html']).toContain("import preact from './_snowpack/pkg/preact.js';");
+    expect(result['index.js']).toContain("import './_snowpack/pkg/preact.js';");
   });
 
   it('Resolves modules with circular dependencies in mixed TS/JS', async () => {

@@ -21,6 +21,7 @@ describe('packageOptions.external', () => {
         `,
       },
     );
-    expect(result['index.js']).toEqual(expect.stringContaining(`import 'fs';`));
+
+    expect(result['index.js']).toContain(`import 'fs';`);
   });
 });

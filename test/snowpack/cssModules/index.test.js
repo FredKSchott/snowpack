@@ -67,8 +67,8 @@ describe('cssModules', () => {
     expect(result['App.module.css.proxy.js']).toEqual(
       expect.stringMatching(/\._App_[A-Za-z0-9]+_[A-Za-z0-9]+ \{/),
     );
-    expect(result['App.module.css.proxy.js']).not.toEqual(expect.stringContaining(`.App {`));
-    expect(result['App.module.css']).not.toEqual(expect.stringContaining(`.App {`));
+    expect(result['App.module.css.proxy.js']).not.toContain(`.App {`);
+    expect(result['App.module.css']).not.toContain(`.App {`);
     expect(result['App.module.css.json']).toBeDefined();
   });
 });

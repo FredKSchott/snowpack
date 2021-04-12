@@ -43,11 +43,9 @@ describe('packageLookupFields', () => {
         `,
       },
     );
-    expect(result['index.js']).toEqual(
-      expect.stringContaining(`import './_snowpack/pkg/some-custom-lookup-package.js';`),
-    );
-    expect(result['_snowpack/pkg/some-custom-lookup-package.js']).toEqual(
-      expect.stringContaining(`console.log('THIS IS THE GOOD ENTRYPOINT');`),
+    expect(result['index.js']).toContain(`import './_snowpack/pkg/some-custom-lookup-package.js';`);
+    expect(result['_snowpack/pkg/some-custom-lookup-package.js']).toContain(
+      `console.log('THIS IS THE GOOD ENTRYPOINT');`,
     );
   });
 });

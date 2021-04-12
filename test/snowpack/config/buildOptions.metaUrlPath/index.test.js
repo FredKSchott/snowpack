@@ -25,8 +25,8 @@ describe('buildOptions.metaUrlPath', () => {
       },
     );
     expect(result['other_folder/pkg/array-flatten.js']).toBeDefined();
-    expect(result['index.js']).toEqual(
-      expect.stringContaining(`import {flatten} from './other_folder/pkg/array-flatten.js';`),
+    expect(result['index.js']).toContain(
+      `import {flatten} from './other_folder/pkg/array-flatten.js';`,
     );
   });
 
@@ -52,11 +52,11 @@ describe('buildOptions.metaUrlPath', () => {
       },
     );
     expect(result['static/snowpack/env.js']).toBeDefined();
-    expect(result['index.js']).toEqual(
-      expect.stringContaining(`import * as __SNOWPACK_ENV__ from './static/snowpack/env.js';`),
+    expect(result['index.js']).toContain(
+      `import * as __SNOWPACK_ENV__ from './static/snowpack/env.js';`,
     );
-    expect(result['sub/index.js']).toEqual(
-      expect.stringContaining(`import * as __SNOWPACK_ENV__ from '../static/snowpack/env.js';`),
+    expect(result['sub/index.js']).toContain(
+      `import * as __SNOWPACK_ENV__ from '../static/snowpack/env.js';`,
     );
   });
 });

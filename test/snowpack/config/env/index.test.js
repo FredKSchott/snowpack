@@ -57,16 +57,10 @@ describe('env', () => {
       },
     );
 
-    expect(result['index.html']).toEqual(expect.stringContaining('lang="en"'));
-    expect(result['index.html']).toEqual(expect.stringContaining('data-mode="production"'));
-    expect(result['index.html']).toEqual(
-      expect.stringContaining('data-my-env-var="my-var-replacement"'),
-    );
-    expect(result['index.html']).toEqual(
-      expect.stringContaining('data-edge-case-test="%SNOWPACK_PUBLIC_%"'),
-    );
-    expect(result['index.html']).toEqual(
-      expect.stringContaining('data-undefined="%SNOWPACK_PUBLIC_BUILD_UNDEFINED%"'),
-    );
+    expect(result['index.html']).toContain('lang="en"');
+    expect(result['index.html']).toContain('data-mode="production"');
+    expect(result['index.html']).toContain('data-my-env-var="my-var-replacement"');
+    expect(result['index.html']).toContain('data-edge-case-test="%SNOWPACK_PUBLIC_%"');
+    expect(result['index.html']).toContain('data-undefined="%SNOWPACK_PUBLIC_BUILD_UNDEFINED%"');
   });
 });

@@ -37,7 +37,7 @@ describe('mount', () => {
 
   it('Allows direct mappings', async () => {
     const result = await testFixture({mount: {a: '/a'}}, {'a/index.js': dedent`console.log('a');`});
-    expect(result['a/index.js']).toEqual(expect.stringContaining("console.log('a');"));
+    expect(result['a/index.js']).toContain("console.log('a');");
   });
 
   it('Allows renamed mappings', async () => {
@@ -45,7 +45,7 @@ describe('mount', () => {
       {mount: {'src/b': '/new-b'}},
       {'src/b/index.js': dedent`console.log('b');`},
     );
-    expect(result['new-b/index.js']).toEqual(expect.stringContaining("console.log('b');"));
+    expect(result['new-b/index.js']).toContain("console.log('b');");
   });
 
   it('Allows deep to deep renamed mappings', async () => {
@@ -53,7 +53,7 @@ describe('mount', () => {
       {mount: {'src/c': '/deep/c'}},
       {'src/c/index.js': dedent`console.log('c');`},
     );
-    expect(result['deep/c/index.js']).toEqual(expect.stringContaining("console.log('c');"));
+    expect(result['deep/c/index.js']).toContain("console.log('c');");
   });
 
   it('Allows mapping to directory with a trailing slash', async () => {
@@ -61,7 +61,7 @@ describe('mount', () => {
       {mount: {'src/d': '/bad/d/'}},
       {'src/d/index.js': dedent`console.log('d');`},
     );
-    expect(result['bad/d/index.js']).toEqual(expect.stringContaining("console.log('d');"));
+    expect(result['bad/d/index.js']).toContain("console.log('d');");
   });
 
   it('Allows deep to shallow renamed mappings', async () => {
@@ -69,7 +69,7 @@ describe('mount', () => {
       {mount: {'src/e/f': '/e'}},
       {'src/e/f/index.js': dedent`console.log('e/f');`},
     );
-    expect(result['e/index.js']).toEqual(expect.stringContaining("console.log('e/f');"));
+    expect(result['e/index.js']).toContain("console.log('e/f');");
   });
 
   it('Allows mappings with transforms and import resolution on HTML and JS', async () => {
@@ -87,10 +87,10 @@ describe('mount', () => {
     );
     // JSX was transformed and imports resolved
     expect(result['g/index.jsx']).not.toBeDefined();
-    expect(result['g/index.js']).toEqual(expect.stringContaining('import "./dep.js";'));
+    expect(result['g/index.js']).toContain('import "./dep.js";');
     // HTML imports were resolved
-    expect(result['g/main.html']).not.toEqual(expect.stringContaining('%PUBLIC_URL%'));
-    expect(result['g/main.html']).toEqual(expect.stringContaining("import './dep.js';"));
+    expect(result['g/main.html']).not.toContain('%PUBLIC_URL%');
+    expect(result['g/main.html']).toContain("import './dep.js';");
   });
 
   it('Allows mappings with no transforms or import resolution on HTML and JS', async () => {
@@ -108,10 +108,10 @@ describe('mount', () => {
     );
     // JSX was not transformed and inputs not resolved
     expect(result['g/index.js']).not.toBeDefined();
-    expect(result['g/index.jsx']).toEqual(expect.stringContaining("import './dep';"));
+    expect(result['g/index.jsx']).toContain("import './dep';");
     // HTML imports were not resolved
-    expect(result['g/main.html']).toEqual(expect.stringContaining('%PUBLIC_URL%'));
-    expect(result['g/main.html']).toEqual(expect.stringContaining("import './dep';"));
+    expect(result['g/main.html']).toContain('%PUBLIC_URL%');
+    expect(result['g/main.html']).toContain("import './dep';");
   });
 
   it('Allows mappings with transforms but no import resolution on HTML and JS', async () => {
@@ -128,10 +128,10 @@ describe('mount', () => {
       advanced,
     );
     // JSX was transformed but imports not resolved
-    expect(result['g/index.js']).toEqual(expect.stringContaining('import "./dep";'));
+    expect(result['g/index.js']).toContain('import "./dep";');
     // HTML imports were not resolved
-    expect(result['g/main.html']).toEqual(expect.stringContaining('%PUBLIC_URL%'));
-    expect(result['g/main.html']).toEqual(expect.stringContaining("import './dep';"));
+    expect(result['g/main.html']).toContain('%PUBLIC_URL%');
+    expect(result['g/main.html']).toContain("import './dep';");
   });
 
   it('Allows mappings with no transforms but import resolution on HTML', async () => {
@@ -148,9 +148,9 @@ describe('mount', () => {
       advanced,
     );
     // JSX was not transformed and imports not resolved
-    expect(result['g/index.jsx']).toEqual(expect.stringContaining("import './dep';"));
+    expect(result['g/index.jsx']).toContain("import './dep';");
     // HTML imports were resolved
-    expect(result['g/main.html']).not.toEqual(expect.stringContaining('%PUBLIC_URL%'));
-    expect(result['g/main.html']).toEqual(expect.stringContaining("import './dep.js';"));
+    expect(result['g/main.html']).not.toContain('%PUBLIC_URL%');
+    expect(result['g/main.html']).toContain("import './dep.js';");
   });
 });

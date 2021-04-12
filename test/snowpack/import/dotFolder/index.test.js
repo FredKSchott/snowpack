@@ -21,8 +21,6 @@ describe('dotFolder', () => {
       },
     );
     expect(result['.dot/file.js']).toBeDefined();
-    expect(result['index.js']).toEqual(
-      expect.stringContaining("import {a} from './.dot/file.js';"),
-    );
+    expect(result['index.js']).toContain("import {a} from './.dot/file.js';");
   });
 });
