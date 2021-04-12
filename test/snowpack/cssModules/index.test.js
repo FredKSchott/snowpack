@@ -4,7 +4,7 @@ const dedent = require('dedent');
 describe('cssModules', () => {
   beforeAll(() => {
     // Needed until we make Snowpack's JS Build Interface quiet by default
-    require('snowpack').logger.level = 'warn';
+    require('snowpack').logger.level = 'error';
   });
 
   it('Builds css.proxy.js file from css module import', async () => {

@@ -4,7 +4,7 @@ const dedent = require('dedent');
 describe('withExtension', () => {
   beforeAll(() => {
     // Needed until we make Snowpack's JS Build Interface quiet by default
-    require('snowpack').logger.level = 'warn';
+    require('snowpack').logger.level = 'error';
   });
 
   it('Picks up a snowpack config with .cjs extension', async () => {

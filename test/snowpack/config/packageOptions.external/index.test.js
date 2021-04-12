@@ -4,7 +4,7 @@ const dedent = require('dedent');
 describe('packageOptions.external', () => {
   beforeAll(() => {
     // Needed until we make Snowpack's JS Build Interface quiet by default
-    require('snowpack').logger.level = 'warn';
+    require('snowpack').logger.level = 'error';
   });
 
   it('Does not transform imports of external modules', async () => {
