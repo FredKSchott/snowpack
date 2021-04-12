@@ -265,14 +265,24 @@ export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
     .reduce((flat, item) => flat.concat(item), []);
 }
 
+function filterObject(obj, predicate) {
+  let result = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (predicate(obj[key])) result[key] = value;
+  }
+  return result;
+}
+
 export async function scanImports(
   includeTests: boolean,
   config: SnowpackConfig,
 ): Promise<InstallTarget[]> {
   await initESModuleLexer;
+  const mountWithResolve = filterObject(config.mount, item => item.resolve);
+  const filterJS = (path, isDirectory) => !isDirectory && (path.endsWith(".js") || path.endsWith(".mjs"));
   const includeFileSets = await Promise.all(
-    Object.keys(config.mount).map(async (fromDisk) => {
-      return (await new fdir().withFullPaths().crawl(fromDisk).withPromise()) as string[];
+    Object.keys(mountWithResolve).map(async (fromDisk) => {
+      return (await new fdir().filter(filterJS).withFullPaths().crawl(fromDisk).withPromise()) as string[];
     }),
   );
   const includeFiles = Array.from(new Set(([] as string[]).concat.apply([], includeFileSets)));
