@@ -66,7 +66,7 @@ exports.testFixture = async function testFixture(
   });
 
   for (const fileLoc of allFiles) {
-    result[absolute ? fileLoc : path.relative(outDir, fileLoc)] = await fs.readFile(
+    result[absolute ? fileLoc : path.relative(outDir, fileLoc)] = require('fs').readFileSync(
       fileLoc,
       'utf8',
     );
@@ -79,7 +79,7 @@ exports.testFixture = async function testFixture(
   });
 
   for (const fileLoc of snowpackCache) {
-    result[absolute ? fileLoc : path.relative(outDir, fileLoc)] = await fs.readFile(
+    result[absolute ? fileLoc : path.relative(outDir, fileLoc)] = require('fs').readFileSync(
       fileLoc,
       'utf8',
     );
