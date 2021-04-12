@@ -76,8 +76,26 @@ describe('withExtension', () => {
     expect(Object.keys(result).every((x) => x.match('/TEST_BUILD_OUT/'))).toBeTruthy();
   });
 
-  // Seems like loadConfiguration can't extract the snowpack options
-  // when given a package.json path as the second argument
+  it('Picks up a snowpack config with .json extension', async () => {
+    const result = await testFixture(
+      {},
+      {
+        'index.js': dedent`
+          console.log(import.meta.env);
+        `,
+        'snowpack.config.json': dedent`
+          {
+            "buildOptions": {
+              "out": "TEST_BUILD_OUT"
+            }
+          }
+        `,
+      },
+      {absolute: true},
+    );
+    expect(Object.keys(result).every((x) => x.match('/TEST_BUILD_OUT/'))).toBeTruthy();
+  });
+
   it('Picks up a snowpack config within package.json', async () => {
     const result = await testFixture(
       {},
