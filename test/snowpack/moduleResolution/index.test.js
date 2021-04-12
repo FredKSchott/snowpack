@@ -59,4 +59,46 @@ describe('moduleResolution', () => {
       expect.stringContaining("import './_snowpack/pkg/preact.js';"),
     );
   });
+
+  it('Resolves modules with circular dependencies in mixed TS/JS', async () => {
+    const result = await testFixture(
+      {},
+      {
+        'a/a.js': dedent`
+          import '/index.js';
+        `,
+        'b/b.js': dedent`
+          throw new Error('Not me either!');
+        `,
+        'b.ts': dedent`
+          import '/index.js';
+        `,
+        'index.js': dedent`
+          import isArray from 'is-array';
+          import a from './a/a.js';
+          import b from './b'; 
+        `,
+        'is-array.js': dedent`
+          throw new Error('Not me!');
+        `,
+        'package.json': dedent`
+          {
+            "version": "1.0.0",
+            "name": "@snowpack/test-resolve-js",
+            "dependencies": {
+              "is-array": "^1.0.1"
+            }
+          }
+        `,
+      },
+    );
+
+    // We are using the node_modules version, not the local 'is-array.js'
+    expect(result['_snowpack/pkg/is-array.js']).toBeDefined();
+    expect(result['index.js']).toContain(`import isArray from './_snowpack/pkg/is-array.js';`);
+    // A URL-style import works
+    expect(result['a/a.js']).toContain(`import '../index.js';`);
+    // We don't mistakenly import an index file from a directory with the same name
+    expect(result['index.js']).toContain(`import b from './b.js';`);
+  });
 });
