@@ -9,35 +9,35 @@ describe('extends', () => {
 
   // Doesn't seem to inherit plugins
   it.skip('Loads and uses the appropriate plugins', async () => {
-    const result = await testFixture(
-      {
-        extends: './base/snowpack.config.json',
-        plugins: ['@snowpack/plugin-sass'],
-      },
-      {
-        'base/package.json': dedent`
-          {
-            "private": true,
-            "version": "1.0.0",
-            "name": "@snowpack/test-config-extends-plugins-base",
-            "devDependencies": {
-              "@snowpack/plugin-dotenv": "^1.6.0-alpha.0"
-            }
-          } 
-        `,
-        'base/snowpack.config.json': dedent`
-          {
-            "plugins": ["@snowpack/plugin-dotenv"]
-          }        
-        `,
-        'index.js': dedent`
-          console.log(import.meta.env.SNOWPACK_PUBLIC_SECRET_VALUE);
-        `,
-        '.env': dedent`
-          SNOWPACK_PUBLIC_SECRET_VALUE=pumpernickel
-        `,
-      },
-    );
+    const result = await testFixture({
+      'base/package.json': dedent`
+        {
+          "private": true,
+          "version": "1.0.0",
+          "name": "@snowpack/test-config-extends-plugins-base",
+          "devDependencies": {
+            "@snowpack/plugin-dotenv": "^1.6.0-alpha.0"
+          }
+        } 
+      `,
+      'base/snowpack.config.json': dedent`
+        {
+          "plugins": ["@snowpack/plugin-dotenv"]
+        }        
+      `,
+      'index.js': dedent`
+        console.log(import.meta.env.SNOWPACK_PUBLIC_SECRET_VALUE);
+      `,
+      '.env': dedent`
+        SNOWPACK_PUBLIC_SECRET_VALUE=pumpernickel
+      `,
+      'snowpack.config.js': dedent`
+        module.exports = {
+          extends: './base/snowpack.config.json',
+          plugins: ['@snowpack/plugin-sass'],
+        };
+      `,
+    });
 
     expect(result['_snowpack/env.js']).toContain(
       `export const SNOWPACK_PUBLIC_SECRET_VALUE = "pumpernickel";`,

@@ -8,14 +8,8 @@ describe('buildOptions.jsxInject', () => {
   });
 
   it('Injects JSX factory function where appropriate', async () => {
-    const result = await testFixture(
-      {
-        buildOptions: {
-          jsxInject: 'import { h, Fragment } from "preact";',
-        },
-      },
-      {
-        'index.html': dedent`
+    const result = await testFixture({
+      'index.html': dedent`
           <!DOCTYPE html>
           <html lang="en">
             <head>
@@ -29,12 +23,18 @@ describe('buildOptions.jsxInject', () => {
             </body>
           </html>
         `,
-        'js-file.js': dedent`export default 'no-jsx';`,
-        'ts-file.ts': dedent`export default 'no-jsx';`,
-        'jsx-file.jsx': dedent`const Component = () => <><h1>Hello world!</h1></>;`,
-        'tsx-file.tsx': dedent`const Component = () => <><h1>Hello world!</h1></>;`,
-      },
-    );
+      'js-file.js': dedent`export default 'no-jsx';`,
+      'ts-file.ts': dedent`export default 'no-jsx';`,
+      'jsx-file.jsx': dedent`const Component = () => <><h1>Hello world!</h1></>;`,
+      'tsx-file.tsx': dedent`const Component = () => <><h1>Hello world!</h1></>;`,
+      'snowpack.config.js': dedent`
+        module.exports = {
+          buildOptions: {
+            jsxInject: 'import { h, Fragment } from "preact";',
+          },
+        };
+      `,
+    });
     const injected = 'import {h, Fragment} from "./_snowpack/pkg/preact.js";';
     // Don't inject JSX factory functions where there is no JSX
     expect(result['js-file.js']).not.toContain(injected);

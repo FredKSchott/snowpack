@@ -9,7 +9,6 @@ describe('withExtension', () => {
 
   it('Picks up a snowpack config with .cjs extension', async () => {
     const result = await testFixture(
-      {},
       {
         'index.js': dedent`
           console.log(import.meta.env);
@@ -24,13 +23,13 @@ describe('withExtension', () => {
       },
       {absolute: true},
     );
+
     expect(Object.keys(result).every((x) => x.match('/TEST_BUILD_OUT/'))).toBeTruthy();
   });
 
   // Jest can't handle the module import here for some reason
   it.skip('Picks up a snowpack config inside of a "module" type package', async () => {
     const result = await testFixture(
-      {},
       {
         'index.js': dedent`
           console.log(import.meta.env);
@@ -52,13 +51,13 @@ describe('withExtension', () => {
       },
       {absolute: true},
     );
+
     expect(Object.keys(result).every((x) => x.match('/TEST_BUILD_OUT/'))).toBeTruthy();
   });
 
   // Jest can't handle the module import here for some reason
   it.skip('Picks up a snowpack config with .mjs extension', async () => {
     const result = await testFixture(
-      {},
       {
         'index.js': dedent`
           console.log(import.meta.env);
@@ -78,7 +77,6 @@ describe('withExtension', () => {
 
   it('Picks up a snowpack config with .json extension', async () => {
     const result = await testFixture(
-      {},
       {
         'index.js': dedent`
           console.log(import.meta.env);
@@ -93,12 +91,12 @@ describe('withExtension', () => {
       },
       {absolute: true},
     );
+
     expect(Object.keys(result).every((x) => x.match('/TEST_BUILD_OUT/'))).toBeTruthy();
   });
 
   it('Picks up a snowpack config within package.json', async () => {
     const result = await testFixture(
-      {},
       {
         'index.js': dedent`
           console.log(import.meta.env);
@@ -117,6 +115,7 @@ describe('withExtension', () => {
       },
       {absolute: true},
     );
+
     expect(Object.keys(result).every((x) => x.match('/TEST_BUILD_OUT/'))).toBeTruthy();
   });
 });

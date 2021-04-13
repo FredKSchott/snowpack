@@ -20,9 +20,6 @@ describe('instantiatedObject', () => {
   it('Instantiated objects do not affect build', async () => {
     const result = await testFixture(
       {
-        plugins: [['./dummy-plugin.js', {instance}]],
-      },
-      {
         'index.js': dedent`
           console.log('fooey');
         `,
@@ -39,6 +36,11 @@ describe('instantiatedObject', () => {
             return {name: 'dummy-plugin'};
           };
         `,
+      },
+      {
+        overrides: {
+          plugins: [['./dummy-plugin.js', {instance}]],
+        },
       },
     );
     expect(result['index.js']).toMatchSnapshot();

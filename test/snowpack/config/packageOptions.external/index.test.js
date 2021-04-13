@@ -8,19 +8,19 @@ describe('packageOptions.external', () => {
   });
 
   it('Does not transform imports of external modules', async () => {
-    const result = await testFixture(
-      {
-        packageOptions: {
-          external: ['fs'],
-        },
-      },
-      {
-        'index.js': dedent`
-          import 'fs';
-          import 'array-flatten';
-        `,
-      },
-    );
+    const result = await testFixture({
+      'index.js': dedent`
+        import 'fs';
+        import 'array-flatten';
+      `,
+      'snowpack.config.js': dedent`
+        module.exports = {
+          packageOptions: {
+            external: ['fs'],
+          },
+        };
+      `,
+    });
 
     expect(result['index.js']).toContain(`import 'fs';`);
   });

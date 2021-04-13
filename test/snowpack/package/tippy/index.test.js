@@ -8,31 +8,28 @@ describe('package', () => {
   });
 
   it('Loads tippy module correctly', async () => {
-    const result = await testFixture(
-      {},
-      {
-        'index.js': dedent`
-          import 'tippy.js/dist/tippy.css';
-          import tippy from 'tippy.js';
-          import * as tippyJs from 'tippy.js/headless/dist/tippy-headless.esm.js';
-          
-          console.log(tippyJs);
-          
-          tippy('#myButton', {
-            content: "I'm a Tippy tooltip!",
-          }); 
-        `,
-        'package.json': dedent`
-          {
-            "version": "1.0.1",
-            "name": "@snowpack/test-package-tippy-js",
-            "dependencies": {
-              "tippy.js": "^6.2.5"
-            }
+    const result = await testFixture({
+      'index.js': dedent`
+        import 'tippy.js/dist/tippy.css';
+        import tippy from 'tippy.js';
+        import * as tippyJs from 'tippy.js/headless/dist/tippy-headless.esm.js';
+        
+        console.log(tippyJs);
+        
+        tippy('#myButton', {
+          content: "I'm a Tippy tooltip!",
+        }); 
+      `,
+      'package.json': dedent`
+        {
+          "version": "1.0.1",
+          "name": "@snowpack/test-package-tippy-js",
+          "dependencies": {
+            "tippy.js": "^6.2.5"
           }
-        `,
-      },
-    );
+        }
+      `,
+    });
 
     // Files were created in the correct location
     expect(result['_snowpack/pkg/tippyjs/dist/tippy.css']).toBeDefined();

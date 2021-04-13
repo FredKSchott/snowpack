@@ -8,56 +8,36 @@ describe('alias', () => {
   });
 
   it('Rewrites imports as expected', async () => {
-    const result = await testFixture(
-      {
-        alias: {
-          'aliased-dep': 'array-flatten',
-          '@app': './src',
-          '@/': './src/',
-          '%': '.',
-          '@sort': './src/sort.js',
-          $public: './public',
-        },
-        mount: {
-          './src': '/_dist_',
-          './public': '/',
-        },
-        buildOptions: {
-          baseUrl: 'https://example.com/foo',
-          metaUrlPath: '/TEST_WMU/',
-        },
-        plugins: ['@snowpack/plugin-svelte', './simple-file-extension-change-plugin.js'],
-      },
-      {
-        'packages/css-package-a/style.css': dedent`
+    const result = await testFixture({
+      'packages/css-package-a/style.css': dedent`
           body {
             color: red;
           }
         `,
-        'packages/css-package-a/package.json': dedent`
+      'packages/css-package-a/package.json': dedent`
           {
             "name": "css-package-a",
             "version": "1.2.3"
           }
         `,
-        'packages/css-package-b/style.css': dedent`
+      'packages/css-package-b/style.css': dedent`
           body {
             color: blue;
           }
         `,
-        'packages/css-package-b/package.json': dedent`
+      'packages/css-package-b/package.json': dedent`
           {
             "name": "css-package-a",
             "version": "1.2.3"
           }
         `,
-        'public/robots.txt': dedent`
+      'public/robots.txt': dedent`
           THIS IS A ROBOTS.TXT TEST FILE            
         `,
-        'src/foo.svelte': dedent`
+      'src/foo.svelte': dedent`
           <div class="Foo" />           
         `,
-        'src/index.html': dedent`
+      'src/index.html': dedent`
           <!DOCTYPE html>
           <html lang="en">
             <head>
@@ -136,7 +116,7 @@ describe('alias', () => {
             </body>
           </html>
         `,
-        'src/index.js': dedent`
+      'src/index.js': dedent`
           // Path aliases
           import {flatten} from 'array-flatten';
           import * as aliasedDep from 'aliased-dep';
@@ -198,32 +178,32 @@ describe('alias', () => {
           import robotsTxtRef_ from '$public/robots.txt';
           console.log(robotsTxtRef, robotsTxtRef_);
         `,
-        'src/sort.js': dedent`
+      'src/sort.js': dedent`
           export default (arr) => arr.sort();         
         `,
-        'src/test-mjs.mjs': dedent`
+      'src/test-mjs.mjs': dedent`
           // Path aliases
           import {flatten} from 'array-flatten';
           console.log(flatten);       
         `,
-        'src/components/index.js': dedent`
+      'src/components/index.js': dedent`
           import sort from '../sort';
           console.log(sort);
           
           export default 'Button';             
         `,
-        'src/components/style.css': dedent`
+      'src/components/style.css': dedent`
           /* Include 2+ imports to make sure regex isn't borked. */
           @import 'css-package-a/style.css';
           @import '@css/package-b/style.css';            
         `,
-        'src/nested/index.js': dedent`
+      'src/nested/index.js': dedent`
           import sort from '../sort';
           console.log(sort);
           
           export default 'Button';        
         `,
-        'src/nested/foo.js': dedent`
+      'src/nested/foo.js': dedent`
           // importing index.js by shortcut
           import index from '.';
           import index_ from './';
@@ -231,7 +211,7 @@ describe('alias', () => {
           import index___ from '../';
           console.log(index, index_, index__, index___);
         `,
-        'simple-file-extension-change-plugin.js': dedent`
+      'simple-file-extension-change-plugin.js': dedent`
           const {load} = require('signal-exit');
 
           module.exports = function () {
@@ -247,7 +227,7 @@ describe('alias', () => {
             };
           };          
         `,
-        'package.json': dedent`
+      'package.json': dedent`
           {
             "private": true,
             "version": "1.0.1",
@@ -260,8 +240,28 @@ describe('alias', () => {
             }
           }
         `,
-      },
-    );
+      'snowpack.config.js': dedent`
+          module.exports = {
+            alias: {
+              'aliased-dep': 'array-flatten',
+              '@app': './src',
+              '@/': './src/',
+              '%': '.',
+              '@sort': './src/sort.js',
+              $public: './public',
+            },
+            mount: {
+              './src': '/_dist_',
+              './public': '/',
+            },
+            buildOptions: {
+              baseUrl: 'https://example.com/foo',
+              metaUrlPath: '/TEST_WMU/',
+            },
+            plugins: ['@snowpack/plugin-svelte', './simple-file-extension-change-plugin.js'],
+          }
+        `,
+    });
 
     expect(result['_dist_/index.html']).toMatchSnapshot();
     expect(result['_dist_/index.js']).toMatchSnapshot();

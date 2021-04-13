@@ -1,6 +1,7 @@
 const {testFixture} = require('../../../fixture-utils');
 const {promises: fs} = require('fs');
 const path = require('path');
+const dedent = require('dedent');
 
 describe('buildOptions.out', () => {
   beforeAll(() => {
@@ -9,8 +10,19 @@ describe('buildOptions.out', () => {
   });
 
   it('builds to the correct relative out path', async () => {
-    const config = {buildOptions: {out: 'TEST_OUT'}};
-    const result = await testFixture(config, `// Intentionally left blank.`, {absolute: true});
+    const result = await testFixture(
+      {
+        'index.js': `// Intentionally left blank.`,
+        'snowpack.config.js': dedent`
+          module.exports = {
+            buildOptions: {
+              out: 'TEST_OUT'
+            }
+          }
+        `,
+      },
+      {absolute: true},
+    );
     expect(Object.keys(result).every((f) => f.includes('TEST_OUT')));
   });
 
@@ -18,8 +30,19 @@ describe('buildOptions.out', () => {
     const outDir = await fs.mkdtemp(
       path.join(__dirname, '..', '..', '..', '__temp__', 'TEST_OUT-'),
     );
-    const config = {buildOptions: {out: outDir}};
-    const result = await testFixture(config, `// Intentionally left blank.`, {absolute: true});
+    const result = await testFixture(
+      {
+        'index.js': `// Intentionally left blank.`,
+        'snowpack.config.js': dedent`
+        module.exports = {
+          buildOptions: {
+            out: '${outDir}'
+          }
+        }
+      `,
+      },
+      {absolute: true},
+    );
     expect(Object.keys(result).every((f) => f.startsWith(outDir)));
   });
 });

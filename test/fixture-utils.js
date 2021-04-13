@@ -20,12 +20,11 @@ const UTF8_FRIENDLY_EXTS = [
 ]; // only read non-binary files (add more exts here as needed)
 
 const writeFile = (file, data) =>
-  fs.mkdir(path.dirname(file), {recursive: true}).then((x) => fs.writeFile(file, data));
+  fs.mkdir(path.dirname(file), {recursive: true}).then(() => fs.writeFile(file, data));
 
 exports.testFixture = async function testFixture(
-  userConfig,
   testFiles,
-  {absolute = false} = {} /* options */,
+  {absolute = false, overrides = {}} = {},
 ) {
   const inDir = await fs.mkdtemp(path.join(__dirname, '__temp__', 'snowpack-fixture-'));
 
@@ -36,20 +35,17 @@ exports.testFixture = async function testFixture(
     await writeFile(path.join(inDir, fileLoc), fileContents);
   }
 
-  const hasPackageJson = testFiles['package.json'];
   // Install any dependencies
+  const hasPackageJson = testFiles['package.json'];
   hasPackageJson &&
     require('child_process').execSync('yarn', {
       cwd: inDir,
       stdio: 'ignore',
     });
 
-  const config = await snowpack.loadConfiguration({
-    root: inDir,
-    ...userConfig,
-  });
-
+  const config = await snowpack.loadConfiguration({root: inDir, ...overrides});
   const outDir = config.buildOptions.out;
+
   await snowpack.build({
     config,
     lockfile: null,

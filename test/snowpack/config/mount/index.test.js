@@ -36,55 +36,90 @@ describe('mount', () => {
   });
 
   it('Allows direct mappings', async () => {
-    const result = await testFixture({mount: {a: '/a'}}, {'a/index.js': dedent`console.log('a');`});
+    const result = await testFixture({
+      'a/index.js': dedent`console.log('a');`,
+      'snowpack.config.js': dedent`
+        module.exports = {
+          mount: {
+            a: '/a'
+          }
+        };
+      `,
+    });
     expect(result['a/index.js']).toContain("console.log('a');");
   });
 
   it('Allows renamed mappings', async () => {
-    const result = await testFixture(
-      {mount: {'src/b': '/new-b'}},
-      {'src/b/index.js': dedent`console.log('b');`},
-    );
+    const result = await testFixture({
+      'src/b/index.js': dedent`console.log('b');`,
+      'snowpack.config.js': dedent`
+        module.exports = {
+            mount: {
+              'src/b': '/new-b'
+            }
+        };
+      `,
+    });
     expect(result['new-b/index.js']).toContain("console.log('b');");
   });
 
   it('Allows deep to deep renamed mappings', async () => {
-    const result = await testFixture(
-      {mount: {'src/c': '/deep/c'}},
-      {'src/c/index.js': dedent`console.log('c');`},
-    );
+    const result = await testFixture({
+      'src/c/index.js': dedent`console.log('c');`,
+      'snowpack.config.js': dedent`
+        module.exports = {
+          mount: {
+            'src/c': '/deep/c'
+          }
+        };
+      `,
+    });
     expect(result['deep/c/index.js']).toContain("console.log('c');");
   });
 
   it('Allows mapping to directory with a trailing slash', async () => {
-    const result = await testFixture(
-      {mount: {'src/d': '/bad/d/'}},
-      {'src/d/index.js': dedent`console.log('d');`},
-    );
+    const result = await testFixture({
+      'src/d/index.js': dedent`console.log('d');`,
+      'snowpack.config.js': dedent`
+        module.exports = {
+          mount: {
+            'src/d': '/bad/d'
+          }
+        };
+      `,
+    });
     expect(result['bad/d/index.js']).toContain("console.log('d');");
   });
 
   it('Allows deep to shallow renamed mappings', async () => {
-    const result = await testFixture(
-      {mount: {'src/e/f': '/e'}},
-      {'src/e/f/index.js': dedent`console.log('e/f');`},
-    );
+    const result = await testFixture({
+      'src/e/f/index.js': dedent`console.log('e/f');`,
+      'snowpack.config.js': dedent`
+        module.exports = {
+          mount: {
+            'src/e/f': '/e'
+          }
+        };
+      `,
+    });
     expect(result['e/index.js']).toContain("console.log('e/f');");
   });
 
   it('Allows mappings with transforms and import resolution on HTML and JS', async () => {
-    const result = await testFixture(
-      {
-        mount: {
-          'src/g': {
-            url: '/g',
-            static: false,
-            resolve: true,
-          },
-        },
-      },
-      advanced,
-    );
+    const result = await testFixture({
+      ...advanced,
+      'snowpack.config.js': dedent`
+        module.exports = {
+          mount: {
+            'src/g': {
+              url: '/g',
+              static: false,
+              resolve: true,
+            },
+          }
+        };
+      `,
+    });
     // JSX was transformed and imports resolved
     expect(result['g/index.jsx']).not.toBeDefined();
     expect(result['g/index.js']).toContain('import "./dep.js";');
@@ -94,18 +129,20 @@ describe('mount', () => {
   });
 
   it('Allows mappings with no transforms or import resolution on HTML and JS', async () => {
-    const result = await testFixture(
-      {
-        mount: {
-          'src/g': {
-            url: '/g',
-            static: true,
-            resolve: false,
-          },
-        },
-      },
-      advanced,
-    );
+    const result = await testFixture({
+      ...advanced,
+      'snowpack.config.js': dedent`
+        module.exports = {
+          mount: {
+            'src/g': {
+              url: '/g',
+              static: true,
+              resolve: false,
+            },
+          }
+        };
+      `,
+    });
     // JSX was not transformed and inputs not resolved
     expect(result['g/index.js']).not.toBeDefined();
     expect(result['g/index.jsx']).toContain("import './dep';");
@@ -115,18 +152,20 @@ describe('mount', () => {
   });
 
   it('Allows mappings with transforms but no import resolution on HTML and JS', async () => {
-    const result = await testFixture(
-      {
-        mount: {
-          'src/g': {
-            url: '/g',
-            static: false,
-            resolve: false,
-          },
-        },
-      },
-      advanced,
-    );
+    const result = await testFixture({
+      ...advanced,
+      'snowpack.config.js': dedent`
+        module.exports = {
+          mount: {
+            'src/g': {
+              url: '/g',
+              static: false,
+              resolve: false,
+            },
+          }
+        };
+      `,
+    });
     // JSX was transformed but imports not resolved
     expect(result['g/index.js']).toContain('import "./dep";');
     // HTML imports were not resolved
@@ -135,18 +174,20 @@ describe('mount', () => {
   });
 
   it('Allows mappings with no transforms but import resolution on HTML', async () => {
-    const result = await testFixture(
-      {
-        mount: {
-          'src/g': {
-            url: '/g',
-            static: true,
-            resolve: true,
-          },
-        },
-      },
-      advanced,
-    );
+    const result = await testFixture({
+      ...advanced,
+      'snowpack.config.js': dedent`
+        module.exports = {
+          mount: {
+            'src/g': {
+              url: '/g',
+              static: true,
+              resolve: true,
+            },
+          }
+        };
+      `,
+    });
     // JSX was not transformed and imports not resolved
     expect(result['g/index.jsx']).toContain("import './dep';");
     // HTML imports were resolved

@@ -8,10 +8,8 @@ describe('cdnUrls', () => {
   });
 
   it('Preserves CDN URLs in HTML', async () => {
-    const result = await testFixture(
-      {},
-      {
-        'index.html': dedent`
+    const result = await testFixture({
+      'index.html': dedent`
           <!DOCTYPE html>
           <html lang="en">
             <head>
@@ -31,25 +29,21 @@ describe('cdnUrls', () => {
             </body>
           </html> 
         `,
-      },
-    );
+    });
     expect(result['index.html']).toContain(
       '<script src="https://unpkg.com/browse/preact@10.4.5/dist/preact.js"></script>',
     );
   });
 
   it('Preserves CDN URLs in JS', async () => {
-    const result = await testFixture(
-      {},
-      {
-        'index.jsx': dedent`
+    const result = await testFixture({
+      'index.jsx': dedent`
           import React from 'https://cdn.skypack.dev/react@^17.0.0';
           import ReactDOM from 'https://cdn.skypack.dev/react-dom@^17.0.0';
           const App = () => <div>I’m an app!</div>;  
           ReactDOM.render(<App />, document.getElementById('root'));
         `,
-      },
-    );
+    });
     expect(result['index.js']).toContain(
       'import React from "https://cdn.skypack.dev/react@^17.0.0";',
     );
@@ -59,17 +53,14 @@ describe('cdnUrls', () => {
   });
 
   it('Doesn’t install CDN packages locally', async () => {
-    const result = await testFixture(
-      {},
-      {
-        'index.jsx': dedent`
+    const result = await testFixture({
+      'index.jsx': dedent`
           import React from 'https://cdn.skypack.dev/react@^17.0.0';
           import ReactDOM from 'https://cdn.skypack.dev/react-dom@^17.0.0';
           const App = () => <div>I’m an app!</div>; 
           ReactDOM.render(<App />, document.getElementById('root'));
         `,
-      },
-    );
+    });
     expect(result['_snowpack/pkg/react.js']).not.toBeDefined();
     expect(result['_snowpack/pkg/react-dom.js']).not.toBeDefined();
   });

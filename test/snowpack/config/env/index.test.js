@@ -8,32 +8,25 @@ describe('env', () => {
   });
 
   it('Should load environment from config', async () => {
-    const result = await testFixture(
-      {
-        env: {
-          API_URL: 'TEST',
-        },
-      },
-      {
-        'index.js': dedent`
+    const result = await testFixture({
+      'index.js': dedent`
           console.log(import.meta.env['API_URL']);
         `,
-      },
-    );
+      'snowpack.config.js': dedent`
+        module.exports = {
+          env: {
+            API_URL: 'TEST'
+          },
+        };
+      `,
+    });
     expect(result['_snowpack/env.js']).toContain('export const API_URL = "TEST";');
   });
 
   // Reports back that SNOWPACK_PUBLIC_MY_ENV_VAR is not set
   it.skip('Should inject env variables into HTML', async () => {
-    const result = await testFixture(
-      {
-        env: {
-          SNOWPACK_PUBLIC_MY_ENV_VAR: 'my-var-replacement',
-          SNOWPACK_PUBLIC_: 'ignoreme',
-        },
-      },
-      {
-        'index.html': dedent`
+    const result = await testFixture({
+      'index.html': dedent`
           <!DOCTYPE html>
           <html
             lang="en"
@@ -54,8 +47,15 @@ describe('env', () => {
             <body></body>
           </html>
         `,
-      },
-    );
+      'snowpack.config.js': dedent`
+        module.exports = {
+          env: {
+            SNOWPACK_PUBLIC_MY_ENV_VAR: 'my-var-replacement',
+            SNOWPACK_PUBLIC_: 'ignoreme',
+          },
+        };
+      `,
+    });
 
     expect(result['index.html']).toContain('lang="en"');
     expect(result['index.html']).toContain('data-mode="production"');

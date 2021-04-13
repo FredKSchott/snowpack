@@ -10,7 +10,6 @@ describe('namedImport', () => {
   // if this file built successfully, then the import worked
   it('correctly uses named import', async () => {
     const result = await testFixture(
-      {},
       dedent`
         import {flatten as _$v4} from 'array-flatten';
         _$v4([1, 2, [3, 4]]);

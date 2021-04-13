@@ -8,18 +8,15 @@ describe('dotFolder', () => {
   });
 
   it('Importing files in a dot folder works', async () => {
-    const result = await testFixture(
-      {},
-      {
-        '.dot/file.js': dedent`
-          export const a = 'b';
-        `,
-        'index.js': dedent`
-          import {a} from './.dot/file.js';
-          console.log('i got', a);
-        `,
-      },
-    );
+    const result = await testFixture({
+      '.dot/file.js': dedent`
+        export const a = 'b';
+      `,
+      'index.js': dedent`
+        import {a} from './.dot/file.js';
+        console.log('i got', a);
+      `,
+    });
     expect(result['.dot/file.js']).toBeDefined();
     expect(result['index.js']).toContain("import {a} from './.dot/file.js';");
   });
