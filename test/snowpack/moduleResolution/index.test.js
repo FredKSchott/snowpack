@@ -53,7 +53,6 @@ describe('moduleResolution', () => {
         `,
       },
     );
-    console.log(result);
     // HTML imports of packages are scanned
     expect(result['_snowpack/pkg/array-flatten.js']).toBeDefined();
     expect(result['_snowpack/pkg/css-package/style.css']).toBeDefined();
@@ -125,11 +124,11 @@ describe('moduleResolution', () => {
           import '/index.js';
         `,
         'index.js': dedent`
-          import isArray from 'is-array';
+          import { flatten } from 'array-flatten';
           import a from './a/a.js';
           import b from './b'; 
         `,
-        'is-array.js': dedent`
+        'array-flatten.js': dedent`
           throw new Error('Not me!');
         `,
         'package.json': dedent`
@@ -137,7 +136,7 @@ describe('moduleResolution', () => {
             "version": "1.0.0",
             "name": "@snowpack/test-resolve-js",
             "dependencies": {
-              "is-array": "^1.0.1"
+              "array-flatten": "^1.0.1"
             }
           }
         `,
@@ -145,8 +144,10 @@ describe('moduleResolution', () => {
     );
 
     // We are using the node_modules version, not the local 'is-array.js'
-    expect(result['_snowpack/pkg/is-array.js']).toBeDefined();
-    expect(result['index.js']).toContain(`import isArray from './_snowpack/pkg/is-array.js';`);
+    expect(result['_snowpack/pkg/array-flatten.js']).toBeDefined();
+    expect(result['index.js']).toContain(
+      `import { flatten } from './_snowpack/pkg/array-flatten.js';`,
+    );
     // A URL-style import works
     expect(result['a/a.js']).toContain(`import '../index.js';`);
     // We don't mistakenly import an index file from a directory with the same name
