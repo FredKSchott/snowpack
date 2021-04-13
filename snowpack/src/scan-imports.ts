@@ -275,10 +275,7 @@ function filterObject(obj, predicate) {
 
 function findExtension(filePath, extensions) {
   const baseExt = getExtension(filePath);
-  for (const extension of extensions) {
-    if (extension.toLowerCase() == baseExt) return true;
-  }
-  return false;
+  return extensions.has(baseExt);
 }
 
 export async function scanImports(
