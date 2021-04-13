@@ -288,7 +288,7 @@ export async function scanImports(
   await initESModuleLexer;
   const mountWithoutStatic = filterObject(config.mount, item => item.resolve);
   const assetsExtensions = [".jpg", ".jpeg", ".png", ".gif"];
-  const filterAssets = (path, isDirectory) => !isDirectory && !findExtension(path, assetsExtensions);
+  const filterAssets = (path, isDirectory) => isDirectory || !findExtension(path, assetsExtensions);
   const includeFileSets = await Promise.all(
     Object.keys(mountWithoutStatic).map(async (fromDisk) => {
       return (await new fdir().filter(filterAssets).withFullPaths().crawl(fromDisk).withPromise()) as string[];
