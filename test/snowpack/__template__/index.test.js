@@ -11,7 +11,7 @@ describe('suite', () => {
     const result = await testFixture(
       {},
       {
-        'index.js': dedent``,
+        'index.js': dedent`// Content to prevent readFile error`,
       },
     );
     expect(result['index.js']);
