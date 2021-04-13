@@ -17,7 +17,7 @@ describe('moduleResolution', () => {
             "version": "1.2.3"
           }
         `,
-        'packages/style.css': dedent`
+        'packages/css-package/style.css': dedent`
           body {
             color: red;
           }
@@ -53,6 +53,7 @@ describe('moduleResolution', () => {
         `,
       },
     );
+    console.log(result);
     // HTML imports of packages are scanned
     expect(result['_snowpack/pkg/array-flatten.js']).toBeDefined();
     expect(result['_snowpack/pkg/css-package/style.css']).toBeDefined();
