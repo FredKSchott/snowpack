@@ -287,7 +287,7 @@ export async function scanImports(
 ): Promise<InstallTarget[]> {
   await initESModuleLexer;
   const mountWithoutStatic = filterObject(config.mount, item => item.resolve);
-  const assetsExtensions = [".jpg", ".jpeg", ".png", ".gif"];
+  const assetsExtensions = new Set([".jpg", ".jpeg", ".png", ".gif"]);
   const filterAssets = (path, isDirectory) => isDirectory || !findExtension(path, assetsExtensions);
   const includeFileSets = await Promise.all(
     Object.keys(mountWithoutStatic).map(async (fromDisk) => {
