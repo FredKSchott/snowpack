@@ -273,16 +273,25 @@ function filterObject(obj, predicate) {
   return result;
 }
 
+function findExtension(filePath, extensions) {
+  const baseExt = getExtension(filePath);
+  for (const extension of extensions) {
+    if (extension.toLowerCase() == baseExt) return true;
+  }
+  return false;
+}
+
 export async function scanImports(
   includeTests: boolean,
   config: SnowpackConfig,
 ): Promise<InstallTarget[]> {
   await initESModuleLexer;
-  const mountWithResolve = filterObject(config.mount, item => item.resolve);
-  const filterJS = (path, isDirectory) => !isDirectory && (path.endsWith(".js") || path.endsWith(".mjs"));
+  const mountWithoutStatic = filterObject(config.mount, item => item.resolve);
+  const assetsExtensions = [".jpg", ".jpeg", ".png", ".gif"];
+  const filterAssets = (path, isDirectory) => !isDirectory && !findExtension(path, assetsExtensions);
   const includeFileSets = await Promise.all(
-    Object.keys(mountWithResolve).map(async (fromDisk) => {
-      return (await new fdir().filter(filterJS).withFullPaths().crawl(fromDisk).withPromise()) as string[];
+    Object.keys(mountWithoutStatic).map(async (fromDisk) => {
+      return (await new fdir().filter(filterAssets).withFullPaths().crawl(fromDisk).withPromise()) as string[];
     }),
   );
   const includeFiles = Array.from(new Set(([] as string[]).concat.apply([], includeFileSets)));
