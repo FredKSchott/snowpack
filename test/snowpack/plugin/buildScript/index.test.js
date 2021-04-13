@@ -32,7 +32,7 @@ describe('plugin', () => {
             "version": "1.0.1",
             "name": "@snowpack/test-plugin-build-script",
             "devDependencies": {
-              "@babel/cli": "^7.10.5",
+              "@babel/core": "^7.13.15",
               "@snowpack/plugin-build-script": "^2.0.0"
             },
             "dependencies": {
