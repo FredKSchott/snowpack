@@ -9,13 +9,15 @@ describe('plugin', () => {
 
   /*
 
-  Passes locally on mac and works in an isolated project
-  but fails on Ubuntu 10.x during CI with the error:
+  CLI test: test/build/plugin-build-script
+  Reason for skip: Passes locally on mac and works in an isolated project but fails on Ubuntu 10.x during CI with the error:
 
-  Command failed with EPIPE: babel --filename /home/runner/work/snowpack/snowpack/test/__temp__/snowpack-fixture-knJCMA/index.ts --presets @babel/preset-typescript
-  write EPIPE
+  Error:
 
-  at handleInput (test/__temp__/snowpack-fixture-knJCMA/node_modules/execa/lib/stream.js:17:17)
+    Command failed with EPIPE: babel --filename /home/runner/work/snowpack/snowpack/test/__temp__/snowpack-fixture-knJCMA/index.ts --presets @babel/preset-typescript
+    write EPIPE
+
+    at handleInput (test/__temp__/snowpack-fixture-knJCMA/node_modules/execa/lib/stream.js:17:17)
   
   */
   it.skip('@snowpack/plugin-build-script', async () => {

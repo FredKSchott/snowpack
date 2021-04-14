@@ -7,8 +7,28 @@ describe('plugin', () => {
     require('snowpack').logger.level = 'error';
   });
 
-  // TODO: Test runs and outputs as expected but doesn't
-  // wait for the built asset before returning result
+  /* 
+
+  CLI test: test/build/plugin-run-script
+  Reason for skip: Fails locally on mac because the result is returned before the built css file is written
+  
+  Error:
+
+    expect(received).toBeDefined()
+      Received: undefined
+
+        51 |     });
+        52 |
+      > 53 |     expect(result['css/index.css']).toBeDefined();
+          |                                     ^
+        54 |   });
+        55 | });
+        56 |
+
+        at Object.<anonymous> (test/snowpack/plugin/runScript/index.test.js:53:37)  
+  
+  */
+
   it.skip('@snowpack/plugin-run-script', async () => {
     const result = await testFixture({
       'src/css/index.scss': dedent`

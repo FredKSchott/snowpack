@@ -4,7 +4,7 @@ const dedent = require('dedent');
 describe('invalid', () => {
   beforeAll(() => {
     // Needed until we make Snowpack's JS Build Interface quiet by default
-    require('snowpack').logger.level = 'debug';
+    require('snowpack').logger.level = 'warn';
   });
 
   /* 

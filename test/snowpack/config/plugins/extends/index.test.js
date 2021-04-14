@@ -7,7 +7,32 @@ describe('extends', () => {
     require('snowpack').logger.level = 'error';
   });
 
-  // Doesn't seem to inherit plugins
+  /* 
+
+  CLI test: test/build/config-extends-plugins
+  Reason for skip: Fails locally on mac as the env file does not include secret value
+  
+  Error:
+
+    expect(received).toContain(expected) // indexOf
+
+      Expected substring: "export const SNOWPACK_PUBLIC_SECRET_VALUE = \"pumpernickel\";"
+      Received string:    "export const MODE = \"test\";
+      export const NODE_ENV = \"test\";
+      export const SSR = false;"
+
+        48 |     });
+        49 |
+      > 50 |     expect(result['_snowpack/env.js']).toContain(
+          |                                        ^
+        51 |       `export const SNOWPACK_PUBLIC_SECRET_VALUE = "pumpernickel";`,
+        52 |     );
+        53 |   });
+
+        at Object.<anonymous> (test/snowpack/config/plugins/extends/index.test.js:50:40)
+  
+  */
+
   it.skip('Loads and uses the appropriate plugins', async () => {
     const result = await testFixture({
       'base/package.json': dedent`

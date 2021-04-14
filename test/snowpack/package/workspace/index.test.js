@@ -7,6 +7,35 @@ describe('package', () => {
     require('snowpack').logger.level = 'error';
   });
 
+  /* 
+
+  CLI test: test/build/package-workspace
+  Reason for skip: Fails locally on mac because it cannot find a file imported by the workspace package despite it existing
+  
+  Error:
+
+    console.error
+    [22:04:41] [esinstall] /Users/---/snowpack/test/build/test-workspace-component/index.mjs
+       Import "./Layout" could not be resolved from file.
+
+      69 |         if (lastHistoryItem && lastHistoryItem.val === log) {
+      70 |             lastHistoryItem.count++;
+    > 71 |         }
+         |          ^
+      72 |         else {
+      73 |             this.history.push({ val: log, count: 1 });
+      74 |         }
+
+      at Object.error (snowpack/lib/logger.js:71:17)
+      at SnowpackLogger.log (snowpack/lib/logger.js:111:28)
+      at SnowpackLogger.error (snowpack/lib/logger.js:161:10)
+      at Object.error (snowpack/lib/sources/local-install.js:30:49)
+      at Object.onwarn (esinstall/src/index.ts:357:18)
+      at Object.onwarn (node_modules/rollup/dist/shared/rollup.js:19559:20)
+      at Object.warn (node_modules/rollup/dist/shared/rollup.js:18790:25)
+  
+  */
+
   it.skip('Loads workspace module correctly', async () => {
     const result = await testFixture({
       'index.html': dedent`
@@ -45,15 +74,6 @@ describe('package', () => {
 
         <TestComponent />
       `,
-      'package.json': dedent`
-        {
-          "version": "1.0.1",
-          "name": "@snowpack/test-package-workspace",
-          "dependencies": {
-            "test-workspace-component": "^1.0.0"
-          }
-        } 
-      `,
       'snowpack.config.js': dedent`
         module.exports = {
           workspaceRoot: '../build',
@@ -62,10 +82,6 @@ describe('package', () => {
       `,
     });
 
-    // Files were created in the correct location
-    // expect(result['_snowpack/pkg/']).toBeDefined();
-
-    // // Files were imported from the correct location
-    // expect(result['index.js']).toContain(`import './_snowpack/pkg/';`);
+    expect(result).toMatchSnapshot();
   });
 });

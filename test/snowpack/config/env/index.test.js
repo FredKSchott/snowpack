@@ -23,7 +23,17 @@ describe('env', () => {
     expect(result['_snowpack/env.js']).toContain('export const API_URL = "TEST";');
   });
 
-  // Reports back that SNOWPACK_PUBLIC_MY_ENV_VAR is not set
+  /*
+
+  CLI test: test/build/html-environment-variables
+  Reason for skip: Fails locally on mac or in an isolated project.
+
+  Error:
+
+    The variable API_URL gets added to _snowpack/env.js and JS files reference it correctly
+    but built HTML files do not pick up %API_URL% (does pick up %MODE% and %PUBLIC_URL%).
+
+  */
   it.skip('Should inject env variables into HTML', async () => {
     const result = await testFixture({
       'index.html': dedent`

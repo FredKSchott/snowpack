@@ -27,7 +27,30 @@ describe('withExtension', () => {
     expect(Object.keys(result).every((x) => x.match('/TEST_BUILD_OUT/'))).toBeTruthy();
   });
 
-  // Jest can't handle the module import here for some reason
+  /* 
+
+  CLI test: test/build/config-loading-esm-package
+  Reason for skip: Fails locally because Jest can't handle es module syntax (export)
+  
+  Error:
+
+    SyntaxError: Unexpected token 'export'
+
+        17 |               console.error(`Failed to load "${filepath}"!\nESM format is not natively supported in "node@${process.version}".\nPlease use CommonJS or upgrade to an LTS version of node above "node@12.17.0".`)
+        18 |             } else if (e.code === 'ERR_REQUIRE_ESM') {
+      > 19 |                 const url = pathToFileURL(filepath);
+          |                 ^
+        20 |                 return NATIVE_IMPORT(url).then(mdl => resolve(mdl.default ? mdl.default : mdl));
+        21 |             };
+        22 |             reject(e);
+
+        at Runtime.createScriptFromCode (node_modules/jest-runtime/build/index.js:1350:14)
+        at snowpack/assets/require-or-import.js:19:17
+        at Object.REQUIRE_OR_IMPORT (snowpack/assets/require-or-import.js:17:10)
+        at loadConfigurationFile (snowpack/lib/config.js:634:33)
+    
+  */
+
   it.skip('Picks up a snowpack config inside of a "module" type package', async () => {
     const result = await testFixture(
       {
@@ -55,7 +78,30 @@ describe('withExtension', () => {
     expect(Object.keys(result).every((x) => x.match('/TEST_BUILD_OUT/'))).toBeTruthy();
   });
 
-  // Jest can't handle the module import here for some reason
+  /* 
+
+  CLI test: test/build/config-loading-mjs
+  Reason for skip: Fails locally because Jest can't handle es module syntax (export)
+  
+  Error:
+
+    SyntaxError: Unexpected token 'export'
+
+        17 |               console.error(`Failed to load "${filepath}"!\nESM format is not natively supported in "node@${process.version}".\nPlease use CommonJS or upgrade to an LTS version of node above "node@12.17.0".`)
+        18 |             } else if (e.code === 'ERR_REQUIRE_ESM') {
+      > 19 |                 const url = pathToFileURL(filepath);
+          |                 ^
+        20 |                 return NATIVE_IMPORT(url).then(mdl => resolve(mdl.default ? mdl.default : mdl));
+        21 |             };
+        22 |             reject(e);
+
+        at Runtime.createScriptFromCode (node_modules/jest-runtime/build/index.js:1350:14)
+        at snowpack/assets/require-or-import.js:19:17
+        at Object.REQUIRE_OR_IMPORT (snowpack/assets/require-or-import.js:17:10)
+        at loadConfigurationFile (snowpack/lib/config.js:634:33)
+    
+  */
+
   it.skip('Picks up a snowpack config with .mjs extension', async () => {
     const result = await testFixture(
       {
