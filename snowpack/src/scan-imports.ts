@@ -30,6 +30,14 @@ const HAS_NAMED_IMPORTS_REGEX = /^[\w\s\,]*\{(.*)\}/s;
 const STRIP_AS = /\s+as\s+.*/; // for `import { foo as bar }`, strips “as bar”
 const DEFAULT_IMPORT_REGEX = /import\s+(\w)+(,\s\{[\w\s,]*\})?\s+from/s;
 
+const cssExts = new RegExp('\.(css|less|sass|scss)$');
+const htmlExts = new RegExp('\.(html|svelte|interface|vue)$');
+const jsExts = new RegExp('\.(js|jsx|mjs|ts)$');
+
+function isFileScannable(filePath: string): boolean {
+  return cssExts.test(filePath) || htmlExts.test(filePath) || jsExts.test(filePath);
+}
+
 export async function getInstallTargets(
   config: SnowpackConfig,
   knownEntrypoints: string[],
@@ -176,6 +184,28 @@ function parseFileForInstallTargets({
   const relativeLoc = path.relative(root, locOnDisk);
 
   try {
+    if (cssExts.test(baseExt)) {
+      logger.debug(`Scanning ${relativeLoc} for imports as CSS`);
+      return parseCssForInstallTargets(contents);
+    }
+    else if (htmlExts.test(baseExt)) {
+      logger.debug(`Scanning ${relativeLoc} for imports as HTML`);
+      return [
+        ...parseCssForInstallTargets(extractCssFromHtml(contents)),
+        ...parseJsForInstallTargets(extractJsFromHtml({contents, baseExt})),
+      ];
+    }
+    else if (jsExts.test(baseExt)) {
+      logger.debug(`Scanning ${relativeLoc} for imports as JS`);
+      return parseJsForInstallTargets(contents);
+    }
+    else {
+      logger.debug(
+        `Skip scanning ${relativeLoc} for imports (unknown file extension ${baseExt})`,
+      );
+      return [];
+    }
+
     switch (baseExt) {
       case '.css':
       case '.less':
@@ -265,30 +295,14 @@ export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
     .reduce((flat, item) => flat.concat(item), []);
 }
 
-function filterObject(obj, predicate) {
-  let result = {};
-  for (const [key, value] of Object.entries(obj)) {
-    if (predicate(obj[key])) result[key] = value;
-  }
-  return result;
-}
-
-function findExtension(filePath, extensions) {
-  const baseExt = getExtension(filePath);
-  return extensions.has(baseExt);
-}
-
 export async function scanImports(
   includeTests: boolean,
   config: SnowpackConfig,
 ): Promise<InstallTarget[]> {
   await initESModuleLexer;
-  const mountWithoutStatic = filterObject(config.mount, item => item.resolve);
-  const assetsExtensions = new Set([".jpg", ".jpeg", ".png", ".gif"]);
-  const filterAssets = (path, isDirectory) => isDirectory || !findExtension(path, assetsExtensions);
   const includeFileSets = await Promise.all(
-    Object.keys(mountWithoutStatic).map(async (fromDisk) => {
-      return (await new fdir().filter(filterAssets).withFullPaths().crawl(fromDisk).withPromise()) as string[];
+    Object.keys(config.mount).map(async (fromDisk) => {
+      return (await new fdir().withFullPaths().crawl(fromDisk).withPromise()) as string[];
     }),
   );
   const includeFiles = Array.from(new Set(([] as string[]).concat.apply([], includeFileSets)));
@@ -305,7 +319,7 @@ export async function scanImports(
   const loadedFiles: (SnowpackSourceFile | null)[] = await Promise.all(
     includeFiles.map(
       async (filePath: string): Promise<SnowpackSourceFile | null> => {
-        if (excludePrivate.test(filePath) || foundExcludeMatch(filePath)) {
+        if (!isFileScannable(filePath) || excludePrivate.test(filePath) || foundExcludeMatch(filePath)) {
           return null;
         }
         return {
