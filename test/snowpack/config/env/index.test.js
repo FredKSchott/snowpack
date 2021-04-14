@@ -32,7 +32,7 @@ describe('env', () => {
             lang="en"
             data-mode="%MODE%"
             data-public-url="%PUBLIC_URL%"
-            data-my-env-var="%SNOWPACK_PUBLIC_MY_ENV_VAR%"
+            data-my-env-var="%API_URL%"
             data-edge-case-test="%SNOWPACK_PUBLIC_%"
             data-undefined="%SNOWPACK_PUBLIC_BUILD_UNDEFINED%"
           >
@@ -50,8 +50,7 @@ describe('env', () => {
       'snowpack.config.js': dedent`
         module.exports = {
           env: {
-            SNOWPACK_PUBLIC_MY_ENV_VAR: 'my-var-replacement',
-            SNOWPACK_PUBLIC_: 'ignoreme',
+            API_URL: 'my-var-replacement'
           },
         };
       `,

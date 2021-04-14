@@ -21,7 +21,7 @@ describe('plugin', () => {
         {
           "version": "1.0.1",
           "name": "@snowpack/test-plugin-run-script",
-          "devDependencies": {
+          "dependencies": {
             "@snowpack/plugin-run-script": "^2.0.0",
             "sass": "^1.26.10"
           }
