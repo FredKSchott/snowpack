@@ -18,12 +18,12 @@ describe('plugin', () => {
         {
           "version": "1.0.1",
           "name": "@snowpack/test-plugin-build-script",
-          "devDependencies": {
-            "@babel/core": "^7.13.15",
-            "@snowpack/plugin-build-script": "^2.0.0"
-          },
           "dependencies": {
-            "@babel/preset-typescript": "^7.10.4"
+            "@babel/cli": "^7.13.14",
+            "@babel/core": "^7.13.15",
+            "@babel/preset-typescript": "^7.10.4",
+            "@snowpack/plugin-build-script": "^2.0.0",
+            "snowpack": "^3.3.0"
           }
         }
       `,
