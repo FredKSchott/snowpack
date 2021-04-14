@@ -54,9 +54,9 @@ describe('mount', () => {
       'src/b/index.js': dedent`console.log('b');`,
       'snowpack.config.js': dedent`
         module.exports = {
-            mount: {
-              'src/b': '/new-b'
-            }
+          mount: {
+            'src/b': '/new-b'
+          }
         };
       `,
     });
