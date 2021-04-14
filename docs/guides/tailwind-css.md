@@ -30,8 +30,10 @@ You’ll need to create two files in the root of your project: `postcss.config.j
 // postcss.config.js
 
 module.exports = {
-  tailwindcss: {},
-  // other plugins can go here, such as autoprefixer
+  plugins: {
+    tailwindcss: {},
+    // other plugins can go here, such as autoprefixer
+  },
 };
 ```
 
