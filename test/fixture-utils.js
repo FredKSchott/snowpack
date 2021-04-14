@@ -62,10 +62,9 @@ exports.testFixture = async function testFixture(
   });
 
   for (const fileLoc of allFiles) {
-    result[absolute ? fileLoc : path.relative(outDir, fileLoc)] = require('fs').readFileSync(
-      fileLoc,
-      'utf8',
-    );
+    result[
+      (absolute ? fileLoc : path.relative(outDir, fileLoc)).replace(/\\\\/g, '/')
+    ] = require('fs').readFileSync(fileLoc, 'utf8');
   }
 
   const snowpackCache = glob.sync(`.snowpack/**/*.{${UTF8_FRIENDLY_EXTS.join(',')}}`, {
@@ -75,10 +74,9 @@ exports.testFixture = async function testFixture(
   });
 
   for (const fileLoc of snowpackCache) {
-    result[absolute ? fileLoc : path.relative(outDir, fileLoc)] = require('fs').readFileSync(
-      fileLoc,
-      'utf8',
-    );
+    result[
+      (absolute ? fileLoc : path.relative(outDir, fileLoc)).replace(/\\\\/g, '/')
+    ] = require('fs').readFileSync(fileLoc, 'utf8');
   }
 
   // TODO: Make it easier to turn this off when debugging.
