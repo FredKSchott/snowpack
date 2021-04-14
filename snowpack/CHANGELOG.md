@@ -4,6 +4,20 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.3.0 [2021-04-14]
+
+* d9956f73 - add explicit "mode" config (#3135) 
+* 25ed2885 - [ci] yarn format 
+* 6a15f872 - Fix env.js always having MODE and NODE_ENV as development (#3132) <Francisco Sousa>
+* 63e30d32 - Revert "improve node_modules excluding" 
+* 3b3402bb - improve node_modules excluding 
+* 48618f05 - fix: remove tailing slash in import specifier as esinstall do (#3102) <yqrashawn>
+* b0481aa8 - Honor devOptions.hmr option, fixes #3105 (#3114) <Matt Walker>
+* 42da07e4 - fix: sourcemap config copy paste typo in config.ts in pr #2793 (#3115) <yqrashawn>
+* 9eb50368 - update deps (#2928) 
+* deacbcd0 - Streaming Package Imports v2 (#3028) 
+* 18b9f09b - Simplify test suite (#2858) 
+
 ## snowpack@3.2.2 [2021-04-01]
 
 * a643af33 - Detect Sass partial changes in dev (#3060) <Drew Powers>
