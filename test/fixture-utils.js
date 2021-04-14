@@ -37,6 +37,7 @@ exports.testFixture = async function testFixture(
 
   const config = await snowpack.createConfiguration({
     root: inDir,
+    mode: 'production',
     ...userConfig,
   });
   const outDir = config.buildOptions.out;

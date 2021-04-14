@@ -47,8 +47,8 @@ export const HTML_STYLE_REGEX = /(<style.*?>)(.*?)<\/style>/gims;
 export const CSS_REGEX = /@import\s*['"](.*?)['"];/gs;
 export const SVELTE_VUE_REGEX = /(<script[^>]*>)(.*?)<\/script>/gims;
 
-export function getCacheKey(fileLoc: string, {isSSR, env}) {
-  return `${fileLoc}?env=${env}&isSSR=${isSSR ? '1' : '0'}`;
+export function getCacheKey(fileLoc: string, {isSSR, mode}) {
+  return `${fileLoc}?mode=${mode}&isSSR=${isSSR ? '1' : '0'}`;
 }
 
 export type Awaited<T> = T extends PromiseLike<infer U> ? Awaited<U> : T;

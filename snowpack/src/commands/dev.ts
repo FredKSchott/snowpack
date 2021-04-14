@@ -249,10 +249,10 @@ export async function startServer(
     preparePackages: _preparePackages,
   }: {isDev?: boolean; isWatch?: boolean; preparePackages?: boolean} = {},
 ): Promise<SnowpackDevServer> {
-  const isDev = _isDev ?? true;
+  const {config} = commandOptions;
+  const isDev = _isDev ?? config.mode !== 'production';
   const isWatch = _isWatch ?? true;
   const isPreparePackages = _preparePackages ?? true;
-  const {config} = commandOptions;
   const pkgSource = getPackageSource(config);
   if (isPreparePackages) {
     await pkgSource.prepare();
@@ -295,7 +295,7 @@ export async function startServer(
   let fileToUrlMapping = new OneToManyMap();
   const excludeGlobs = [
     ...config.exclude,
-    ...(process.env.NODE_ENV === 'test' ? [] : config.testOptions.files),
+    ...(config.mode === 'test' ? [] : config.testOptions.files),
   ];
 
   const foundExcludeMatch = picomatch(excludeGlobs);
@@ -452,7 +452,7 @@ export async function startServer(
       return {
         contents: encodeResponse(
           generateEnvModule({
-            mode: isDev ? 'development' : 'production',
+            mode: config.mode,
             isSSR,
             configEnv: config.env,
           }),
@@ -629,7 +629,7 @@ export async function startServer(
     const isResolve = _isResolve ?? true;
 
     // 1. Check the hot build cache. If it's already found, then just serve it.
-    const cacheKey = getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV});
+    const cacheKey = getCacheKey(fileLoc, {isSSR, mode: config.mode});
     let fileBuilder: FileBuilder | undefined = inMemoryBuildCache.get(cacheKey);
     if (!fileBuilder) {
       fileBuilder = new FileBuilder({
@@ -887,8 +887,8 @@ export async function startServer(
       knownETags.delete(updatedUrls[0]);
       knownETags.delete(updatedUrls[0] + '.proxy.js');
     }
-    inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: true, env: process.env.NODE_ENV}));
-    inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: false, env: process.env.NODE_ENV}));
+    inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: true, mode: config.mode}));
+    inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: false, mode: config.mode}));
     await onFileChangeCallback({filePath: fileLoc});
     for (const plugin of config.plugins) {
       plugin.onChange && plugin.onChange({filePath: fileLoc});

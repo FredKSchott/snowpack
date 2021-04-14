@@ -18,6 +18,15 @@ module.exports = {
 
 To generate a basic configuration file scaffold in your Snowpack project run `snowpack init`.
 
+## mode
+
+**Type**: `"test" | "development" | "production"`  
+**Default**: `"development"` for `snowpack dev`, `"production"` for `snowpack build`.
+
+Specifies the "mode" that Snowpack should run in. The main impact of this is the value of `import.meta.env.MODE` at runtime, although there are some other key differences between modes:
+
+- `"test"`: `testOptions.files` are not excluded, and will be scanned & built as normal source files. Useful when running tests on top of Snowpack.
+
 ## root
 
 **Type**: `string`  

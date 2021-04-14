@@ -5,7 +5,7 @@ const path = require('path');
 const {createMakeHot} = require('svelte-hmr');
 
 module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
-  const isDev = process.env.NODE_ENV !== 'production';
+  const isDev = snowpackConfig.mode !== 'production';
   const useSourceMaps =
     snowpackConfig.buildOptions.sourcemap || snowpackConfig.buildOptions.sourceMaps;
   // Old Snowpack versions wouldn't build dependencies. Starting in v3.1, Snowpack's build pipeline

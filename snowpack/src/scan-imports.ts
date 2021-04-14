@@ -43,7 +43,7 @@ export async function getInstallTargets(
   if (scannedFiles) {
     installTargets.push(...(await scanImportsFromFiles(scannedFiles, config)));
   } else {
-    installTargets.push(...(await scanImports(process.env.NODE_ENV === 'test', config)));
+    installTargets.push(...(await scanImports(config.mode === 'test', config)));
   }
   return installTargets.filter(
     (dep) =>

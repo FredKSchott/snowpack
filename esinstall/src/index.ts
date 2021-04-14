@@ -75,7 +75,7 @@ function resolveWebDependency(
 
 function generateEnvObject(userEnv: EnvVarReplacements): Object {
   return {
-    NODE_ENV: process.env.NODE_ENV || 'production',
+    NODE_ENV: userEnv.NODE_ENV || process.env.NODE_ENV || 'production',
     ...Object.keys(userEnv).reduce((acc, key) => {
       const value = userEnv[key];
       acc[key] = value === true ? process.env[key] : value;
