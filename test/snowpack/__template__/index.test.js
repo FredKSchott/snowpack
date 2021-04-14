@@ -8,12 +8,14 @@ describe('suite', () => {
   });
 
   it('test', async () => {
-    const result = await testFixture(
-      {},
-      {
-        'index.js': dedent`// Content to prevent readFile error`,
-      },
-    );
+    const result = await testFixture({
+      'index.js': dedent`
+        // Content to prevent readFile error
+      `,
+      'snowpack.config.js': dedent`
+        module.exports = {}
+      `,
+    });
     expect(result['index.js']);
   });
 });

@@ -33,7 +33,7 @@ describe('package', () => {
       'index.svelte': dedent`
         <style>
           div {
-              color: red;
+            color: red;
           }
         </style>
         <script>
