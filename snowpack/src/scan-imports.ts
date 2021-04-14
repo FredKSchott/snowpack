@@ -182,7 +182,6 @@ function parseFileForInstallTargets({
   root,
 }: SnowpackSourceFile<string>): InstallTarget[] {
   const relativeLoc = path.relative(root, locOnDisk);
-
   try {
     if (cssExts.test(baseExt)) {
       logger.debug(`Scanning ${relativeLoc} for imports as CSS`);
@@ -204,40 +203,6 @@ function parseFileForInstallTargets({
         `Skip scanning ${relativeLoc} for imports (unknown file extension ${baseExt})`,
       );
       return [];
-    }
-
-    switch (baseExt) {
-      case '.css':
-      case '.less':
-      case '.sass':
-      case '.scss': {
-        logger.debug(`Scanning ${relativeLoc} for imports as CSS`);
-        return parseCssForInstallTargets(contents);
-      }
-      case '.html':
-      case '.svelte':
-      case '.interface':
-      case '.vue': {
-        logger.debug(`Scanning ${relativeLoc} for imports as HTML`);
-        return [
-          ...parseCssForInstallTargets(extractCssFromHtml(contents)),
-          ...parseJsForInstallTargets(extractJsFromHtml({contents, baseExt})),
-        ];
-      }
-      case '.js':
-      case '.jsx':
-      case '.mjs':
-      case '.ts':
-      case '.tsx': {
-        logger.debug(`Scanning ${relativeLoc} for imports as JS`);
-        return parseJsForInstallTargets(contents);
-      }
-      default: {
-        logger.debug(
-          `Skip scanning ${relativeLoc} for imports (unknown file extension ${baseExt})`,
-        );
-        return [];
-      }
     }
   } catch (err) {
     // Another error! No hope left, just abort.
