@@ -1,6 +1,4 @@
 const {testFixture} = require('../../../fixture-utils');
-const {promises: fs} = require('fs');
-const path = require('path');
 const dedent = require('dedent');
 
 describe('buildOptions.out', () => {
@@ -26,24 +24,20 @@ describe('buildOptions.out', () => {
     expect(Object.keys(result).every((f) => f.includes('TEST_OUT')));
   });
 
-  // Skipping to see if this is the only breaking test
-  it.skip('builds to the correct absolute out path', async () => {
-    const outDir = await fs.mkdtemp(
-      path.join(__dirname, '..', '..', '..', '__temp__', 'TEST_OUT-'),
-    );
+  it('builds to the correct absolute out path', async () => {
     const result = await testFixture(
       {
         'index.js': `// Intentionally left blank.`,
         'snowpack.config.js': dedent`
           module.exports = {
             buildOptions: {
-              out: '${outDir}'
+              out: '%TEMP_TEST_DIRECTORY%/TEST_OUT'
             }
           }
         `,
       },
       {absolute: true},
     );
-    expect(Object.keys(result).every((f) => f.startsWith(outDir)));
+    expect(Object.keys(result).every((f) => f.includes('TEST_OUT')));
   });
 });
