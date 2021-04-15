@@ -16,19 +16,25 @@ export async function clearCache() {
   ]);
 }
 
-/**
- * Previously, all PackageSources were global. The new PackageSourceLocal is designed
- * to allow for uniqueness across projects / Snowpack instances. That support will come later,
- * so for now we just keep a global instance here.
- */
-let sharedPackageSourceLocal: PackageSourceLocal | undefined;
-let sharedPackageSourceRemote: PackageSourceRemote | undefined;
+const remoteSourceCache = new WeakMap<SnowpackConfig, PackageSource>();
+const localSourceCache = new WeakMap<SnowpackConfig, PackageSource>();
 
 export function getPackageSource(config: SnowpackConfig): PackageSource {
   if (config.packageOptions.source === 'remote') {
-    sharedPackageSourceRemote = sharedPackageSourceRemote || new PackageSourceRemote(config);
-    return sharedPackageSourceRemote;
+    if(remoteSourceCache.has(config)) {
+      return remoteSourceCache.get(config)!;
+    }
+
+    const source = new PackageSourceRemote(config);
+    remoteSourceCache.set(config, source);
+    return source;
   }
-  sharedPackageSourceLocal = sharedPackageSourceLocal || new PackageSourceLocal(config);
-  return sharedPackageSourceLocal;
+
+  if(localSourceCache.has(config)) {
+    return localSourceCache.get(config)!;
+  }
+
+  const source = new PackageSourceLocal(config);
+  localSourceCache.set(config, source);
+  return source;
 }
