@@ -32,7 +32,10 @@ exports.testFixture = async function testFixture(
     testFiles = {'index.js': testFiles};
   }
   for (const [fileLoc, fileContents] of Object.entries(testFiles)) {
-    await writeFile(path.join(inDir, fileLoc), fileContents);
+    await writeFile(
+      path.join(inDir, fileLoc),
+      fileContents.replace(/%TEMP_TEST_DIRECTORY%/g, inDir),
+    );
   }
 
   // Install any dependencies

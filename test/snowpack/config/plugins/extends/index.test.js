@@ -33,7 +33,7 @@ describe('extends', () => {
   
   */
 
-  it.skip('Loads and uses the appropriate plugins', async () => {
+  it('Loads plugin from extended config', async () => {
     const result = await testFixture({
       'base/package.json': dedent`
         {
@@ -41,13 +41,20 @@ describe('extends', () => {
           "version": "1.0.0",
           "name": "@snowpack/test-config-extends-plugins-base",
           "devDependencies": {
-            "@snowpack/plugin-dotenv": "^1.6.0-alpha.0"
+            "@snowpack/plugin-dotenv": "^2.1.0"
           }
         } 
       `,
       'base/snowpack.config.json': dedent`
         {
-          "plugins": ["@snowpack/plugin-dotenv"]
+          "plugins": [
+            [
+              "@snowpack/plugin-dotenv",
+              {
+                "dir": "%TEMP_TEST_DIRECTORY%"
+              }
+            ]
+          ]
         }        
       `,
       'index.js': dedent`
@@ -58,8 +65,7 @@ describe('extends', () => {
       `,
       'snowpack.config.js': dedent`
         module.exports = {
-          extends: './base/snowpack.config.json',
-          plugins: ['@snowpack/plugin-sass'],
+          extends: './base/snowpack.config.json'
         };
       `,
     });

@@ -62,7 +62,7 @@ describe('buildOptions.baseUrl', () => {
     it('generates correct import proxies', async () => {
       const result = await testFixture({
         'index.js': `import logo from './logo.png';`,
-        'logo.png': Buffer.from(''),
+        'logo.png': '',
         'snowpack.config.js': config,
       });
 
