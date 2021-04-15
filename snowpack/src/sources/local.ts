@@ -554,7 +554,7 @@ export class PackageSourceLocal implements PackageSource {
           cwd: packageManifestLoc,
           // This installer is only ever run in development. In production, many packages
           // are installed together to take advantage of tree-shaking and package bundling.
-          env: {NODE_ENV: 'development'},
+          env: {NODE_ENV: this.config.mode},
           treeshake: false,
           sourcemap: config.buildOptions.sourcemap,
           alias: config.alias,
