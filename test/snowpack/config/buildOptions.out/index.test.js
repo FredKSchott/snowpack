@@ -35,12 +35,12 @@ describe('buildOptions.out', () => {
       {
         'index.js': `// Intentionally left blank.`,
         'snowpack.config.js': dedent`
-        module.exports = {
-          buildOptions: {
-            out: '${outDir}'
+          module.exports = {
+            buildOptions: {
+              out: '${outDir}'
+            }
           }
-        }
-      `,
+        `,
       },
       {absolute: true},
     );

@@ -7,40 +7,19 @@ describe('mode', () => {
     require('snowpack').logger.level = 'warn';
   });
 
-  /* 
-
-  CLI test: No prexisting test
-  Reason for skip: Used to throw but now just fails with process.exit called with "1"
-  
-  Error:
-
-    428 |     logger_1.logger.error(`! ${filepath}\n${err.message}`);
-    429 |     logger_1.logger.info(colors_1.dim(`See https://www.snowpack.dev for more info.`));
-  > 430 |     process.exit(1);
-        |             ^
-    431 | }
-    432 | function handleDeprecatedConfigError(mainMsg, ...msgs) {
-    433 |     logger_1.logger.error(`${mainMsg}
-
-    at handleValidationErrors (snowpack/lib/config.js:430:13)
-    at Object.loadConfiguration (snowpack/lib/config.js:710:13)
-    at testFixture (test/fixture-utils.js:46:18)
-    at Object.<anonymous> (test/snowpack/config/invalid/index.test.js:12:7)
-  
-  */
-
-  it.skip('throws when mode is some unknown value', async () => {
-    const result = await testFixture({
+  it('throws when mode is some unknown value', async () => {
+    await testFixture({
       'index.js': dedent`console.log(import.meta.env.MODE)`,
       'snowpack.config.js': dedent`
         module.exports = {
           mode: 'UNEXPECTED'
         }
       `,
-    }).catch(() => null);
-    if (result !== null) {
-      throw new Error('Expected to reject!');
-    }
+    }).catch((e) =>
+      expect(e.message).toMatch(
+        '- snowpack.mode is not one of enum values: test,development,production',
+      ),
+    );
   });
 
   // For some reason, this is failing in CI. I think Luke Jackson has probably already solved this in his PR.
