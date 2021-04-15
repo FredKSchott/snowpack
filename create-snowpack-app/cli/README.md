@@ -25,7 +25,7 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
 - [snowpack-template-preset-env](https://github.com/argyleink/snowpack-template-preset-env) (PostCSS + Babel)
 - [11st-Starter-Kit](https://github.com/stefanfrede/11st-starter-kit) (11ty +
   Snowpack + tailwindcss)
-- [app-template-reason-react](https://github.com/jihchi/app-template-reason-react) (ReScript & reason-react on top of [@snowpack/app-template-react](/templates/app-template-react))
+- [app-template-rescript-react](https://github.com/jihchi/app-template-rescript-react) (ReScript & rescript-react on top of [@snowpack/app-template-react](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-react))
 - [svelte-tailwind](https://github.com/agneym/svelte-tailwind-snowpack) (Adds PostCSS and TailwindCSS using [svelte-preprocess](https://github.com/sveltejs/svelte-preprocess))
 - [snowpack-react-tailwind](https://github.com/mrkldshv/snowpack-react-tailwind) (React + Snowpack + Tailwindcss)
 - [hyperapp-snowpack](https://github.com/bmartel/hyperapp-snowpack) (Hyperapp + Snowpack + TailwindCSS)
