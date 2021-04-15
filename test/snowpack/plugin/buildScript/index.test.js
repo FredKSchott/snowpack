@@ -35,8 +35,7 @@ describe('plugin', () => {
             "@babel/cli": "^7.13.14",
             "@babel/core": "^7.13.15",
             "@babel/preset-typescript": "^7.10.4",
-            "@snowpack/plugin-build-script": "^2.0.0",
-            "snowpack": "^3.3.0"
+            "@snowpack/plugin-build-script": "^2.0.0"
           }
         }
       `,
