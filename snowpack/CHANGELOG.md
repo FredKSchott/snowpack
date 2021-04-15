@@ -4,6 +4,11 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.3.1 [2021-04-15]
+
+* 35e38b6c - [ci] yarn format <matthewp>
+* a3951e31 - Refactor the build to improve reusability (#3157) <Matthew Phillips>
+
 ## snowpack@3.3.0 [2021-04-14]
 
 * d9956f73 - add explicit "mode" config (#3135) 
