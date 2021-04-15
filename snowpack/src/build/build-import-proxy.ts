@@ -83,8 +83,8 @@ export function wrapHtmlResponse({
   // replace %MODE%
   code = code.replace(/%MODE%/g, mode);
 
+  // replace any %SNOWPACK_PUBLIC_*%
   const snowpackPublicEnv = getSnowpackPublicEnvVariables();
-
   code = code.replace(/%SNOWPACK_PUBLIC_.+?%/gi, (match: string) => {
     const envVariableName = match.slice(1, -1);
 
@@ -96,6 +96,13 @@ export function wrapHtmlResponse({
 
     return match;
   });
+
+  // replace any env variables defined in the config
+  for (const envVar in config.env) {
+    const matcher = new RegExp(`%${envVar}%`, 'g');
+    const val = config.env[envVar] as string;
+    code = code.replace(matcher, val);
+  }
 
   // Full Page Transformations: Only full page responses should get these transformations.
   // Any code not containing `<!DOCTYPE html>` is assumed to be an HTML fragment.

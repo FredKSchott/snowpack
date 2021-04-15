@@ -37,6 +37,7 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
   root: DEFAULT_ROOT,
   plugins: [],
   alias: {},
+  env: {},
   exclude: [],
   routes: [],
   dependencies: {},

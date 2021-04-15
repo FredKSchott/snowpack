@@ -23,40 +23,29 @@ describe('env', () => {
     expect(result['_snowpack/env.js']).toContain('export const API_URL = "TEST";');
   });
 
-  /*
-
-  CLI test: test/build/html-environment-variables
-  Reason for skip: Fails locally on mac or in an isolated project.
-
-  Error:
-
-    The variable API_URL gets added to _snowpack/env.js and JS files reference it correctly
-    but built HTML files do not pick up %API_URL% (does pick up %MODE% and %PUBLIC_URL%).
-
-  */
-  it.skip('Should inject env variables into HTML', async () => {
+  it('Should inject env variables into HTML', async () => {
     const result = await testFixture({
       'index.html': dedent`
-          <!DOCTYPE html>
-          <html
-            lang="en"
-            data-mode="%MODE%"
-            data-public-url="%PUBLIC_URL%"
-            data-my-env-var="%API_URL%"
-            data-edge-case-test="%SNOWPACK_PUBLIC_%"
-            data-undefined="%SNOWPACK_PUBLIC_BUILD_UNDEFINED%"
-          >
-            <head>
-              <meta charset="utf-8" />
-              <link rel="icon" href="/favicon.ico" />
-              <meta name="viewport" content="width=device-width, initial-scale=1" />
-              <meta name="description" content="Web site created using create-snowpack-app" />
-              <link rel="stylesheet" type="text/css" href="/index.css" />
-              <title>Snowpack App</title>
-            </head>
-            <body></body>
-          </html>
-        `,
+        <!DOCTYPE html>
+        <html
+          lang="en"
+          data-mode="%MODE%"
+          data-public-url="%PUBLIC_URL%"
+          data-my-env-var="%API_URL%"
+          data-edge-case-test="%SNOWPACK_PUBLIC_%"
+          data-undefined="%SNOWPACK_PUBLIC_BUILD_UNDEFINED%"
+        >
+          <head>
+            <meta charset="utf-8" />
+            <link rel="icon" href="/favicon.ico" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <meta name="description" content="Web site created using create-snowpack-app" />
+            <link rel="stylesheet" type="text/css" href="/index.css" />
+            <title>Snowpack App</title>
+          </head>
+          <body></body>
+        </html>
+      `,
       'snowpack.config.js': dedent`
         module.exports = {
           env: {
