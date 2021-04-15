@@ -304,6 +304,7 @@ export type SnowpackUserConfig = {
   mode?: SnowpackConfig['mode'];
   workspaceRoot?: string;
   install?: string[];
+  env?: Record<string, string>;
   extends?: string;
   exclude?: string[];
   mount?: Record<string, string | Partial<MountEntry>>;
