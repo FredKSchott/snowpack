@@ -21,7 +21,7 @@ const localSourceCache = new WeakMap<SnowpackConfig, PackageSource>();
 
 export function getPackageSource(config: SnowpackConfig): PackageSource {
   if (config.packageOptions.source === 'remote') {
-    if(remoteSourceCache.has(config)) {
+    if (remoteSourceCache.has(config)) {
       return remoteSourceCache.get(config)!;
     }
 
@@ -30,7 +30,7 @@ export function getPackageSource(config: SnowpackConfig): PackageSource {
     return source;
   }
 
-  if(localSourceCache.has(config)) {
+  if (localSourceCache.has(config)) {
     return localSourceCache.get(config)!;
   }
 
