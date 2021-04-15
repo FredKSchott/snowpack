@@ -1,6 +1,16 @@
 import type {CommandOptions, SnowpackBuildResult} from '../types';
 import {logger} from '../logger';
-import {createBuildState, maybeCleanBuildDirectory, addBuildFilesFromMountpoints, buildFiles, buildDependencies, optimize, writeToDisk, postBuildCleanup, startWatch} from '../build/process';
+import {
+  createBuildState,
+  maybeCleanBuildDirectory,
+  addBuildFilesFromMountpoints,
+  buildFiles,
+  buildDependencies,
+  optimize,
+  writeToDisk,
+  postBuildCleanup,
+  startWatch,
+} from '../build/process';
 
 export async function build(commandOptions: CommandOptions): Promise<SnowpackBuildResult> {
   const buildState = await createBuildState(commandOptions);
@@ -20,7 +30,7 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
 
   await optimize(buildState);
   await postBuildCleanup(buildState);
-  
+
   return {
     onFileChange: () => {
       throw new Error('build().onFileChange() only supported in "watch" mode.');

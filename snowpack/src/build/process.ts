@@ -53,7 +53,7 @@ function getIsHmrEnabled(config: SnowpackConfig) {
 /**
  * Scan a directory and remove any empty folders, recursively.
  */
- async function removeEmptyFolders(directoryLoc: string): Promise<boolean> {
+async function removeEmptyFolders(directoryLoc: string): Promise<boolean> {
   if (!(await fs.stat(directoryLoc)).isDirectory()) {
     return false;
   }
@@ -133,7 +133,7 @@ export async function createBuildState(commandOptions: CommandOptions): Promise<
     allBareModuleSpecifiers: [],
     allFileUrlsUnique: new Set<string>(),
     allFileUrlsToProcess: [],
-    devServer
+    devServer,
   };
 }
 
@@ -181,13 +181,17 @@ export async function addBuildFilesFromMountpoints(state: BuildState): Promise<v
 
     possibleFiles.push(...files);
   }
-  
+
   addBuildFiles(state, possibleFiles);
 }
 
 type FlushLoadOptions = LoadUrlOptions & {encoding?: undefined};
 
-async function flushFileQueue(state: BuildState, ignorePkg: boolean, loadOptions: FlushLoadOptions) {
+async function flushFileQueue(
+  state: BuildState,
+  ignorePkg: boolean,
+  loadOptions: FlushLoadOptions,
+) {
   const {
     config,
     allFileUrlsUnique,
@@ -195,7 +199,7 @@ async function flushFileQueue(state: BuildState, ignorePkg: boolean, loadOptions
     allBareModuleSpecifiers,
     buildDirectoryLoc,
     devServer,
-    isHMR
+    isHMR,
   } = state;
 
   const pkgUrlPrefix = path.posix.join(config.buildOptions.metaUrlPath, 'pkg/');
