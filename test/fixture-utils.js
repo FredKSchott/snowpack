@@ -34,7 +34,7 @@ exports.testFixture = async function testFixture(
   for (const [fileLoc, fileContents] of Object.entries(testFiles)) {
     await writeFile(
       path.join(inDir, fileLoc),
-      fileContents.replace(/%TEMP_TEST_DIRECTORY%/g, inDir),
+      fileContents.replace(/%TEMP_TEST_DIRECTORY%/g, inDir.split(path.sep).join(path.posix.sep)),
     );
   }
 
