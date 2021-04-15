@@ -10,7 +10,7 @@ describe('buildOptions.out', () => {
   it('builds to the correct relative out path', async () => {
     const result = await testFixture(
       {
-        'index.js': `// Intentionally left blank.`,
+        'index.js': `// Intentionally left blank`,
         'snowpack.config.js': dedent`
           module.exports = {
             buildOptions: {
