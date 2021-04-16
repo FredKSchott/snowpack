@@ -4,6 +4,11 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.3.2 [2021-04-16]
+
+* dfd200a8 - [ci] yarn format <matthewp>
+* fa96e618 - Use a separate PackageSource for each config (#3164) <Matthew Phillips>
+
 ## snowpack@3.3.1 [2021-04-15]
 
 * 35e38b6c - [ci] yarn format <matthewp>
