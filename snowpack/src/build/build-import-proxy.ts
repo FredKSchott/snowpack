@@ -1,6 +1,4 @@
 import path from 'path';
-import postCss from 'postcss';
-import postCssModules from 'postcss-modules';
 import {logger} from '../logger';
 import {SnowpackConfig} from '../types';
 import {
@@ -12,6 +10,7 @@ import {
 } from '../util';
 import {generateSRI} from './import-sri';
 import {scanImportGlob} from '../scan-import-glob';
+import {cssModuleJSON} from './import-css';
 
 export const SRI_CLIENT_HMR_SNOWPACK = generateSRI(Buffer.from(HMR_CLIENT_CODE));
 export const SRI_ERROR_HMR_SNOWPACK = generateSRI(Buffer.from(HMR_OVERLAY_CODE));
@@ -238,26 +237,9 @@ async function generateCssModuleImportProxy({
   hmr: boolean;
   config: SnowpackConfig;
 }) {
-  let moduleJson: string | undefined;
-  const processor = postCss([
-    postCssModules({
-      getJSON: (_, json) => {
-        moduleJson = json;
-      },
-    }),
-  ]);
-  const result = await processor.process(code, {
-    from: url,
-    to: url + '.proxy.js',
-  });
-  // log any warnings that happened.
-  result
-    .warnings()
-    .forEach((element) => logger.warn(`${url} - ${element.text}`, {name: 'snowpack:cssmodules'}));
-  // return the JS+CSS proxy file.
   return `
-export let code = ${JSON.stringify(result.css)};
-let json = ${JSON.stringify(moduleJson)};
+export let code = ${JSON.stringify(code)};
+let json = ${cssModuleJSON(url)};
 export default json;
 ${
   hmr

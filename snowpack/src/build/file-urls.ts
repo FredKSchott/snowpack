@@ -32,6 +32,12 @@ export function getBuiltFileUrls(filepath: string, config: SnowpackConfig): stri
   const fileName = path.basename(filepath);
   const extensionMatch = getExtensionMatch(fileName, config._extensionMap);
   if (!extensionMatch) {
+    // CSS Modules require a special .json mapping here
+    if (filepath.endsWith('.module.css')) {
+      return [filepath, filepath + '.json'];
+    }
+
+    // Otherwise, return only the requested file
     return [filepath];
   }
   const [inputExt, outputExts] = extensionMatch;

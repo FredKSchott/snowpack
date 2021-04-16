@@ -35,6 +35,7 @@ import {
   SnowpackDevServer,
 } from '../types';
 import {
+  createInstallTarget,
   getCacheKey,
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
@@ -663,6 +664,11 @@ export async function startServer(
       }
       if (resourcePath !== reqPath && reqPath.endsWith('.proxy.js')) {
         finalizedResponse = await fileBuilder.getProxy(resourcePath, resourceType);
+
+        // CSS Modules only: also generate JSON module mapping (not imported so must be added manually)
+        if (reqPath.endsWith('.module.css.proxy.js') && fileBuilder.buildOutput['.json']) {
+          resolvedImports.push(createInstallTarget(`${resourcePath}.json`));
+        }
       } else if (resourcePath !== reqPath && reqPath.endsWith('.map')) {
         finalizedResponse = fileBuilder.getSourceMap(resourcePath);
       } else {
