@@ -21,7 +21,11 @@ describe('', () => {
     expect(files['/src/App.module.css.proxy.js']).not.toEqual(expect.stringContaining(`.App {`));
   });
 
-  it('keeps original CSS file', () => {
-    expect(files['/src/App.module.css']).toEqual(expect.stringContaining(`.App {`));
+  it('preserves CSS file (with CSS Module names)', () => {
+    expect(files['/src/App.module.css']).not.toEqual(expect.stringContaining(`.App {`));
+  });
+
+  it('generates JSON', () => {
+    expect(files['/src/App.module.css.json']).toBeTruthy();
   });
 });

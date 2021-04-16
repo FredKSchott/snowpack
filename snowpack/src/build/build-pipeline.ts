@@ -5,6 +5,7 @@ import {validatePluginLoadResult} from '../config';
 import {logger} from '../logger';
 import {PluginTransformResult, SnowpackBuildMap, SnowpackConfig} from '../types';
 import {getExtension, readFile, removeExtension} from '../util';
+import {cssModules} from './import-css';
 
 export interface BuildFileOptions {
   isDev: boolean;
@@ -28,6 +29,9 @@ async function runPipelineLoadStep(
   {isDev, isSSR, isPackage, isHmrEnabled, config}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExtension(srcPath);
+
+  const result: SnowpackBuildMap = {};
+
   for (const step of config.plugins) {
     if (!step.resolve || !step.resolve.input.some((ext) => srcPath.endsWith(ext))) {
       continue;
@@ -42,7 +46,7 @@ async function runPipelineLoadStep(
     try {
       const debugPath = path.relative(config.root, srcPath);
       logger.debug(`load() starting… [${debugPath}]`, {name: step.name});
-      const result = await step.load({
+      const stepResult = await step.load({
         fileExt: srcExt,
         filePath: srcPath,
         isDev,
@@ -52,32 +56,30 @@ async function runPipelineLoadStep(
       });
       logger.debug(`✔ load() success [${debugPath}]`, {name: step.name});
 
-      validatePluginLoadResult(step, result);
+      validatePluginLoadResult(step, stepResult);
 
-      if (typeof result === 'string' || Buffer.isBuffer(result)) {
+      if (typeof stepResult === 'string' || Buffer.isBuffer(stepResult)) {
         const mainOutputExt = step.resolve.output[0];
-        return {
-          [mainOutputExt]: {
-            code: result,
-          },
-        };
-      } else if (result && typeof result === 'object') {
-        Object.keys(result).forEach((ext) => {
-          const output = result[ext];
+        result[mainOutputExt] = {code: stepResult};
+      } else if (stepResult && typeof stepResult === 'object') {
+        Object.keys(stepResult).forEach((ext) => {
+          const output = stepResult[ext];
 
           // normalize to {code, map} format
           if (typeof output === 'string' || Buffer.isBuffer(output)) {
             result[ext] = {code: output};
+          } else if (output) {
+            result[ext] = output;
           }
 
           // ensure source maps are strings (it’s easy for plugins to pass back a JSON object)
-          if (result[ext].map && typeof result[ext].map === 'object')
-            result[ext].map = JSON.stringify(result[ext].map);
+          if (result[ext].map && typeof result[ext].map === 'object') {
+            result[ext].map = JSON.stringify(stepResult[ext].map);
+          }
 
           // if source maps disabled, don’t return any
           if (!config.buildOptions.sourcemap) result[ext].map = undefined;
         });
-        return result;
       }
     } catch (err) {
       // Attach metadata detailing where the error occurred.
@@ -86,11 +88,36 @@ async function runPipelineLoadStep(
     }
   }
 
-  return {
-    [srcExt]: {
-      code: await readFile(srcPath),
-    },
-  };
+  // handle CSS Modules, after plugins run
+  if (srcPath.endsWith('.module.css')) {
+    let contents: string = result['.css']
+      ? (result['.css'].code as string)
+      : ((await readFile(srcPath)) as string);
+    if (contents) {
+      // for CSS Modules URLs, we only need the destination URL (POSIX-style)
+      let url = srcPath;
+      for (const dir in config.mount) {
+        if (srcPath.startsWith(dir)) {
+          url = srcPath.replace(dir, config.mount[dir].url).replace(/\\/g, '/');
+          break;
+        }
+      }
+      const {css, json} = await cssModules({contents, url});
+      result['.css'] = {...(result['.css'] || {}), code: css};
+      result['.json'] = {code: JSON.stringify(json)};
+    }
+  }
+
+  // if no result was generated, return file as-is
+  if (!Object.keys(result).length) {
+    return {
+      [srcExt]: {
+        code: await readFile(srcPath),
+      },
+    };
+  }
+
+  return result;
 }
 
 async function composeSourceMaps(
