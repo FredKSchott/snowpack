@@ -4,6 +4,11 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.3.3 [2021-04-16]
+
+* 1f82543d - Fix publicPath option in esbuild (#3175) <Drew Powers>
+* 83294444 - Add CSS Modules in Build SSR (#3170) <Drew Powers>
+
 ## snowpack@3.3.2 [2021-04-16]
 
 * dfd200a8 - [ci] yarn format <matthewp>
