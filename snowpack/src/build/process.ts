@@ -110,8 +110,6 @@ export async function createBuildState(commandOptions: CommandOptions): Promise<
   const isSSR = !!config.buildOptions.ssr;
   const isHMR = getIsHmrEnabled(config);
 
-  // Seems like maybe we shouldn't be doing this...
-  config.buildOptions.resolveProxyImports = !config.optimize?.bundle;
   config.devOptions.hmrPort = isHMR ? config.devOptions.hmrPort : undefined;
   config.devOptions.port = 0;
 
