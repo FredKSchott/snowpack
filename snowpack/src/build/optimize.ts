@@ -371,6 +371,15 @@ async function runEsbuildOnBuildDirectory(
   allFiles: string[],
   config: SnowpackConfig,
 ): Promise<{manifest: SnowpackMetaManifest; outputFiles: esbuild.OutputFile[]}> {
+  // esbuild requires publicPath to be a remote URL. Only pass to esbuild if baseUrl is remote.
+  let publicPath: string | undefined;
+  if (
+    config.buildOptions.baseUrl.startsWith('http:') ||
+    config.buildOptions.baseUrl.startsWith('https:') ||
+    config.buildOptions.baseUrl.startsWith('//')
+  ) {
+    publicPath = config.buildOptions.baseUrl;
+  }
   const {outputFiles, warnings, metafile} = await esbuild.build({
     entryPoints: bundleEntrypoints,
     outdir: FAKE_BUILD_DIRECTORY,
@@ -382,7 +391,7 @@ async function runEsbuildOnBuildDirectory(
     format: 'esm',
     platform: 'browser',
     metafile: true,
-    publicPath: config.buildOptions.baseUrl,
+    publicPath,
     minify: config.optimize!.minify,
     target: config.optimize!.target,
     external: Array.from(new Set(allFiles.map((f) => '*' + path.extname(f)))).filter(
@@ -397,13 +406,9 @@ async function runEsbuildOnBuildDirectory(
   if (warnings.length > 0) {
     console.warn(warnings);
   }
-  outputFiles.forEach(
-    (f) =>
-      (f.path = f.path.replace(
-        FAKE_BUILD_DIRECTORY_REGEX,
-        addTrailingSlash(config.buildOptions.out),
-      )),
-  );
+  outputFiles.forEach((f) => {
+    f.path = f.path.replace(FAKE_BUILD_DIRECTORY_REGEX, addTrailingSlash(config.buildOptions.out));
+  });
   const manifest = metafile!;
   if (!config.optimize?.bundle) {
     delete (manifest as SnowpackMetaManifest).outputs;
