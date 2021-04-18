@@ -43,6 +43,11 @@ Now install Snowpack to your `dev dependencies` with this command:
 ```
 npm install --save-dev snowpack
 ```
+or
+
+```
+yarn add -D snowpack
+```
 
 > 💡 Tip: Snowpack can install globally via `npm install -g snowpack`. But, we recommend installing locally in every project via `--save-dev`/`--dev`. Run the Snowpack command-line tool locally via package.json "scripts", npm's `npx snowpack`, or via `yarn snowpack`.
 
@@ -81,6 +86,10 @@ Run the following on the command line to start the Snowpack development server
 
 ```
 npm run start
+```
+or 
+```
+yarn start
 ```
 
 If all went well, Snowpack automatically opens your site in a new browser!
