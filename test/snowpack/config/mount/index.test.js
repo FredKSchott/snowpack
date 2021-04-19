@@ -214,16 +214,19 @@ describe('mount', () => {
         module.exports = {
           mount: {
             'node_modules/explicit': {
-              url: '/explicit'
+              url: '/explicit',
+              static: false,
+              resolve: true
             },
           }
         };
       `,
     });
+
     // Mounted node_modules directory is correctly transformed
-    expect(result['/explicit/index.js']).toContain("explicit");
+    expect(result['explicit/index.js']).toContain("explicit");
     // Unmounted node_modules directories are not included
-    expect(result['/explicit/node_modules/implicit/index.js']).not.toBeDefined();
-    expect(result['/node_modules/implicit/index.js']).not.toBeDefined();
+    expect(result['explicit/node_modules/implicit/index.js']).not.toBeDefined();
+    expect(result['node_modules/implicit/index.js']).not.toBeDefined();
   });
 });
