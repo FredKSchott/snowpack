@@ -437,11 +437,10 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
       ...ALWAYS_EXCLUDE,
       // Always ignore the final build directory.
       `${config.buildOptions.out}/**`,
-      // In general, we want to ignore node_modules directories. However, if you've mounted one
-      // to a URL it should be treated as source. In that case, we can't ignore.
-      ...(Object.keys(config.mount).some((entry) => entry.includes('node_modules'))
-        ? []
-        : [`${config.root}/node_modules/**`]),
+      // We want to ignore all node_modules directories.
+      `**/node_modules/**`,
+      // If a node_modules directory is explicity mounted, it should be treated as source.
+      // In that case, we add the mounted directory to "picomatch.ignore" elsewhere
       ...config.exclude,
     ]),
   );
