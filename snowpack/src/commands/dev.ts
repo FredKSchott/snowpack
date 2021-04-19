@@ -291,7 +291,7 @@ export async function startServer(
     });
   }
 
-  const symlinkDirectories = new Set();
+  const symlinkDirectories = new Map<string, Promise<any>>();
   const inMemoryBuildCache = new Map<string, FileBuilder>();
   let fileToUrlMapping = new OneToManyMap();
   const excludeGlobs = [
@@ -534,42 +534,56 @@ export async function startServer(
       if (!fileStat) {
         throw new NotFoundError(reqPath, [symlinkResourceDirectory]);
       }
-      // If this is the first file served out of this linked directory, add it to our file watcher
-      // (to enable HMR) PLUS add it to our file<>URL mapping for future lookups. Each directory
-      // is scanned shallowly, so nested directories inside of `symlinkDirectories` are okay.
-      if (!symlinkDirectories.has(symlinkResourceDirectory)) {
-        symlinkDirectories.add(symlinkResourceDirectory);
-        watcher && watcher.add(symlinkResourceDirectory);
+      // If this is the first file served out of this linked directory
+      // - add it to our file watcher (to enable HMR)
+      // - add it to our file<>URL mapping for future lookups
+      // - add a promise to our directory<>promise map, which acts as
+      //   a guard to ensure no loadUrls for this directory proceed before
+      //   proccessing of this directory is done
+      // Each directory is scanned shallowly, so nested directories inside
+      // of `symlinkDirectories` are okay.
+      if (!symlinkDirectories.get(symlinkResourceDirectory)) {
         logger.debug(
           `Mounting symlink directory: '${symlinkResourceDirectory}' as URL '${path.dirname(
             reqPath,
           )}'`,
         );
-        const shallowFiles = (await new fdir()
-          .withFullPaths()
-          .withMaxDepth(0)
-          .crawl(symlinkResourceDirectory)
-          .withPromise()) as string[];
-        for (const f of shallowFiles) {
-          if (fileToUrlMapping.value(f)) {
-            logger.warn(
-              `Warning: mounted file is being imported as a package.\n` +
-                `Workspace & monorepo packages work automatically and do not need to be mounted.`,
-            );
-          } else {
-            fileToUrlMapping.add(
-              f,
-              getBuiltFileUrls(f, config).map((u) =>
-                path.posix.join(
-                  config.buildOptions.metaUrlPath,
-                  'link',
-                  slash(path.relative(config.workspaceRoot as string, u)),
-                ),
-              ),
-            );
+        symlinkDirectories.set(symlinkResourceDirectory, processDirectory());
+        watcher && watcher.add(symlinkResourceDirectory);
+
+        async function processDirectory() {
+          const shallowFiles = (await new fdir()
+            .withFullPaths()
+            .withMaxDepth(0)
+            .crawl(symlinkResourceDirectory)
+            .withPromise()) as string[];
+
+          for (const f of shallowFiles) {
+            if (fileToUrlMapping.value(f)) {
+              logger.warn(
+                `Warning: mounted file is being imported as a package.\n` +
+                  `Workspace & monorepo packages work automatically and do not need to be mounted.`,
+              );
+            } else {
+              fileToUrlMapping.add(
+                f,
+                getBuiltFileUrls(f, config).map((u) => {
+                  const url = path.posix.join(
+                    config.buildOptions.metaUrlPath,
+                    'link',
+                    slash(path.relative(config.workspaceRoot as string, u)),
+                  );
+                  return url;
+                }),
+              );
+            }
           }
         }
       }
+
+      // guard: ensure directory is properly read and files registered before proceeding
+      await symlinkDirectories.get(symlinkResourceDirectory);
+
       let attemptedFileLoc = fileToUrlMapping.key(reqPath);
       if (!attemptedFileLoc) {
         resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
