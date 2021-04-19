@@ -26,7 +26,7 @@ const advanced = {
         </script>
       </body>
     </html>   
-  `
+  `,
 };
 
 const node_modules = {
@@ -38,8 +38,8 @@ const node_modules = {
   `,
   'node_modules/implicit/index.js': dedent`
     console.log('implicit');
-  `
-}
+  `,
+};
 
 describe('mount', () => {
   beforeAll(() => {
@@ -224,7 +224,7 @@ describe('mount', () => {
     });
 
     // Mounted node_modules directory is correctly transformed
-    expect(result['explicit/index.js']).toContain("explicit");
+    expect(result['explicit/index.js']).toContain('explicit');
     // Unmounted node_modules directories are not included
     expect(result['explicit/node_modules/implicit/index.js']).not.toBeDefined();
     expect(result['node_modules/implicit/index.js']).not.toBeDefined();

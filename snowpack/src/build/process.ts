@@ -151,7 +151,7 @@ export async function addBuildFiles(state: BuildState, files: string[]) {
   const excludePrivate = new RegExp(`\\${path.sep}\\..+(?!\\${path.sep})`);
   const excludeGlobs = [...config.exclude, ...config.testOptions.files];
   const foundExcludeMatch = picomatch(excludeGlobs);
-  const mountedNodeModules = Object.keys(config.mount).filter(v => v.includes('node_modules'));
+  const mountedNodeModules = Object.keys(config.mount).filter((v) => v.includes('node_modules'));
 
   const allFileUrls: string[] = [];
 
@@ -160,8 +160,8 @@ export async function addBuildFiles(state: BuildState, files: string[]) {
       continue;
     }
     if (foundExcludeMatch(f)) {
-      const isMounted = mountedNodeModules.find(mountKey => f.startsWith(mountKey));
-      if (!isMounted || isMounted && foundExcludeMatch(f.slice(isMounted.length))) {
+      const isMounted = mountedNodeModules.find((mountKey) => f.startsWith(mountKey));
+      if (!isMounted || (isMounted && foundExcludeMatch(f.slice(isMounted.length)))) {
         continue;
       }
     }
