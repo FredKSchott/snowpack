@@ -1,8 +1,0 @@
-{
-  "extends": "./base/snowpack.config.json",
-  "mount": {
-    "./public": "/",
-    "./src": "/_dist_"
-  },
-  "plugins": ["@snowpack/plugin-sass"]
-}

@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`namedImport correctly uses named import 1`] = `
+Object {
+  "_snowpack/pkg/array-flatten.js": "/**
+ * Flatten an array indefinitely.
+ */
+function flatten(array) {
+    var result = [];
+    $flatten(array, result);
+    return result;
+}
+/**
+ * Internal flatten function recursively passes \`result\`.
+ */
+function $flatten(array, result) {
+    for (var i = 0; i < array.length; i++) {
+        var value = array[i];
+        if (Array.isArray(value)) {
+            $flatten(value, result);
+        }
+        else {
+            result.push(value);
+        }
+    }
+}
+
+export { flatten };
+",
+  "_snowpack/pkg/import-map.json": "{
+  \\"imports\\": {
+    \\"array-flatten\\": \\"./array-flatten.js\\"
+  }
+}",
+  "index.js": "import {flatten as _$v4} from './_snowpack/pkg/array-flatten.js';
+_$v4([1, 2, [3, 4]]);",
+}
+`;

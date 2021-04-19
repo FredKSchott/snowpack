@@ -37,6 +37,7 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
   root: DEFAULT_ROOT,
   plugins: [],
   alias: {},
+  env: {},
   exclude: [],
   routes: [],
   dependencies: {},
@@ -474,20 +475,20 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
 
 function handleConfigError(msg: string) {
   logger.error(msg);
-  process.exit(1);
+  throw new Error(msg);
 }
 
 function handleValidationErrors(filepath: string, err: ConfigValidationError) {
-  logger.error(`! ${filepath}\n${err.message}`);
+  const msg = `! ${filepath}\n${err.message}`;
+  logger.error(msg);
   logger.info(dim(`See https://www.snowpack.dev for more info.`));
-  process.exit(1);
+  throw new Error(msg);
 }
 
 function handleDeprecatedConfigError(mainMsg: string, ...msgs: string[]) {
-  logger.error(`${mainMsg}
-${msgs.join('\n')}
-See https://www.snowpack.dev for more info.`);
-  process.exit(1);
+  const msg = `${mainMsg}\n${msgs.join('\n')}See https://www.snowpack.dev for more info.`;
+  logger.error(msg);
+  throw new Error(msg);
 }
 
 function valdiateDeprecatedConfig(rawConfig: any) {
@@ -746,13 +747,8 @@ export function createConfiguration(config: SnowpackUserConfig = {}): SnowpackCo
 }
 
 async function loadConfigurationFile(
-  filename: string,
+  loc: string,
 ): Promise<{filepath: string | undefined; config: SnowpackUserConfig} | null> {
-  const loc = path.resolve(process.cwd(), filename);
-  if (!existsSync(loc)) {
-    return null;
-  }
-
   const config = await REQUIRE_OR_IMPORT(loc);
   return {filepath: loc, config};
 }
@@ -781,13 +777,15 @@ export async function loadConfiguration(
   if (!result) {
     for (const potentialConfigurationFile of configs) {
       if (result) break;
-      result = await loadConfigurationFile(potentialConfigurationFile);
+      const loc = path.resolve(overrides.root || process.cwd(), potentialConfigurationFile);
+      if (existsSync(loc)) result = await loadConfigurationFile(loc);
     }
   }
 
   // Support package.json "snowpack" config
   if (!result) {
-    const potentialPackageJsonConfig = await loadConfigurationFile('package.json');
+    const loc = path.resolve(overrides.root || process.cwd(), 'package.json');
+    const potentialPackageJsonConfig = existsSync(loc) && (await loadConfigurationFile(loc));
     if (potentialPackageJsonConfig && (potentialPackageJsonConfig.config as any).snowpack) {
       result = {
         filepath: potentialPackageJsonConfig.filepath,

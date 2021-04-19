@@ -1,8 +1,0 @@
-{
-  "packageOptions": {
-    "knownEntrypoints": ["array-flatten"]
-  },
-  "buildOptions": {
-    "metaUrlPath": "other_folder"
-  }
-}

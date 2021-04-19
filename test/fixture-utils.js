@@ -1,7 +1,5 @@
-const mkdirp = require('mkdirp');
 const rimraf = require('rimraf');
 const glob = require('glob');
-const os = require('os');
 const path = require('path');
 const fs = require('fs').promises;
 const snowpack = require('snowpack');
@@ -21,10 +19,12 @@ const UTF8_FRIENDLY_EXTS = [
   'json',
 ]; // only read non-binary files (add more exts here as needed)
 
+const writeFile = (file, data) =>
+  fs.mkdir(path.dirname(file), {recursive: true}).then(() => fs.writeFile(file, data));
+
 exports.testFixture = async function testFixture(
-  userConfig,
   testFiles,
-  {absolute} = {} /* options */,
+  {absolute = false, overrides = {}} = {},
 ) {
   const inDir = await fs.mkdtemp(path.join(__dirname, '__temp__', 'snowpack-fixture-'));
 
@@ -32,15 +32,23 @@ exports.testFixture = async function testFixture(
     testFiles = {'index.js': testFiles};
   }
   for (const [fileLoc, fileContents] of Object.entries(testFiles)) {
-    await fs.writeFile(path.join(inDir, fileLoc), fileContents);
+    await writeFile(
+      path.join(inDir, fileLoc),
+      fileContents.replace(/%TEMP_TEST_DIRECTORY%/g, inDir.split(path.sep).join(path.posix.sep)),
+    );
   }
 
-  const config = await snowpack.createConfiguration({
-    root: inDir,
-    mode: 'production',
-    ...userConfig,
-  });
+  // Install any dependencies
+  const hasPackageJson = testFiles['package.json'];
+  hasPackageJson &&
+    require('child_process').execSync('yarn', {
+      cwd: inDir,
+      stdio: 'ignore',
+    });
+
+  const config = await snowpack.loadConfiguration({root: inDir, ...overrides});
   const outDir = config.buildOptions.out;
+
   await snowpack.build({
     config,
     lockfile: null,
@@ -53,14 +61,27 @@ exports.testFixture = async function testFixture(
     cwd: outDir,
     nodir: true,
     absolute: true,
+    dot: true,
   });
 
   for (const fileLoc of allFiles) {
-    result[absolute ? fileLoc : path.relative(outDir, fileLoc)] = await fs.readFile(
-      fileLoc,
-      'utf8',
-    );
+    result[
+      (absolute ? fileLoc : path.relative(outDir, fileLoc)).split(path.sep).join(path.posix.sep)
+    ] = require('fs').readFileSync(fileLoc, 'utf8');
   }
+
+  const snowpackCache = glob.sync(`.snowpack/**/*.{${UTF8_FRIENDLY_EXTS.join(',')}}`, {
+    cwd: inDir,
+    nodir: true,
+    absolute: true,
+  });
+
+  for (const fileLoc of snowpackCache) {
+    result[
+      (absolute ? fileLoc : path.relative(outDir, fileLoc)).split(path.sep).join(path.posix.sep)
+    ] = require('fs').readFileSync(fileLoc, 'utf8');
+  }
+
   // TODO: Make it easier to turn this off when debugging.
   await rimraf.sync(inDir);
   // Return the result.

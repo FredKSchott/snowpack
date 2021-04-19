@@ -1,1 +1,0 @@
-console.log('TEST: THIS IS THE GOOD ENTRYPOINT');
