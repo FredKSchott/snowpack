@@ -26,8 +26,20 @@ const advanced = {
         </script>
       </body>
     </html>   
-  `,
+  `
 };
+
+const node_modules = {
+  'node_modules/explicit/index.js': dedent`
+    console.log('explicit');
+  `,
+  'node_modules/explicit/node_modules/implicit/index.js': dedent`
+    console.log('implicit:nested');
+  `,
+  'node_modules/implicit/index.js': dedent`
+    console.log('implicit');
+  `
+}
 
 describe('mount', () => {
   beforeAll(() => {
@@ -193,5 +205,28 @@ describe('mount', () => {
     // HTML imports were resolved
     expect(result['g/main.html']).not.toContain('%PUBLIC_URL%');
     expect(result['g/main.html']).toContain("import './dep.js';");
+  });
+
+  it('Allows explicity mounting directories within node_modules but does not mount implicit node_modules files', async () => {
+    const result = await testFixture({
+      ...node_modules,
+      'snowpack.config.js': dedent`
+        module.exports = {
+          mount: {
+            'node_modules/explicit': {
+              url: '/explicit',
+              static: false,
+              resolve: true
+            },
+          }
+        };
+      `,
+    });
+
+    // Mounted node_modules directory is correctly transformed
+    expect(result['explicit/index.js']).toContain("explicit");
+    // Unmounted node_modules directories are not included
+    expect(result['explicit/node_modules/implicit/index.js']).not.toBeDefined();
+    expect(result['node_modules/implicit/index.js']).not.toBeDefined();
   });
 });
