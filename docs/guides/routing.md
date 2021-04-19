@@ -76,10 +76,16 @@ module.exports = {
           }
         };
 
-        proxy.ws(req, socket, head, {
-          hostname: 'localhost',
-          port: 3001
-        }, defaultWSHandler);
+        proxy.ws(
+          req,
+          socket,
+          head,
+          {
+            hostname: 'localhost',
+            port: 3001,
+          },
+          defaultWSHandler,
+        );
       },
     },
   ],
