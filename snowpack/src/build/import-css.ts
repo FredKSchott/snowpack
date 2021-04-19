@@ -11,8 +11,8 @@ export async function cssModules({
 }: {
   contents: string;
   url: string;
-}): Promise<{css: string; json: any}> {
-  let json: any = {};
+}): Promise<{css: string; json: Record<string, string>}> {
+  let json: Record<string, string> = {};
   const processor = postCss([
     postCssModules({
       getJSON: (_, moduleNames) => {
@@ -34,6 +34,13 @@ export async function cssModules({
 }
 
 /** Return CSS Modules JSON from URL */
-export function cssModuleJSON(url: string) {
+export function cssModuleJSON(url: string): string {
   return cssModuleNames.get(url) || '{}';
+}
+
+/** Should this file get CSS Modules? */
+export function needsCSSModules(url: string): boolean {
+  return (
+    url.endsWith('.module.css') || url.endsWith('.module.scss') || url.endsWith('.module.sass')
+  );
 }

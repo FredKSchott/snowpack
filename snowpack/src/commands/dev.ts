@@ -43,6 +43,7 @@ import {
   openInBrowser,
 } from '../util';
 import {getPort, startDashboard, paintEvent} from './paint';
+import {cssModuleJSON} from '../build/import-css';
 export class OneToManyMap {
   readonly keyToValue = new Map<string, string[]>();
   readonly valueToKey = new Map<string, string>();
@@ -620,6 +621,17 @@ export async function startServer(
         fileToUrlMapping.key(resourcePath + 'index.html') ||
         fileToUrlMapping.key(resourcePath + '/index.html');
       if (!attemptedFileLoc) {
+        // last attempt: if this is a CSS Module, try and load JSON
+        if (resourcePath.endsWith('.module.css.json')) {
+          const srcLoc = resourcePath.replace(/\.json$/i, '');
+          return {
+            imports: [],
+            contents: cssModuleJSON(srcLoc),
+            originalFileLoc: srcLoc,
+            contentType: mime.lookup('.json'),
+          };
+        }
+
         throw new NotFoundError(reqPath);
       }
 

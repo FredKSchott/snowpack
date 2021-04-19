@@ -2,6 +2,7 @@ import path from 'path';
 import slash from 'slash';
 import {MountEntry, SnowpackConfig} from '../types';
 import {addExtension, getExtensionMatch, replaceExtension} from '../util';
+import {needsCSSModules} from './import-css';
 
 /**
  * Map a file path to the hosted URL for a given "mount" entry.
@@ -33,7 +34,7 @@ export function getBuiltFileUrls(filepath: string, config: SnowpackConfig): stri
   const extensionMatch = getExtensionMatch(fileName, config._extensionMap);
   if (!extensionMatch) {
     // CSS Modules require a special .json mapping here
-    if (filepath.endsWith('.module.css')) {
+    if (needsCSSModules(filepath)) {
       return [filepath, filepath + '.json'];
     }
 

@@ -7,7 +7,7 @@ describe('cssModules', () => {
     require('snowpack').logger.level = 'error';
   });
 
-  it('Generates CSS Modules from .module.css files', async () => {
+  it('Generates CSS Modules from .module.(scss|sass) files', async () => {
     const result = await testFixture({
       'public/index.html': dedent`
         <!DOCTYPE html>
@@ -25,7 +25,7 @@ describe('cssModules', () => {
         import React from 'react';
         import ReactDOM from 'react-dom';
 
-        import Styles from './App.module.css';
+        import Styles from './App.module.scss';
 
         function App() {
           return (
@@ -55,7 +55,7 @@ describe('cssModules', () => {
 
         ReactDOM.render(<App />, document.getElementById('app'));
       `,
-      'src/App.module.css': dedent`
+      'src/App.module.scss': dedent`
         .App {
           text-align: center;
         }
@@ -102,12 +102,20 @@ describe('cssModules', () => {
           }
         }
       `,
+      'package.json': dedent`
+        {
+          "devDependencies": {
+            "@snowpack/plugin-sass": "^1.4.0"
+          }
+        }
+      `,
       'snowpack.config.js': dedent`
         module.exports = {
           mount: {
             src: '/_dist_',
             public: '/'
           },
+          plugins: [['@snowpack/plugin-sass']],
         };
       `,
     });

@@ -5,7 +5,7 @@ import {validatePluginLoadResult} from '../config';
 import {logger} from '../logger';
 import {PluginTransformResult, SnowpackBuildMap, SnowpackConfig} from '../types';
 import {getExtension, readFile, removeExtension} from '../util';
-import {cssModules} from './import-css';
+import {cssModules, needsCSSModules} from './import-css';
 
 export interface BuildFileOptions {
   isDev: boolean;
@@ -89,7 +89,7 @@ async function runPipelineLoadStep(
   }
 
   // handle CSS Modules, after plugins run
-  if (srcPath.endsWith('.module.css')) {
+  if (needsCSSModules(srcPath)) {
     let contents: string = result['.css']
       ? (result['.css'].code as string)
       : ((await readFile(srcPath)) as string);
@@ -98,7 +98,10 @@ async function runPipelineLoadStep(
       let url = srcPath;
       for (const dir in config.mount) {
         if (srcPath.startsWith(dir)) {
-          url = srcPath.replace(dir, config.mount[dir].url).replace(/\\/g, '/');
+          url = srcPath
+            .replace(dir, config.mount[dir].url)
+            .replace(/\\/g, '/')
+            .replace(/\.(scss|sass)$/i, '.css');
           break;
         }
       }
