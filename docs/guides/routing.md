@@ -34,8 +34,7 @@ To serve the correct API response to a URL like `/api/users` in development, you
 
 ```js
 // snowpack.config.js
-const httpProxy = require('http-proxy');
-const proxy = httpProxy.createServer({target: 'http://localhost:3001'});
+const proxy = require('http2-proxy');
 
 module.exports = {
   routes: [
@@ -45,14 +44,17 @@ module.exports = {
         // remove /api prefix (optional)
         req.url = req.url.replace(/^\/api/, '');
 
-        proxy.web(req, res);
+        return proxy.web(req, res, {
+          hostname: 'localhost',
+          port: 3001,
+        });
       },
     },
   ],
 };
 ```
 
-We recommend the [http-proxy](https://github.com/http-party/node-http-proxy) library for proxying requests to another server, which supports a wide range of options to customize how each request is proxied. But feel free to implement the `dest` proxy function however you like. Your own server logic could even be called directly inside of the `dest` function, however this is not recommended over proxying.
+We recommend the [http2-proxy](https://www.npmjs.com/package/http2-proxy) library for proxying requests to another server, which supports a wide range of options to customize how each request is proxied. But feel free to implement the `dest` proxy function however you like. Your own server logic could even be called directly inside of the `dest` function, however this is not recommended over proxying.
 
 ### Scenario 3: Proxy WebSocket Requests
 
@@ -60,15 +62,24 @@ Proxied requests can be upgraded to a WebSocket connection via the "upgrade" eve
 
 ```js
 // snowpack.config.js
-const httpProxy = require('http-proxy');
-const proxy = httpProxy.createServer({target: 'http://localhost:3001'});
+const proxy = require('http2-proxy');
 
 module.exports = {
   routes: [
     {
-      src: '/socket.io/.*',
+      src: '/ws',
       upgrade: (req, socket, head) => {
-        proxy.ws(req, socket);
+        const defaultWSHandler = (err, req, socket, head) => {
+          if (err) {
+            console.error('proxy error', err);
+            socket.destroy();
+          }
+        };
+
+        proxy.ws(req, socket, head, {
+          hostname: 'localhost',
+          port: 3001
+        }, defaultWSHandler);
       },
     },
   ],
