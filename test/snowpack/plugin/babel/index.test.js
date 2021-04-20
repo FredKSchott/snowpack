@@ -53,7 +53,7 @@ describe('plugin', () => {
             '@babel/preset-typescript',
           ],
         }
-      `
+      `,
     });
 
     expect(result['index.js']).toContain(`_jsx(StrictMode`);
