@@ -80,6 +80,8 @@ async function runPipelineLoadStep(
           // if source maps disabled, don’t return any
           if (!config.buildOptions.sourcemap) result[ext].map = undefined;
         });
+
+        break;
       }
     } catch (err) {
       // Attach metadata detailing where the error occurred.
