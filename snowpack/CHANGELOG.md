@@ -4,6 +4,16 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.3.4 [2021-04-20]
+
+* 8f044398 - Restore proxy SSR rewriting for CSS Modules proxy (#3191) <Drew Powers>
+* 870b34c2 - Take the result of the first plugin (#3190) <Matthew Phillips>
+* 758bdb27 - Fix Sass + CSS Modules (#3186) <Drew Powers>
+* 5e58fc64 - fix: Race condition in symlink directory read (#3181) <Bjørn Stabell>
+* 28ea1f86 - [ci] yarn format <natemoo-re>
+* e6861227 - Support mounting within node_modules directory (#3134) 
+* a089d86a - Test fixtures continued (#3100) <Luke Jackson>
+
 ## snowpack@3.3.3 [2021-04-16]
 
 * 1f82543d - Fix publicPath option in esbuild (#3175) <Drew Powers>
