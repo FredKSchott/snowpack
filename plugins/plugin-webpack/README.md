@@ -12,8 +12,6 @@ npm install --save-dev @snowpack/plugin-webpack
 
 Then add `@snowpack/plugin-webpack` to `snowpack.config.js`:
 
-or to `snowpack.config.js`:
-
 ```js
 module.exports = {
   plugins: [
