@@ -19,6 +19,7 @@
     "core-js": "^3.10.1",
     "css-loader": "^5.2.1",
     "css-minimizer-webpack-plugin": "^2.0.0",
+    "file-loader": "^6.0.0",
     "glob": "^7.1.6",
     "html-minifier": "^4.0.0",
     "jsdom": "^16.5.3",

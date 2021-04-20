@@ -340,10 +340,7 @@ module.exports = function plugin(config, args = {}) {
               exclude: [/\.js?$/, /\.json?$/, /\.css$/],
               use: [
                 {
-                  // When using old assets loaders (i.e. file-loader/url-loader/raw-loader)
-                  // make sure to set 'javascript/auto' flag
-                  // https://webpack.js.org/guides/asset-modules/
-                  loader: 'asset/resource',
+                  loader: require.resolve('file-loader'),
                   options: {
                     name: assetsOutputPattern,
                   },
