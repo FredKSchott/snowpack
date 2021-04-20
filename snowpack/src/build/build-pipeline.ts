@@ -81,7 +81,7 @@ async function runPipelineLoadStep(
           if (!config.buildOptions.sourcemap) result[ext].map = undefined;
         });
 
-        break;
+        return result;
       }
     } catch (err) {
       // Attach metadata detailing where the error occurred.
