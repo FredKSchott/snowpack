@@ -56,17 +56,15 @@ export function transform(data) {
         : get_import_name();
 
       const source = node.source.value;
-
-      if (source.endsWith('.module.css.proxy.js')) {
-        // CSS Modules: include both CSS and JS
-        const cssSource = source.replace(/\.proxy\.js$/, '');
-        css.push(cssSource);
-        deps.push({name, source});
-      } else if (source.endsWith('.css.proxy.js')) {
+      if (source.endsWith('.css.proxy.js') && !source.endsWith('.module.css.proxy.js')) {
         // CSS proxy: only include CSS
         css.push(source.replace(/\.proxy\.js$/, ''));
       } else {
-        // everything else: mark as a dep
+        if (source.endsWith('.module.css.proxy.js')) {
+          // CSS Modules Proxy: include both CSS and JS
+          const cssSource = source.replace(/\.proxy\.js$/, '');
+          css.push(cssSource);
+        }
         deps.push({name, source});
 
         if (!is_namespace) {
