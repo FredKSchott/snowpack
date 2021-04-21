@@ -13,7 +13,6 @@ describe('config: instantiated objects', () => {
 
   it('instantiated objects don’t affect build', () => {
     expect(Object.keys(files)).toEqual([
-      '/dist/App.css',
       '/dist/index.css',
       '/dist/index.js',
       '/dist/index.js.map',
