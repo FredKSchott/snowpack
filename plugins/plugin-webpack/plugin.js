@@ -199,7 +199,7 @@ module.exports = function plugin(config, args = {}) {
   args.outputPattern = args.outputPattern || {};
   const jsOutputPattern = args.outputPattern.js || 'js/[name].[contenthash].js';
   const cssOutputPattern = args.outputPattern.css || 'css/[name].[contenthash].css';
-  const assetsOutputPattern = args.outputPattern.assets || 'assets/[name]-[hash].[ext]';
+  const assetsOutputPattern = args.outputPattern.assets || 'assets/[name]-[hash][ext]';
   if (!jsOutputPattern.endsWith('.js')) {
     throw new Error('Output Pattern for JS must end in .js');
   }
@@ -338,14 +338,13 @@ module.exports = function plugin(config, args = {}) {
             {
               test: /.*/,
               exclude: [/\.js?$/, /\.json?$/, /\.css$/],
-              use: [
-                {
-                  loader: require.resolve('file-loader'),
-                  options: {
-                    name: assetsOutputPattern,
-                  },
-                },
-              ],
+              // When using old assets loaders (i.e. file-loader/url-loader/raw-loader)
+              // make sure to set 'javascript/auto' flag
+              // https://webpack.js.org/guides/asset-modules/
+              type: 'asset/resource',
+              generator: {
+                filename: assetsOutputPattern,
+              },
             },
           ],
         },
