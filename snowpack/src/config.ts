@@ -762,7 +762,7 @@ async function loadConfigurationFile(
   overrides: SnowpackUserConfig = {},
 ): Promise<{filepath: string | undefined; config: SnowpackUserConfig} | null> {
   const loc = path.resolve(overrides.root || process.cwd(), filename);
-  if(!existsSync(loc)) return null;
+  if (!existsSync(loc)) return null;
   const config = await REQUIRE_OR_IMPORT(loc);
   return {filepath: loc, config};
 }
