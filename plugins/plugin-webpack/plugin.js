@@ -199,7 +199,7 @@ module.exports = function plugin(config, args = {}) {
   args.outputPattern = args.outputPattern || {};
   const jsOutputPattern = args.outputPattern.js || 'js/[name].[contenthash].js';
   const cssOutputPattern = args.outputPattern.css || 'css/[name].[contenthash].css';
-  const assetsOutputPattern = args.outputPattern.assets || 'assets/[name]-[hash][ext]';
+  const assetsOutputPattern = args.outputPattern.assets || 'assets/[name].[contenthash][ext]';
   if (!jsOutputPattern.endsWith('.js')) {
     throw new Error('Output Pattern for JS must end in .js');
   }

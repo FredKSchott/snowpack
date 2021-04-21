@@ -13,17 +13,17 @@
     "access": "public"
   },
   "dependencies": {
-    "@babel/core": "^7.13.15",
+    "@babel/core": "^7.13.16",
     "@babel/preset-env": "^7.13.15",
     "babel-loader": "^8.1.0",
-    "core-js": "^3.10.1",
-    "css-loader": "^5.2.1",
+    "core-js": "^3.10.2",
+    "css-loader": "^5.2.4",
     "css-minimizer-webpack-plugin": "^2.0.0",
     "glob": "^7.1.6",
     "html-minifier": "^4.0.0",
     "jsdom": "^16.5.3",
     "mini-css-extract-plugin": "^1.4.1",
-    "webpack": "^5.32.0",
+    "webpack": "^5.34.0",
     "webpack-manifest-plugin": "^3.1.1"
   },
   "devDependencies": {

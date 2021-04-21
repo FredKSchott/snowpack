@@ -7,7 +7,7 @@ Array [
   \\"index.js\\": \\"/index-826.js\\",
   \\"webpack-runtime.js\\": \\"/webpack-runtime-658.js\\",
   \\"styles.css\\": \\"/css/styles.8dee324f1968cdd88879.css\\",
-  \\"assets/backpack.svg\\": \\"/assets/backpack-33b50f0aef8d7a044262.svg\\",
+  \\"assets/backpack.svg\\": \\"/assets/backpack.33b50f0aef8d7a044262.svg\\",
   \\"index-826.js.map\\": \\"/index-826.js.map\\",
   \\"webpack-runtime-658.js.map\\": \\"/webpack-runtime-658.js.map\\",
   \\"styles.css.map\\": \\"/css/styles.8dee324f1968cdd88879.css.map\\"
@@ -20,7 +20,7 @@ Array [
     "filename": "backpack.svg",
   },
   Object {
-    "content": "(self.webpackChunkplugin_webpack_test_minimal=self.webpackChunkplugin_webpack_test_minimal||[]).push([[826],{99:(s,e,t)=>{\\"use strict\\";t(933),console.log(\\"test\\")},933:(s,e,t)=>{\\"use strict\\";s.exports=t.p+\\"assets/backpack-33b50f0aef8d7a044262.svg\\"}},s=>{\\"use strict\\";s.O(0,[532],(()=>(99,s(s.s=99)))),s.O()}]);
+    "content": "(self.webpackChunkplugin_webpack_test_minimal=self.webpackChunkplugin_webpack_test_minimal||[]).push([[826],{99:(s,e,t)=>{\\"use strict\\";t(933),console.log(\\"test\\")},933:(s,e,t)=>{\\"use strict\\";s.exports=t.p+\\"assets/backpack.33b50f0aef8d7a044262.svg\\"}},s=>{\\"use strict\\";s.O(0,[532],(()=>(99,s(s.s=99)))),s.O()}]);
 //# sourceMappingURL=index-826.js.map",
     "filename": "index-826.js",
   },
@@ -74,7 +74,7 @@ Array [
     "filename": "backpack.svg",
   },
   Object {
-    "content": "<!DOCTYPE html><html lang=\\"en\\"><head><meta charset=\\"UTF-8\\"><title>Minimal test</title><link rel=\\"stylesheet\\" href=\\"/css/styles.b55ff9639e12f1e09e7c.css\\"></head><body><script src=\\"/js/webpack-runtime.e82f6104e4bff9c404d9.js\\" async=\\"\\" defer=\\"\\"></script><script src=\\"/js/index.a7fbbee6cfb304f8bfd6.js\\" async=\\"\\" defer=\\"\\"></script></body></html>",
+    "content": "<!DOCTYPE html><html lang=\\"en\\"><head><meta charset=\\"UTF-8\\"><title>Minimal test</title><link rel=\\"stylesheet\\" href=\\"/css/styles.b55ff9639e12f1e09e7c.css\\"></head><body><script src=\\"/js/webpack-runtime.e82f6104e4bff9c404d9.js\\" async=\\"\\" defer=\\"\\"></script><script src=\\"/js/index.a565ffe9f5d071e30fbb.js\\" async=\\"\\" defer=\\"\\"></script></body></html>",
     "filename": "index.html",
   },
   Object {
