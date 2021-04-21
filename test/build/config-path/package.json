@@ -1,0 +1,9 @@
+{
+  "name": "@snowpackjs/test-config-path",
+  "description": "Passing --config",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "testbuild": "snowpack build --config my-config-file.js"
+  }
+}
