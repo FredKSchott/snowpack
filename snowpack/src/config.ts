@@ -758,8 +758,11 @@ export function createConfiguration(config: SnowpackUserConfig = {}): SnowpackCo
 }
 
 async function loadConfigurationFile(
-  loc: string,
+  filename: string,
+  overrides: SnowpackUserConfig = {},
 ): Promise<{filepath: string | undefined; config: SnowpackUserConfig} | null> {
+  const loc = path.resolve(overrides.root || process.cwd(), filename);
+  if(!existsSync(loc)) return null;
   const config = await REQUIRE_OR_IMPORT(loc);
   return {filepath: loc, config};
 }
@@ -771,7 +774,7 @@ export async function loadConfiguration(
   let result: Awaited<ReturnType<typeof loadConfigurationFile>> = null;
   // if user specified --config path, load that
   if (configPath) {
-    result = await loadConfigurationFile(configPath);
+    result = await loadConfigurationFile(configPath, overrides);
     if (!result) {
       throw new Error(`Snowpack config file could not be found: ${configPath}`);
     }
@@ -788,15 +791,13 @@ export async function loadConfiguration(
   if (!result) {
     for (const potentialConfigurationFile of configs) {
       if (result) break;
-      const loc = path.resolve(overrides.root || process.cwd(), potentialConfigurationFile);
-      if (existsSync(loc)) result = await loadConfigurationFile(loc);
+      result = await loadConfigurationFile(potentialConfigurationFile, overrides);
     }
   }
 
   // Support package.json "snowpack" config
   if (!result) {
-    const loc = path.resolve(overrides.root || process.cwd(), 'package.json');
-    const potentialPackageJsonConfig = existsSync(loc) && (await loadConfigurationFile(loc));
+    const potentialPackageJsonConfig = await loadConfigurationFile('package.json', overrides);
     if (potentialPackageJsonConfig && (potentialPackageJsonConfig.config as any).snowpack) {
       result = {
         filepath: potentialPackageJsonConfig.filepath,
@@ -819,7 +820,7 @@ export async function loadConfiguration(
   let extendConfig: SnowpackUserConfig = {} as SnowpackUserConfig;
   if (config.extends) {
     const extendConfigLoc = require.resolve(config.extends, {paths: [configBase]});
-    const extendResult = await loadConfigurationFile(extendConfigLoc);
+    const extendResult = await loadConfigurationFile(extendConfigLoc, {});
     if (!extendResult) {
       handleConfigError(`Could not locate "extends" config at ${extendConfigLoc}`);
       process.exit(1);
