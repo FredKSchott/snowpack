@@ -7,7 +7,7 @@ Array [
   \\"index.js\\": \\"/index-826.js\\",
   \\"webpack-runtime.js\\": \\"/webpack-runtime-658.js\\",
   \\"styles.css\\": \\"/css/styles.8dee324f1968cdd88879.css\\",
-  \\"assets/backpack.svg\\": \\"/assets/backpack.33b50f0aef8d7a044262.svg\\",
+  \\"assets/backpack.svg\\": \\"/assets/backpack.4a602c5addbde93d1bdf.svg\\",
   \\"index-826.js.map\\": \\"/index-826.js.map\\",
   \\"webpack-runtime-658.js.map\\": \\"/webpack-runtime-658.js.map\\",
   \\"styles.css.map\\": \\"/css/styles.8dee324f1968cdd88879.css.map\\"
@@ -15,12 +15,12 @@ Array [
     "filename": "asset-manifest.json",
   },
   Object {
-    "content": "<svg xmlns=\\"http://www.w3.org/2000/svg\\" x=\\"0\\" y=\\"0\\" viewBox=\\"0 0 256 282\\" xml:space=\\"preserve\\"><style>.st0{fill:#2e5e82}</style><path class=\\"st0\\" d=\\"M128 178.846l58-14.5V156c0-3.309-2.691-6-6-6H76c-3.309 0-6 2.691-6 6v8.346l58 14.5z\\"/><path class=\\"st0\\" d=\\"M128 189.154l-58-14.5V212c0 3.309 2.691 6 6 6h104c3.309 0 6-2.691 6-6v-37.346l-58 14.5zM64 266h32v16H64zM160 266h32v16h-32zM70 92h20v14H70zM70 0h20v80H70zM58 0H16C7.163 0 0 7.163 0 16v48c0 8.836 7.163 16 16 16h42V0z\\"/><path class=\\"st0\\" d=\\"M70 0h20v106H70zM166 92h20v14h-20z\\"/><path class=\\"st0\\" d=\\"M198 92v26h-44V92h-52v26H58V92H32v148c0 8.836 7.163 16 16 16h160c8.836 0 16-7.163 16-16V92h-26zm0 120c0 9.925-8.075 18-18 18H76c-9.925 0-18-8.075-18-18v-56c0-9.925 8.075-18 18-18h104c9.925 0 18 8.075 18 18v56zM102 0h52v80h-52zM166 0h20v80h-20zM240 0h-42v80h42c8.836 0 16-7.163 16-16V16c0-8.837-7.163-16-16-16z\\"/><path class=\\"st0\\" d=\\"M166 0h20v106h-20z\\"/></svg>
+    "content": "<svg xmlns=\\"http://www.w3.org/2000/svg\\" viewBox=\\"0 0 20 20\\"><path d=\\"M14.707 12.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l2.293-2.293a1 1 0 011.414 0z\\"/></svg>
 ",
     "filename": "backpack.svg",
   },
   Object {
-    "content": "(self.webpackChunkplugin_webpack_test_minimal=self.webpackChunkplugin_webpack_test_minimal||[]).push([[826],{99:(s,e,t)=>{\\"use strict\\";t(933),console.log(\\"test\\")},933:(s,e,t)=>{\\"use strict\\";s.exports=t.p+\\"assets/backpack.33b50f0aef8d7a044262.svg\\"}},s=>{\\"use strict\\";s.O(0,[532],(()=>(99,s(s.s=99)))),s.O()}]);
+    "content": "(self.webpackChunkplugin_webpack_test_minimal=self.webpackChunkplugin_webpack_test_minimal||[]).push([[826],{99:(s,e,t)=>{\\"use strict\\";t(933),console.log(\\"test\\")},933:(s,e,t)=>{\\"use strict\\";s.exports=t.p+\\"assets/backpack.4a602c5addbde93d1bdf.svg\\"}},s=>{\\"use strict\\";s.O(0,[532],(()=>(99,s(s.s=99)))),s.O()}]);
 //# sourceMappingURL=index-826.js.map",
     "filename": "index-826.js",
   },
@@ -69,12 +69,12 @@ console.log('test');
 exports[`@snowpack/plugin-webpack minimal - no options: files 1`] = `
 Array [
   Object {
-    "content": "<svg xmlns=\\"http://www.w3.org/2000/svg\\" x=\\"0\\" y=\\"0\\" viewBox=\\"0 0 256 282\\" xml:space=\\"preserve\\"><style>.st0{fill:#2e5e82}</style><path class=\\"st0\\" d=\\"M128 178.846l58-14.5V156c0-3.309-2.691-6-6-6H76c-3.309 0-6 2.691-6 6v8.346l58 14.5z\\"/><path class=\\"st0\\" d=\\"M128 189.154l-58-14.5V212c0 3.309 2.691 6 6 6h104c3.309 0 6-2.691 6-6v-37.346l-58 14.5zM64 266h32v16H64zM160 266h32v16h-32zM70 92h20v14H70zM70 0h20v80H70zM58 0H16C7.163 0 0 7.163 0 16v48c0 8.836 7.163 16 16 16h42V0z\\"/><path class=\\"st0\\" d=\\"M70 0h20v106H70zM166 92h20v14h-20z\\"/><path class=\\"st0\\" d=\\"M198 92v26h-44V92h-52v26H58V92H32v148c0 8.836 7.163 16 16 16h160c8.836 0 16-7.163 16-16V92h-26zm0 120c0 9.925-8.075 18-18 18H76c-9.925 0-18-8.075-18-18v-56c0-9.925 8.075-18 18-18h104c9.925 0 18 8.075 18 18v56zM102 0h52v80h-52zM166 0h20v80h-20zM240 0h-42v80h42c8.836 0 16-7.163 16-16V16c0-8.837-7.163-16-16-16z\\"/><path class=\\"st0\\" d=\\"M166 0h20v106h-20z\\"/></svg>
+    "content": "<svg xmlns=\\"http://www.w3.org/2000/svg\\" viewBox=\\"0 0 20 20\\"><path d=\\"M14.707 12.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l2.293-2.293a1 1 0 011.414 0z\\"/></svg>
 ",
     "filename": "backpack.svg",
   },
   Object {
-    "content": "<!DOCTYPE html><html lang=\\"en\\"><head><meta charset=\\"UTF-8\\"><title>Minimal test</title><link rel=\\"stylesheet\\" href=\\"/css/styles.b55ff9639e12f1e09e7c.css\\"></head><body><script src=\\"/js/webpack-runtime.e82f6104e4bff9c404d9.js\\" async=\\"\\" defer=\\"\\"></script><script src=\\"/js/index.a565ffe9f5d071e30fbb.js\\" async=\\"\\" defer=\\"\\"></script></body></html>",
+    "content": "<!DOCTYPE html><html lang=\\"en\\"><head><meta charset=\\"UTF-8\\"><title>Minimal test</title><link rel=\\"stylesheet\\" href=\\"/css/styles.b55ff9639e12f1e09e7c.css\\"></head><body><script src=\\"/js/webpack-runtime.e82f6104e4bff9c404d9.js\\" async=\\"\\" defer=\\"\\"></script><script src=\\"/js/index.21f0d4805b3b589177a6.js\\" async=\\"\\" defer=\\"\\"></script></body></html>",
     "filename": "index.html",
   },
   Object {
