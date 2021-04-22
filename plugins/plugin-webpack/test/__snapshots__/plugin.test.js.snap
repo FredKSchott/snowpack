@@ -6,11 +6,11 @@ Array [
     "content": "{
   \\"index.js\\": \\"/index-826.js\\",
   \\"webpack-runtime.js\\": \\"/webpack-runtime-658.js\\",
-  \\"styles.css\\": \\"/css/styles.8dee324f1968cdd88879.css\\",
-  \\"assets/backpack.svg\\": \\"/assets/backpack.4a602c5addbde93d1bdf.svg\\",
+  \\"styles.css\\": \\"/css/styles.XXXXXXXXXXXXXXXXXXXX.css\\",
+  \\"assets/backpack.svg\\": \\"/assets/backpack.XXXXXXXXXXXXXXXXXXXX.svg\\",
   \\"index-826.js.map\\": \\"/index-826.js.map\\",
   \\"webpack-runtime-658.js.map\\": \\"/webpack-runtime-658.js.map\\",
-  \\"styles.css.map\\": \\"/css/styles.8dee324f1968cdd88879.css.map\\"
+  \\"styles.css.map\\": \\"/css/styles.XXXXXXXXXXXXXXXXXXXX.css.map\\"
 }",
     "filename": "asset-manifest.json",
   },
@@ -20,7 +20,7 @@ Array [
     "filename": "backpack.svg",
   },
   Object {
-    "content": "(self.webpackChunkplugin_webpack_test_minimal=self.webpackChunkplugin_webpack_test_minimal||[]).push([[826],{99:(s,e,t)=>{\\"use strict\\";t(933),console.log(\\"test\\")},933:(s,e,t)=>{\\"use strict\\";s.exports=t.p+\\"assets/backpack.4a602c5addbde93d1bdf.svg\\"}},s=>{\\"use strict\\";s.O(0,[532],(()=>(99,s(s.s=99)))),s.O()}]);
+    "content": "(self.webpackChunkplugin_webpack_test_minimal=self.webpackChunkplugin_webpack_test_minimal||[]).push([[826],{99:(s,e,t)=>{\\"use strict\\";t(933),console.log(\\"test\\")},933:(s,e,t)=>{\\"use strict\\";s.exports=t.p+\\"assets/backpack.XXXXXXXXXXXXXXXXXXXX.svg\\"}},s=>{\\"use strict\\";s.O(0,[532],(()=>(99,s(s.s=99)))),s.O()}]);
 //# sourceMappingURL=index-826.js.map",
     "filename": "index-826.js",
   },
@@ -29,7 +29,7 @@ Array [
     "filename": "index-826.js.map",
   },
   Object {
-    "content": "<!DOCTYPE html><html lang=\\"en\\"><head><meta charset=\\"UTF-8\\"><title>Minimal test</title><link rel=\\"stylesheet\\" href=\\"/css/styles.8dee324f1968cdd88879.css\\"></head><body><script src=\\"/webpack-runtime-658.js\\" async=\\"\\" defer=\\"\\"></script><script src=\\"/index-826.js\\" async=\\"\\" defer=\\"\\"></script></body></html>",
+    "content": "<!DOCTYPE html><html lang=\\"en\\"><head><meta charset=\\"UTF-8\\"><title>Minimal test</title><link rel=\\"stylesheet\\" href=\\"/css/styles.XXXXXXXXXXXXXXXXXXXX.css\\"></head><body><script src=\\"/webpack-runtime-658.js\\" async=\\"\\" defer=\\"\\"></script><script src=\\"/index-826.js\\" async=\\"\\" defer=\\"\\"></script></body></html>",
     "filename": "index.html",
   },
   Object {
@@ -74,7 +74,7 @@ Array [
     "filename": "backpack.svg",
   },
   Object {
-    "content": "<!DOCTYPE html><html lang=\\"en\\"><head><meta charset=\\"UTF-8\\"><title>Minimal test</title><link rel=\\"stylesheet\\" href=\\"/css/styles.b55ff9639e12f1e09e7c.css\\"></head><body><script src=\\"/js/webpack-runtime.e82f6104e4bff9c404d9.js\\" async=\\"\\" defer=\\"\\"></script><script src=\\"/js/index.21f0d4805b3b589177a6.js\\" async=\\"\\" defer=\\"\\"></script></body></html>",
+    "content": "<!DOCTYPE html><html lang=\\"en\\"><head><meta charset=\\"UTF-8\\"><title>Minimal test</title><link rel=\\"stylesheet\\" href=\\"/css/styles.XXXXXXXXXXXXXXXXXXXX.css\\"></head><body><script src=\\"/js/webpack-runtime.XXXXXXXXXXXXXXXXXXXX.js\\" async=\\"\\" defer=\\"\\"></script><script src=\\"/js/index.XXXXXXXXXXXXXXXXXXXX.js\\" async=\\"\\" defer=\\"\\"></script></body></html>",
     "filename": "index.html",
   },
   Object {
