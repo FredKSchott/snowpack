@@ -36,16 +36,27 @@ const FAKE_BUILD_DIRECTORY = path.join(process.cwd(), '~~bundle~~');
 const FAKE_BUILD_DIRECTORY_REGEX = /.*\~\~bundle\~\~[\\\/]/;
 
 /** Collect deep imports in the given set, recursively. */
-function collectDeepImports(url: string, manifest: SnowpackMetaManifest, set: Set<string>): void {
-  if (set.has(url)) {
+function collectDeepImports(
+  config: SnowpackConfig,
+  url: string,
+  manifest: SnowpackMetaManifest,
+  set: Set<string>,
+): void {
+  const buildPrefix = removeLeadingSlash(config.buildOptions.out.replace(process.cwd(), ''));
+  const normalizedUrl = !url.startsWith(buildPrefix) ? path.join(buildPrefix, url) : url;
+  const relativeImportUrl = url.replace(buildPrefix, '');
+
+  if (set.has(relativeImportUrl)) {
     return;
   }
-  set.add(url);
-  const manifestEntry = manifest.inputs[url];
+
+  set.add(relativeImportUrl);
+
+  const manifestEntry = manifest.inputs[normalizedUrl];
   if (!manifestEntry) {
-    throw new Error('Not Found in manifest: ' + url);
+    throw new Error('Not Found in manifest: ' + normalizedUrl);
   }
-  manifestEntry.imports.forEach(({path}) => collectDeepImports(path, manifest, set));
+  manifestEntry.imports.forEach(({path}) => collectDeepImports(config, path, manifest, set));
   return;
 }
 
@@ -223,10 +234,7 @@ function preloadEntrypoint(
     .filter(isTruthy);
   const collectedDeepImports = new Set<string>();
   for (const preloadScript of preloadScripts) {
-    const normalizedPreloadScript = removeLeadingSlash(
-      path.posix.resolve('/', removeLeadingSlash(preloadScript)),
-    );
-    collectDeepImports(normalizedPreloadScript, manifest, collectedDeepImports);
+    collectDeepImports(config, preloadScript, manifest, collectedDeepImports);
   }
   const baseUrl = config.buildOptions.baseUrl;
   for (const imp of collectedDeepImports) {

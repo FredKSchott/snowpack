@@ -210,4 +210,49 @@ describe('optimize', () => {
     expect(result['_snowpack/pkg/array-flatten.js']).toBeDefined();
     expect(result['_snowpack/pkg/async.js']).toBeDefined();
   });
+
+  it('Creates preload links from entrypoints in HTML', async () => {
+    const result = await testFixture({
+      'public/index.html': dedent`
+        <!DOCTYPE html>
+        <html lang="en">
+          <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <meta name="description" content="Web site created using create-snowpack-app" />
+            <link rel="stylesheet" type="text/css" href="/index.css" />
+            <title>Snowpack App</title>
+          </head>
+          <body>
+            <app-root></app-root>
+            <noscript>You need to enable JavaScript to run this app.</noscript>
+            <script type="module" src="/dist/index.js"></script>
+          </body>
+        </html> 
+      `,
+      'public/index.css': dedent`
+        body {
+          background: red;
+        }
+      `,
+      'src/app-root.ts': dedent`
+        import './app-root';
+      `,
+      'src/index.ts': dedent`
+        import './app-root';
+      `,
+      'snowpack.config.js': dedent`
+        module.exports = {
+          mount: {
+            public: { url: '/', static: true },
+            src: { url: '/dist' },
+          },
+          optimize: { preload: true },
+        };
+      `,
+    });
+
+    expect(result['index.html']).toContain('<link rel="modulepreload" href="/dist/index.js">');
+    expect(result['index.html']).toContain('<link rel="modulepreload" href="/dist/app-root.js">');
+  });
 });
