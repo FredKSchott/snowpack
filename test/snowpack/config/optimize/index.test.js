@@ -58,9 +58,12 @@ describe('optimize', () => {
       `,
       'src/App.jsx': dedent`
         import React, { useState, useEffect } from "react";
+        import config from "./config.json";
         import logo from "./logo.svg";
         import "./App.css";
         
+        console.log(config);
+
         function App() {
           // Create the count state.
           const [count, setCount] = useState(0);
@@ -129,6 +132,11 @@ describe('optimize', () => {
             import.meta.hot.accept();
         }
       `,
+      'src/config.json': dedent`
+        {
+          "some": "data"
+        }
+      `,
       'src/logo.svg': dedent`
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 841.9 595.3">
           <g fill="#61DAFB">
@@ -169,7 +177,6 @@ describe('optimize', () => {
           },
           optimize: {
             bundle: true,
-            minify: true,
             target: 'es2020',
           },
         };
@@ -177,12 +184,22 @@ describe('optimize', () => {
     });
 
     expect(Object.keys(result)).toEqual([
+      'dist/App.css',
+      'dist/config.json',
       'dist/index.css',
       'dist/index.js',
       'dist/index.js.map',
       'dist/logo.svg',
       'index.html',
     ]);
+
+    // Does not try import non-JS files
+    expect(result['dist/index.js']).not.toContain('import config from "./config.json";');
+    expect(result['dist/index.js']).not.toContain('import logo from "./logo.svg";');
+
+    // Does proxy non-JS files
+    expect(result['dist/index.js']).toContain('var config_json_proxy_default = json;');
+    expect(result['dist/index.js']).toContain('var logo_svg_proxy_default = "/dist/logo.svg";');
   });
 
   it('Treeshakes imported modules', async () => {
