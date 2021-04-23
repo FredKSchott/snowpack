@@ -43,7 +43,7 @@ function collectDeepImports(
   set: Set<string>,
 ): void {
   const buildPrefix = removeLeadingSlash(config.buildOptions.out.replace(process.cwd(), ''));
-  const normalizedUrl = !url.startsWith(buildPrefix) ? path.join(buildPrefix, url) : url;
+  const normalizedUrl = !url.startsWith(buildPrefix) ? path.posix.join(buildPrefix, url) : url;
   const relativeImportUrl = url.replace(buildPrefix, '');
 
   if (set.has(relativeImportUrl)) {
