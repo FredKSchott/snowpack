@@ -42,11 +42,11 @@ function collectDeepImports(
   manifest: SnowpackMetaManifest,
   set: Set<string>,
 ): void {
-  const buildPrefix = removeLeadingSlash(config.buildOptions.out.replace(process.cwd(), ''));
+  const buildPrefix = removeLeadingSlash(config.buildOptions.out.replace(process.cwd(), '')).split(path.sep).join(path.posix.sep);
   const normalizedUrl = !url.startsWith(buildPrefix) ? path.posix.join(buildPrefix, url) : url;
   const relativeImportUrl = url.replace(buildPrefix, '');
 
-  console.log(buildPrefix, normalizedUrl, manifest)
+  console.log(buildPrefix, normalizedUrl, manifest);
 
   if (set.has(relativeImportUrl)) {
     return;
