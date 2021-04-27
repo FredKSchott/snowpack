@@ -15,7 +15,7 @@
   "dependencies": {
     "csso": "^4.1.0",
     "es-module-lexer": "^0.3.25",
-    "esbuild": "^0.9.3",
+    "esbuild": "^0.11.16",
     "glob": "^7.1.6",
     "html-minifier": "^4.0.0",
     "hypertag": "^0.0.3",

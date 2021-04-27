@@ -47,7 +47,7 @@
   "dependencies": {
     "cli-spinners": "^2.5.0",
     "default-browser-id": "^2.0.0",
-    "esbuild": "^0.9.3",
+    "esbuild": "^0.11.16",
     "fdir": "^5.0.0",
     "open": "^7.0.4",
     "pacote": "^11.3.1",
