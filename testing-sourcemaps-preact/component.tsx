@@ -1,4 +1,4 @@
-import { h, render } from 'preact';
+import { h } from 'preact';
 
 console.log('Hi there!');
 
