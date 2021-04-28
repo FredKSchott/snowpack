@@ -283,6 +283,7 @@ export interface SnowpackConfig {
     jsxInject: string | undefined;
     ssr: boolean;
     resolveProxyImports: boolean;
+    sourcemaps: boolean;
   };
   testOptions: {
     files: string[];
