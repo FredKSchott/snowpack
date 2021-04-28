@@ -4,7 +4,7 @@ module.exports = {
     hmr: true,
   },
   buildOptions: {
-    sourcemaps: true,
+    sourcemap: true,
   },
   optimize: {
     bundle: true,

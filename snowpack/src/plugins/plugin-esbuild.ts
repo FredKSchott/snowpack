@@ -42,7 +42,7 @@ export function esbuildPlugin(config: SnowpackConfig, {input}: {input: string[]}
         jsxFactory,
         jsxFragment,
         sourcefile: filePath,
-        sourcemap: config.buildOptions.sourcemaps && 'inline',
+        sourcemap: config.buildOptions.sourcemap && 'inline',
         charset: 'utf8',
       });
       for (const warning of warnings) {
