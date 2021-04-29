@@ -85,15 +85,12 @@ export class FileBuilder {
     this.urls = urls;
   }
 
-  private verifyRequestFromBuild(type: string): SnowpackBuiltFile {
-    // Verify that the requested file exists in the build output map.
-    if (!this.resolvedOutput[type] || !Object.keys(this.resolvedOutput).length) {
+  private verifyRequestFromBuild(type: string): SnowpackBuiltFile | undefined {
+    const possibleExtensions = this.urls.map((url) => path.extname(url));
+    if (!possibleExtensions.includes(type))
       throw new Error(
-        `${this.loc} - Requested content "${type}" but built ${
-          Object.keys(this.resolvedOutput).toString() || 'none'
-        }.`,
+        `${this.loc} - Requested content "${type}" but only built ${possibleExtensions.join(', ')}`,
       );
-    }
     return this.resolvedOutput[type];
   }
 
@@ -325,9 +322,12 @@ export class FileBuilder {
     return content;
   }
 
-  getResult(type: string): string | Buffer {
-    const {code /*, map */} = this.verifyRequestFromBuild(type);
-    return code;
+  getResult(type: string): string | Buffer | undefined {
+    const result = this.verifyRequestFromBuild(type);
+    if (result) {
+      // TODO: return result.map
+      return result.code;
+    }
   }
 
   getSourceMap(type: string): string | undefined {

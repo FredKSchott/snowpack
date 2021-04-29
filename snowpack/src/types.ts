@@ -54,16 +54,21 @@ export interface LoadUrlOptions {
   encoding?: undefined | BufferEncoding | null;
   importMap?: ImportMap;
 }
+
 export interface SnowpackDevServer {
   port: number;
   hmrEngine?: EsmHmrEngine;
   rawServer?: http.Server | http2.Http2Server | undefined;
   loadUrl: {
     (reqUrl: string, opt?: (LoadUrlOptions & {encoding?: undefined}) | undefined): Promise<
-      LoadResult<Buffer | string>
+      LoadResult<Buffer | string> | undefined
     >;
-    (reqUrl: string, opt: LoadUrlOptions & {encoding: BufferEncoding}): Promise<LoadResult<string>>;
-    (reqUrl: string, opt: LoadUrlOptions & {encoding: null}): Promise<LoadResult<Buffer>>;
+    (reqUrl: string, opt: LoadUrlOptions & {encoding: BufferEncoding}): Promise<
+      LoadResult<string> | undefined
+    >;
+    (reqUrl: string, opt: LoadUrlOptions & {encoding: null}): Promise<
+      LoadResult<Buffer> | undefined
+    >;
   };
   handleRequest: (
     req: http.IncomingMessage,
