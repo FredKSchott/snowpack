@@ -577,6 +577,9 @@ export class PackageSourceLocal implements PackageSource {
           if (config.packageOptions.namedExports !== undefined) {
             installOptions.namedExports = config.packageOptions.namedExports;
           }
+          if (config.packageOptions.rollup !== undefined) {
+            installOptions.rollup = config.packageOptions.rollup;
+          }
         }
         const installResult = await installPackages({
           config,
