@@ -285,12 +285,20 @@ export async function scanImports(
   const excludeGlobs = includeTests
     ? config.exclude
     : [...config.exclude, ...config.testOptions.files];
+
+  const mountedNodeModules = Object.keys(config.mount).filter((v) => v.includes('node_modules'));
   const foundExcludeMatch = picomatch(excludeGlobs);
   const loadedFiles: (SnowpackSourceFile | null)[] = await Promise.all(
     includeFiles.map(
       async (filePath: string): Promise<SnowpackSourceFile | null> => {
-        if (excludePrivate.test(filePath) || foundExcludeMatch(filePath)) {
+        if (excludePrivate.test(filePath)) {
           return null;
+        }
+        if (foundExcludeMatch(filePath)) {
+          const isMounted = mountedNodeModules.find((mountKey) => filePath.startsWith(mountKey));
+          if (!isMounted || (isMounted && foundExcludeMatch(filePath.slice(isMounted.length)))) {
+            return null;
+          }
         }
         return {
           baseExt: getExtension(filePath),

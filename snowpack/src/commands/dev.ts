@@ -40,7 +40,7 @@ import {
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
   isFsEventsEnabled,
-  openInBrowser,
+  openInBrowser
 } from '../util';
 import {getPort, startDashboard, paintEvent} from './paint';
 import {cssModuleJSON} from '../build/import-css';
@@ -300,7 +300,7 @@ export async function startServer(
     ...(config.mode === 'test' ? [] : config.testOptions.files),
   ];
 
-  const foundExcludeMatch = picomatch(excludeGlobs);
+  const foundExcludeMatch = picomatch(excludeGlobs, { ignore: '**/node_modules/**' });
 
   for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
     logger.debug(`Mounting directory: '${mountKey}' as URL '${mountEntry.url}'`);
