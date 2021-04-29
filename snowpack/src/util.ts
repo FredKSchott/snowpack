@@ -10,7 +10,7 @@ import path from 'path';
 import rimraf from 'rimraf';
 import url from 'url';
 import getDefaultBrowserId from 'default-browser-id';
-import type {ImportMap, LockfileManifest, MountEntry, SnowpackConfig} from './types';
+import type {ImportMap, LockfileManifest, SnowpackConfig} from './types';
 import type {InstallTarget} from 'esinstall';
 import {SkypackSDK} from 'skypack';
 
