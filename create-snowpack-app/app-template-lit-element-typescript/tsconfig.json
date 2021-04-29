@@ -21,6 +21,7 @@
     /* Additional Options */
     "strict": true,
     "skipLibCheck": true,
+    "types": ["snowpack-env"],
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,

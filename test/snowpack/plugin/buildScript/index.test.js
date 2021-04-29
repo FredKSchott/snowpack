@@ -18,7 +18,7 @@ describe('plugin', () => {
     write EPIPE
 
     at handleInput (test/__temp__/snowpack-fixture-knJCMA/node_modules/execa/lib/stream.js:17:17)
-  
+
   */
   it.skip('@snowpack/plugin-build-script', async () => {
     const result = await testFixture({
@@ -34,7 +34,7 @@ describe('plugin', () => {
           "dependencies": {
             "@babel/cli": "^7.13.14",
             "@babel/core": "^7.13.15",
-            "@babel/preset-typescript": "^7.10.4",
+            "@babel/preset-typescript": "^7.13.0",
             "@snowpack/plugin-build-script": "^2.0.0"
           }
         }

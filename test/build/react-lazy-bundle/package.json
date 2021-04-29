@@ -12,7 +12,7 @@
     "react-router-dom": "^5.2.0"
   },
   "devDependencies": {
-    "@snowpack/plugin-react-refresh": "^2.4.2",
+    "@snowpack/plugin-react-refresh": "^2.5.0",
     "@snowpack/plugin-sass": "^1.4.0",
     "snowpack": "^3.3.2"
   }

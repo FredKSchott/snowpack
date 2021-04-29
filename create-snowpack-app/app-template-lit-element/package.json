@@ -23,16 +23,16 @@
     "test": "echo \"This template does not include a test runner by default.\" && exit 1"
   },
   "dependencies": {
-    "lit-element": "^2.3.1",
-    "lit-html": "^1.2.1"
+    "lit-element": "^2.4.0",
+    "lit-html": "^1.4.0"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-class-properties": "^7.10.4",
-    "@babel/plugin-proposal-decorators": "^7.10.5",
-    "@snowpack/plugin-babel": "^2.1.6",
-    "@snowpack/plugin-dotenv": "^2.0.5",
-    "prettier": "^2.0.5",
-    "snowpack": "^3.0.1"
+    "@babel/plugin-proposal-class-properties": "^7.13.0",
+    "@babel/plugin-proposal-decorators": "^7.13.15",
+    "@snowpack/plugin-babel": "^2.1.7",
+    "@snowpack/plugin-dotenv": "^2.1.0",
+    "prettier": "^2.2.1",
+    "snowpack": "^3.3.7"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }

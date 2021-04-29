@@ -19,12 +19,11 @@
     "svelte": "^3.21.0"
   },
   "dependencies": {
-    "@babel/core": "^7.10.5",
-    "@babel/preset-env": "^7.10.4",
-    "@babel/preset-typescript": "^7.10.4",
-    "@snowpack/plugin-dotenv": "^2.0.4",
-    "@snowpack/plugin-svelte": "^3.2.0",
-    "babel-jest": "^26.2.2",
+    "@babel/core": "^7.14.0",
+    "@babel/preset-typescript": "^7.13.0",
+    "@snowpack/plugin-dotenv": "^2.1.0",
+    "@snowpack/plugin-svelte": "^3.6.1",
+    "babel-jest": "^26.6.3",
     "jest-transform-svelte": "^2.1.1"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
