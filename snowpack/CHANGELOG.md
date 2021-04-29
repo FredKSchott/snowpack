@@ -4,6 +4,17 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.3.6 [2021-04-29]
+
+* 9ad97afe - fix: CSS Modules exporting {} when no mount config (#3229) <Drew Powers>
+* ff1eaf66 - [ci] yarn format <drwpow>
+* 0707fd63 - fix: add mounted node_modules to ignore list (#3227) <Ivo Reis>
+* f53e1833 - chore: bump Snowpack version (#3228) <Drew Powers>
+* 3701201b - Support packageOptions.rollup.plugins (#3123) <Spike>
+* cea40a05 - Removes console log (#3204) <Luke Jackson>
+* 3af6e064 - [ci] yarn format <matthewp>
+* 1902f5c2 - Correctly resolve preload urls from build manifest (#3201) <Luke Jackson>
+
 ## snowpack@3.3.4 [2021-04-20]
 
 * 8f044398 - Restore proxy SSR rewriting for CSS Modules proxy (#3191) <Drew Powers>
