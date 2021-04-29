@@ -5,9 +5,8 @@ const path = require('path');
 const url = require('url');
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const TerserJSPlugin = require('terser-webpack-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const ManifestPlugin = require('webpack-manifest-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 const jsdom = require('jsdom');
 const {JSDOM} = jsdom;
 const minify = require('html-minifier').minify;
@@ -56,8 +55,8 @@ function emitHTMLFiles({doms, jsEntries, stats, baseUrl, buildDirectory, htmlMin
   Object.keys(jsEntries).forEach((name) => {
     if (entrypoints[name] !== undefined && entrypoints[name]) {
       const assetFiles = entrypoints[name].assets || [];
-      const jsFiles = assetFiles.filter((d) => d.endsWith('.js'));
-      const cssFiles = assetFiles.filter((d) => d.endsWith('.css'));
+      const jsFiles = assetFiles.filter((d) => d.name.endsWith('.js'));
+      const cssFiles = assetFiles.filter((d) => d.name.endsWith('.css'));
 
       for (const occurrence of jsEntries[name].occurrences) {
         const originalScriptEl = occurrence.script;
@@ -70,8 +69,8 @@ function emitHTMLFiles({doms, jsEntries, stats, baseUrl, buildDirectory, htmlMin
           const scriptEl = originalScriptEl.cloneNode();
           scriptEl.removeAttribute('type');
           scriptEl.src = url.parse(baseUrl).protocol
-            ? url.resolve(baseUrl, jsFile)
-            : path.posix.join(baseUrl, jsFile);
+            ? url.resolve(baseUrl, jsFile.name)
+            : path.posix.join(baseUrl, jsFile.name);
           // insert _before_ so the relative order of these scripts is maintained
           insertBefore(scriptEl, originalScriptEl);
         }
@@ -79,8 +78,8 @@ function emitHTMLFiles({doms, jsEntries, stats, baseUrl, buildDirectory, htmlMin
           const linkEl = dom.window.document.createElement('link');
           linkEl.setAttribute('rel', 'stylesheet');
           linkEl.href = url.parse(baseUrl).protocol
-            ? url.resolve(baseUrl, cssFile)
-            : path.posix.join(baseUrl, cssFile);
+            ? url.resolve(baseUrl, cssFile.name)
+            : path.posix.join(baseUrl, cssFile.name);
           head.append(linkEl);
         }
         originalScriptEl.remove();
@@ -200,7 +199,7 @@ module.exports = function plugin(config, args = {}) {
   args.outputPattern = args.outputPattern || {};
   const jsOutputPattern = args.outputPattern.js || 'js/[name].[contenthash].js';
   const cssOutputPattern = args.outputPattern.css || 'css/[name].[contenthash].css';
-  const assetsOutputPattern = args.outputPattern.assets || 'assets/[name]-[hash].[ext]';
+  const assetsOutputPattern = args.outputPattern.assets || 'assets/[name].[contenthash][ext]';
   if (!jsOutputPattern.endsWith('.js')) {
     throw new Error('Output Pattern for JS must end in .js');
   }
@@ -339,14 +338,13 @@ module.exports = function plugin(config, args = {}) {
             {
               test: /.*/,
               exclude: [/\.js?$/, /\.json?$/, /\.css$/],
-              use: [
-                {
-                  loader: require.resolve('file-loader'),
-                  options: {
-                    name: assetsOutputPattern,
-                  },
-                },
-              ],
+              // When using old assets loaders (i.e. file-loader/url-loader/raw-loader)
+              // make sure to set 'javascript/auto' flag
+              // https://webpack.js.org/guides/asset-modules/
+              type: 'asset/resource',
+              generator: {
+                filename: assetsOutputPattern,
+              },
             },
           ],
         },
@@ -358,7 +356,10 @@ module.exports = function plugin(config, args = {}) {
             name: `webpack-runtime`,
           },
           splitChunks: getSplitChunksConfig({numEntries: Object.keys(jsEntries).length}),
-          minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})],
+          minimizer: [
+            `...`, // extends webpack internal ones (i.e. `terser-webpack-plugin`)
+            new CssMinimizerPlugin({}),
+          ],
         },
       };
       const plugins = [
@@ -368,7 +369,7 @@ module.exports = function plugin(config, args = {}) {
         }),
       ];
       if (manifest) {
-        plugins.push(new ManifestPlugin({fileName: manifest}));
+        plugins.push(new WebpackManifestPlugin({fileName: manifest}));
       }
 
       let entry = {};

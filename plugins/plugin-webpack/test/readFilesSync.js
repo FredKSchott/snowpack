@@ -21,7 +21,10 @@ function readFilesSync(dir) {
 }
 
 function normalizeContent(content) {
-  return content.toString().replace(/(\\r\\n)/g, '\\n');
+  return content
+    .toString()
+    .replace(/(\\r\\n)/g, '\\n')
+    .replace(/\.[a-z0-9]{20}\./g, '.XXXXXXXXXXXXXXXXXXXX.');
 }
 
 module.exports = readFilesSync;

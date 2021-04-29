@@ -5,17 +5,17 @@ const plugin = require('../plugin');
 const readFilesSync = require('./readFilesSync');
 
 const STUBS_DIR = path.join(__dirname, 'stubs/minimal/');
-const INGORED_STUBS_DIR = path.join(__dirname, 'stubs/minimal_ignore/');
+const IGNORED_STUBS_DIR = path.join(__dirname, 'stubs/minimal_ignore/');
 
 describe('@snowpack/plugin-webpack', () => {
   // Copy over the stub folder to an git-ignored path and mock console.log
   beforeEach(() => {
-    if (fs.existsSync(INGORED_STUBS_DIR)) fs.removeSync(INGORED_STUBS_DIR);
-    fs.copySync(STUBS_DIR, INGORED_STUBS_DIR);
+    if (fs.existsSync(IGNORED_STUBS_DIR)) fs.removeSync(IGNORED_STUBS_DIR);
+    fs.copySync(STUBS_DIR, IGNORED_STUBS_DIR);
   });
 
   afterAll(() => {
-    if (fs.existsSync(INGORED_STUBS_DIR)) fs.removeSync(INGORED_STUBS_DIR);
+    if (fs.existsSync(IGNORED_STUBS_DIR)) fs.removeSync(IGNORED_STUBS_DIR);
   });
 
   it('minimal - no options', async () => {
@@ -24,10 +24,10 @@ describe('@snowpack/plugin-webpack', () => {
     });
 
     await pluginInstance.optimize({
-      buildDirectory: INGORED_STUBS_DIR,
+      buildDirectory: IGNORED_STUBS_DIR,
     });
 
-    expect(readFilesSync(INGORED_STUBS_DIR)).toMatchSnapshot('files');
+    expect(readFilesSync(IGNORED_STUBS_DIR)).toMatchSnapshot('files');
   });
 
   it('minimal - all options', async () => {
@@ -47,9 +47,9 @@ describe('@snowpack/plugin-webpack', () => {
     );
 
     await pluginInstance.optimize({
-      buildDirectory: INGORED_STUBS_DIR,
+      buildDirectory: IGNORED_STUBS_DIR,
     });
 
-    expect(readFilesSync(INGORED_STUBS_DIR)).toMatchSnapshot('files');
+    expect(readFilesSync(IGNORED_STUBS_DIR)).toMatchSnapshot('files');
   });
 });
