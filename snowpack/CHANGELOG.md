@@ -4,6 +4,10 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.3.7 [2021-04-29]
+
+* 5e34b829 - Fix missing build files from load plugins (#3230) <Drew Powers>
+
 ## snowpack@3.3.6 [2021-04-29]
 
 * 9ad97afe - fix: CSS Modules exporting {} when no mount config (#3229) <Drew Powers>
