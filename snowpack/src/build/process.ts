@@ -20,7 +20,7 @@ import {runBuiltInOptimize} from './optimize';
 import {startServer} from '../commands/dev';
 import {getPackageSource} from '../sources/util';
 import {installPackages} from '../sources/local-install';
-import {deleteFromBuildSafe, isPathImport, isRemoteUrl, ignoreNodeModulesFromMount} from '../util';
+import {deleteFromBuildSafe, isPathImport, isRemoteUrl} from '../util';
 import {logger} from '../logger';
 
 interface BuildState {
@@ -150,8 +150,7 @@ export async function addBuildFiles(state: BuildState, files: string[]) {
 
   const excludePrivate = new RegExp(`\\${path.sep}\\..+(?!\\${path.sep})`);
   const excludeGlobs = [...config.exclude, ...config.testOptions.files];
-  const ignore = ignoreNodeModulesFromMount(config.mount);
-  const foundExcludeMatch = picomatch(excludeGlobs, {ignore});
+  const foundExcludeMatch = picomatch(excludeGlobs);
   const mountedNodeModules = Object.keys(config.mount).filter((v) => v.includes('node_modules'));
 
   const allFileUrls: string[] = [];

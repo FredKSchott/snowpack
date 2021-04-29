@@ -70,24 +70,6 @@ export function deleteFromBuildSafe(dir: string, config: SnowpackConfig) {
   return rimraf.sync(dir);
 }
 
-const nodeModulesPackageName = new RegExp(`${path.sep}node_modules${path.sep}(.+?)(?=${path.sep})${path.sep}`);
-export function ignoreNodeModulesFromMount(mount: Record<string, MountEntry> = {}) {
-  if (!mount) {
-    return [];
-  }
-
-  try {
-    return Object.keys(mount)
-      .map((mountPath) => {
-        const [packageName] = mountPath.match(nodeModulesPackageName) || [];
-        return packageName ? `**${packageName}**` : null;
-      })
-      .filter(Boolean);
-  } catch (err) {
-    return [];
-  }
-}
-
 /** Read file from disk; return a string if it’s a code file */
 export async function readFile(filepath: string): Promise<string | Buffer> {
   let data = await fs.promises.readFile(filepath);

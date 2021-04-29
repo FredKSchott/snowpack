@@ -9,7 +9,6 @@ import {logger} from './logger';
 import {SnowpackConfig, SnowpackSourceFile} from './types';
 import {
   createInstallTarget,
-  ignoreNodeModulesFromMount,
   CSS_REGEX,
   findMatchingAliasEntry,
   getExtension,
@@ -287,13 +286,19 @@ export async function scanImports(
     ? config.exclude
     : [...config.exclude, ...config.testOptions.files];
 
-  const ignore = ignoreNodeModulesFromMount(config.mount)
-  const foundExcludeMatch = picomatch(excludeGlobs, { ignore });
+  const mountedNodeModules = Object.keys(config.mount).filter((v) => v.includes('node_modules'));
+  const foundExcludeMatch = picomatch(excludeGlobs);
   const loadedFiles: (SnowpackSourceFile | null)[] = await Promise.all(
     includeFiles.map(
       async (filePath: string): Promise<SnowpackSourceFile | null> => {
-        if (excludePrivate.test(filePath) || foundExcludeMatch(filePath)) {
+        if (excludePrivate.test(filePath)) {
           return null;
+        }
+        if (foundExcludeMatch(filePath)) {
+          const isMounted = mountedNodeModules.find((mountKey) => filePath.startsWith(mountKey));
+          if (!isMounted || (isMounted && foundExcludeMatch(filePath.slice(isMounted.length)))) {
+            return null;
+          }
         }
         return {
           baseExt: getExtension(filePath),
