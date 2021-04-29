@@ -17,9 +17,9 @@ npm install --save-dev @snowpack/plugin-react-refresh
 
 ## Plugin Options
 
-| Name    |   Type    | Description                                                                                                                                                                        |
-| :------ | :-------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `babel` | `boolean` | By default, this plugin uses Babel to add Fast-Refresh code to eligible JS files. If you want to configure & run this yourself, set `"babel": false"`. Most users won't need this. |
+| Name    |         Type          | Description                                                                                                                                                                                                                                                                             |
+| :------ | :-------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `babel` | `boolean` or `object` | By default, this plugin uses Babel to add Fast-Refresh code to eligible JS files. If you want to configure & run this yourself, set `"babel": false"`. Alternatively, you can pass a custom Babel configuration object to enhance or override the defaults. Most users won't need this. |
 
 ## How it Works
 

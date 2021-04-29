@@ -65,6 +65,10 @@ async function testPluginInstance(pluginInstance, overrides = {}) {
   expect(await pluginTransform({...jsTransformOptions, ...overrides})).toMatchSnapshot('js');
 }
 
+afterEach(() => {
+  jest.restoreAllMocks();
+});
+
 describe('@snowpack/plugin-react-refresh', () => {
   test('transform js and html', async () => {
     const pluginInstance = pluginReactRefresh({}, {babel: true});
@@ -94,5 +98,24 @@ describe('@snowpack/plugin-react-refresh', () => {
       {babel: false},
     );
     await testPluginInstance(pluginInstance);
+  });
+
+  test('include custom babel config', async () => {
+    const babel = require('@babel/core');
+    const mockTransformAsync = jest.fn(() => Promise.resolve({code: ''}));
+    jest.spyOn(babel, 'transformAsync').mockImplementation(mockTransformAsync);
+
+    const babelConfig = {
+      compact: true,
+      plugins: ['@babel/plugin-syntax-top-level-await'],
+    };
+    const pluginInstance = pluginReactRefresh({}, {babel: babelConfig});
+    await pluginInstance.transform({...jsTransformOptions});
+
+    expect(mockTransformAsync).toHaveBeenCalledTimes(1);
+    expect(mockTransformAsync.mock.calls[0][1]).toHaveProperty('compact', true);
+    expect(mockTransformAsync.mock.calls[0][1].plugins).toContain(
+      '@babel/plugin-syntax-top-level-await',
+    );
   });
 });
