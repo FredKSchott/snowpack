@@ -10,7 +10,7 @@ import path from 'path';
 import rimraf from 'rimraf';
 import url from 'url';
 import getDefaultBrowserId from 'default-browser-id';
-import type {ImportMap, LockfileManifest, SnowpackConfig} from './types';
+import type {ImportMap, LockfileManifest, MountEntry, SnowpackConfig} from './types';
 import type {InstallTarget} from 'esinstall';
 import {SkypackSDK} from 'skypack';
 
@@ -68,6 +68,24 @@ export function deleteFromBuildSafe(dir: string, config: SnowpackConfig) {
     throw new Error(`rimrafSafe(): ${dir} outside of buildOptions.out ${out}`);
   }
   return rimraf.sync(dir);
+}
+
+const nodeModulesPackageName = new RegExp(`${path.sep}node_modules${path.sep}(.+?)(?=${path.sep})${path.sep}`);
+export function ignoreNodeModulesFromMount(mount: Record<string, MountEntry> = {}) {
+  if (!mount) {
+    return [];
+  }
+
+  try {
+    return Object.keys(mount)
+      .map((mountPath) => {
+        const [packageName] = mountPath.match(nodeModulesPackageName) || [];
+        return packageName ? `**${packageName}**` : null;
+      })
+      .filter(Boolean);
+  } catch (err) {
+    return [];
+  }
 }
 
 /** Read file from disk; return a string if it’s a code file */

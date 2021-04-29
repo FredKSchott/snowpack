@@ -41,6 +41,7 @@ import {
   HMR_OVERLAY_CODE,
   isFsEventsEnabled,
   openInBrowser,
+  ignoreNodeModulesFromMount
 } from '../util';
 import {getPort, startDashboard, paintEvent} from './paint';
 import {cssModuleJSON} from '../build/import-css';
@@ -300,7 +301,8 @@ export async function startServer(
     ...(config.mode === 'test' ? [] : config.testOptions.files),
   ];
 
-  const foundExcludeMatch = picomatch(excludeGlobs);
+  const ignore = ignoreNodeModulesFromMount(config.mount)
+  const foundExcludeMatch = picomatch(excludeGlobs, { ignore });
 
   for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
     logger.debug(`Mounting directory: '${mountKey}' as URL '${mountEntry.url}'`);
