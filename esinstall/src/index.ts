@@ -329,7 +329,10 @@ ${colors.dim(
         namedExports: true,
       }),
       rollupPluginCss(),
-      rollupPluginReplace(generateReplacements(env)),
+      rollupPluginReplace({
+        preventAssignment: true,
+        values: generateReplacements(env),
+      }),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'],
         esmExternals: Array.isArray(externalEsm)

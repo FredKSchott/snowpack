@@ -7,7 +7,7 @@ Array [
 ]
 `;
 
-exports[`dep-list-simple matches the snapshot: cli output 1`] = `"@rollup/plugin-replace: 'preventAssignment' currently defaults to false. It is recommended to set this option to \`true\`, as the next major version will default this option to \`true\`."`;
+exports[`dep-list-simple matches the snapshot: cli output 1`] = `""`;
 
 exports[`dep-list-simple matches the snapshot: web_modules/async.js 1`] = `
 "/* SNOWPACK PROCESS POLYFILL (based on https://github.com/calvinmetcalf/node-process-es6) */
