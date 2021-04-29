@@ -166,10 +166,7 @@ export async function addBuildFiles(state: BuildState, files: string[]) {
       }
     }
     const fileUrls = getUrlsForFile(f, config)!;
-    // Only push the first URL. In multi-file builds, this is always the JS that the
-    // CSS is imported from (if it exists). That CSS may not exist, and we don't know
-    // until the JS has been built/loaded.
-    allFileUrls.push(fileUrls[0]);
+    allFileUrls.push(...fileUrls);
   }
 
   state.allBareModuleSpecifiers = [];
@@ -234,6 +231,11 @@ async function flushFileQueue(
       continue;
     }
     const result = await devServer.loadUrl(fileUrl, loadOptions);
+    if (!result) {
+      // if this URL doesn’t exist, skip to next file (it may be an optional output type, such as .css for .svelte)
+      logger.debug(`BUILD: ${fileUrl} skipped (no output)`);
+      continue;
+    }
     await mkdirp(path.dirname(fileDestinationLoc));
     await fs.writeFile(fileDestinationLoc, result.contents);
     for (const installTarget of result.imports) {

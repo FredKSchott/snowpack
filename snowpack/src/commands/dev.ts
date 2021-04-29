@@ -230,7 +230,11 @@ function getServerRuntime(
   options: {invalidateOnChange?: boolean} = {},
 ): ServerRuntime {
   const runtime = createServerRuntime({
-    load: (url) => sp.loadUrl(url, {isSSR: true, allowStale: false, encoding: 'utf8'}),
+    load: async (url) => {
+      const result = await sp.loadUrl(url, {isSSR: true, allowStale: false, encoding: 'utf8'});
+      if (!result) throw NotFoundError;
+      return result;
+    },
   });
   if (options.invalidateOnChange !== false) {
     sp.onFileChange(({filePath}) => {
@@ -419,6 +423,18 @@ export async function startServer(
 
   async function loadUrl(
     reqUrl: string,
+    opt?: (LoadUrlOptions & {encoding?: undefined}) | undefined,
+  ): Promise<LoadResult<Buffer | string> | undefined>;
+  async function loadUrl(
+    reqUrl: string,
+    opt: LoadUrlOptions & {encoding: BufferEncoding},
+  ): Promise<LoadResult<string> | undefined>;
+  async function loadUrl(
+    reqUrl: string,
+    opt: LoadUrlOptions & {encoding: null},
+  ): Promise<LoadResult<Buffer> | undefined>;
+  async function loadUrl(
+    reqUrl: string,
     {
       isSSR: _isSSR,
       isHMR: _isHMR,
@@ -426,7 +442,7 @@ export async function startServer(
       encoding: _encoding,
       importMap,
     }: LoadUrlOptions = {},
-  ): Promise<LoadResult> {
+  ): Promise<LoadResult | undefined> {
     const isSSR = _isSSR ?? false;
     //   // Default to HMR on, but disable HMR if SSR mode is enabled.
     const isHMR = _isHMR ?? (!!config.devOptions.hmr && !isSSR);
@@ -708,16 +724,15 @@ export async function startServer(
       handleFinalizeError(err);
       throw err;
     }
-    if (finalizedResponse === undefined) {
-      throw new NotFoundError(reqPath);
-    }
 
-    return {
-      imports: resolvedImports,
-      contents: encodeResponse(finalizedResponse, encoding),
-      originalFileLoc: fileLoc,
-      contentType: mime.lookup(responseType),
-    };
+    if (finalizedResponse) {
+      return {
+        imports: resolvedImports,
+        contents: encodeResponse(finalizedResponse, encoding),
+        originalFileLoc: fileLoc,
+        contentType: mime.lookup(responseType),
+      };
+    }
   }
 
   /**
@@ -814,6 +829,9 @@ export async function startServer(
     // Otherwise, load the file and respond if successful.
     try {
       const result = await loadUrl(reqUrl, {allowStale: true, encoding: null});
+      if (!result) {
+        throw NotFoundError;
+      }
       sendResponseFile(req, res, result);
       if (result.checkStale) {
         await result.checkStale();
@@ -968,8 +986,8 @@ export async function startServer(
     });
   }
 
-  const sp = {
-    port,
+  const sp: SnowpackDevServer = {
+    port: port || defaultPort,
     hmrEngine,
     rawServer: server,
     loadUrl,
@@ -981,7 +999,7 @@ export async function startServer(
     },
     getUrlForFile: (fileLoc: string) => {
       const result = getUrlsForFile(fileLoc, config);
-      return result ? result[0] : result;
+      return result ? result[0] : null;
     },
     onFileChange: (callback) => (onFileChangeCallback = callback),
     getServerRuntime: (options) => getServerRuntime(sp, options),
@@ -989,7 +1007,7 @@ export async function startServer(
       watcher && (await watcher.close());
       server && server.close();
     },
-  } as SnowpackDevServer;
+  };
   return sp;
 }
 
