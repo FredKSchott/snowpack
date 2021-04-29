@@ -4,6 +4,10 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## @snowpack/plugin-react-refresh@2.5.0 [2021-04-29]
+
+* 1b33af55 - plugin-react-refresh: add custom babel config option (#2943) <Maximilian Fellner>
+
 ## @snowpack/plugin-react-refresh@2.4.2 [2021-04-01]
 
 * 857d73cb - [ci] yarn format 
