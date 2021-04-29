@@ -128,6 +128,19 @@ describe('cssModules', () => {
     expect(result['_dist_/App.module.css.json']).toBeDefined();
   });
 
+  it('Generates CSS Modules (unmounted)', async () => {
+    const result = await testFixture({
+      ...files(),
+    });
+
+    // (same as above, just at different path)
+    expect(result['src/App.js']).toContain(`import Styles from "./App.module.css.proxy.js";`);
+    expect(result['src/App.module.css.proxy.js']).toMatch(/\._App_[A-Za-z0-9]+_[A-Za-z0-9]+ \{/);
+    expect(result['src/App.module.css.proxy.js']).toContain(`let json = {"App":"_App_`);
+    expect(result['src/App.module.css']).not.toContain(`.App {`);
+    expect(result['src/App.module.css.json']).toBeDefined();
+  });
+
   it('Generates CSS Modules from Sass', async () => {
     const result = await testFixture({
       ...files('.scss'),
