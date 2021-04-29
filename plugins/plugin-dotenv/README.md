@@ -24,6 +24,7 @@ SNOWPACK_PUBLIC_ENABLE_FEATURE=true
 
 - [dotenv-expand](https://github.com/motdotla/dotenv-expand)
 - `.env.NODE_ENV.local`
+- `.env.local`
 - `.env.NODE_ENV`
 - `.env`
 
