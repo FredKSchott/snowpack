@@ -25,7 +25,7 @@ Array [
     "filename": "index-826.js",
   },
   Object {
-    "content": "{\\"version\\":3,\\"sources\\":[\\"webpack://plugin-webpack-test-minimal/./index.js\\"],\\"names\\":[\\"console\\",\\"log\\"],\\"mappings\\":\\"8IAEAA,QAAQC,IAAI,S\\",\\"file\\":\\"index-826.js\\",\\"sourcesContent\\":[\\"import './styles.css'\\\\nimport './backpack.svg';\\\\nconsole.log('test');\\\\n\\"],\\"sourceRoot\\":\\"\\"}",
+    "content": "{\\"version\\":3,\\"sources\\":[\\"webpack://plugin-webpack-test-minimal/./index.js\\"],\\"names\\":[\\"console\\",\\"log\\"],\\"mappings\\":\\"8IAEAA,QAAQC,IAAI,S\\",\\"file\\":\\"index-826.js\\",\\"sourcesContent\\":[\\"import './styles.css';\\\\nimport './backpack.svg';\\\\nconsole.log('test');\\\\n\\"],\\"sourceRoot\\":\\"\\"}",
     "filename": "index-826.js.map",
   },
   Object {
@@ -33,7 +33,7 @@ Array [
     "filename": "index.html",
   },
   Object {
-    "content": "import './styles.css'
+    "content": "import './styles.css';
 import './backpack.svg';
 console.log('test');
 ",
@@ -78,7 +78,7 @@ Array [
     "filename": "index.html",
   },
   Object {
-    "content": "import './styles.css'
+    "content": "import './styles.css';
 import './backpack.svg';
 console.log('test');
 ",
