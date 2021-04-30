@@ -19,10 +19,6 @@
   "dependencies": {
     "rollup-plugin-svelte": "^7.0.0",
     "svelte-hmr": "^0.13.2",
-    "svelte-preprocess": "^4.6.0"
-  },
-  "devDependencies": {
-    "node-sass": "^5.0.0",
-    "svelte-preprocess-sass": "^1.0.0"
+    "svelte-preprocess": "^4.7.2"
   }
 }
