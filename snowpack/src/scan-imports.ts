@@ -132,17 +132,17 @@ function cleanCodeForParsing(code: string): string {
 }
 
 function parseJsForInstallTargets(contents: string): InstallTarget[] {
-  let imports: ImportSpecifier[];
+  let imports: ImportSpecifier[] = [];
   // Attempt #1: Parse the file as JavaScript. JSX and some decorator
   // syntax will break this.
   try {
-    [imports] = parse(contents) || [];
+    imports.push(...parse(contents)[0]);
   } catch (err) {
     // Attempt #2: Parse only the import statements themselves.
     // This lets us guarentee we aren't sending any broken syntax to our parser,
     // but at the expense of possible false +/- caused by our regex extractor.
     contents = cleanCodeForParsing(contents);
-    [imports] = parse(contents) || [];
+    imports.push(...parse(contents)[0]);
   }
   return (
     imports

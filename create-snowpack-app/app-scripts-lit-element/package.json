@@ -13,9 +13,9 @@
     "directory": "create-snowpack-app/app-scripts-lit-element"
   },
   "dependencies": {
-    "@babel/core": "^7.10.5",
-    "@snowpack/plugin-babel": "^2.1.4",
-    "@snowpack/plugin-dotenv": "^2.0.4"
+    "@babel/core": "^7.14.0",
+    "@snowpack/plugin-babel": "^2.1.7",
+    "@snowpack/plugin-dotenv": "^2.1.0"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }

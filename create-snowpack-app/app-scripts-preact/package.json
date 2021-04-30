@@ -13,16 +13,16 @@
     "directory": "create-snowpack-app/app-scripts-preact"
   },
   "dependencies": {
-    "@babel/core": "^7.10.5",
-    "@babel/preset-env": "^7.10.4",
-    "@babel/preset-react": "^7.10.4",
-    "@babel/preset-typescript": "^7.10.4",
-    "@prefresh/babel-plugin": "^0.3.0",
-    "@prefresh/snowpack": "^3.0.0",
-    "@snowpack/plugin-babel": "^2.1.4",
-    "@snowpack/plugin-dotenv": "^2.0.4",
-    "babel-jest": "^26.2.2",
-    "react-app-polyfill": "^1.0.6"
+    "@babel/core": "^7.14.0",
+    "@babel/preset-env": "^7.14.0",
+    "@babel/preset-react": "^7.13.13",
+    "@babel/preset-typescript": "^7.13.0",
+    "@prefresh/babel-plugin": "^0.4.1",
+    "@prefresh/snowpack": "^3.1.2",
+    "@snowpack/plugin-babel": "^2.1.7",
+    "@snowpack/plugin-dotenv": "^2.1.0",
+    "babel-jest": "^26.6.3",
+    "react-app-polyfill": "^2.0.0"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }

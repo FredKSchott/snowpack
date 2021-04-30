@@ -18,6 +18,7 @@
     /* Additional Options */
     "strict": true,
     "skipLibCheck": true,
+    "types": ["mocha", "snowpack-env"],
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,

@@ -13,7 +13,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@babel/core": "^7.10.5",
+    "@babel/core": "^7.14.0",
     "workerpool": "^6.0.0"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"

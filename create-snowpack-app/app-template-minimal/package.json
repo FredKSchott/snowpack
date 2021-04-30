@@ -19,6 +19,6 @@
     "test": "echo \"This template does not include a test runner by default.\" && exit 1"
   },
   "devDependencies": {
-    "snowpack": "^3.0.1"
+    "snowpack": "^3.3.7"
   }
 }
