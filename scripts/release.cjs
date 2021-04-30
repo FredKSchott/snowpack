@@ -66,13 +66,13 @@ module.exports = function release(pkgFolder, tag, bump, skipBuild) {
       changelog = generateNewChangelog(pkgFolder);
     }
     if (!changelog.includes(CHANGELOG_ENTRYPOINT)) {
-      const changelogParts = changelog.split('\n'); 
+      const changelogParts = changelog.split('\n');
       changelogParts[3] = '\n' + CHANGELOG_ENTRYPOINT + '\n';
       changelog = changelogParts.join('\n');
     }
     changelog = changelog.replace(
-      CHANGELOG_ENTRYPOINT, 
-      CHANGELOG_ENTRYPOINT + '\n\n' + generateChangelogUpdate(dir, newPkgTag, oldPkgTag)
+      CHANGELOG_ENTRYPOINT,
+      CHANGELOG_ENTRYPOINT + '\n\n' + generateChangelogUpdate(dir, newPkgTag, oldPkgTag),
     );
     fs.writeFileSync(changelogLoc, changelog);
   }
