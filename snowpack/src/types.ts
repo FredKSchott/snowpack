@@ -70,6 +70,7 @@ export interface SnowpackDevServer {
       LoadResult<Buffer> | undefined
     >;
   };
+  resolveUrl: (reqUrl: string) => Promise<DevServerResolved>;
   handleRequest: (
     req: http.IncomingMessage,
     res: http.ServerResponse,
@@ -339,6 +340,11 @@ export interface CLIFlags {
   quiet?: boolean;
   [flag: string]: any;
 }
+
+type DevServerResolvedType = 'meta'|'package' | 'symlink' | 'local';
+export type DevServerResolved =
+  | {resolved: string; attempted: undefined; type: DevServerResolvedType}
+  | {resolved: undefined; attempted: string[]; type: DevServerResolvedType};
 
 export interface ImportMap {
   imports: {[specifier: string]: string};

@@ -7,7 +7,7 @@ import type {
   SnowpackDevServer,
 } from '../types';
 import * as colors from 'kleur/colors';
-import {promises as fs} from 'fs';
+import {promises as fs, existsSync} from 'fs';
 import {performance} from 'perf_hooks';
 import {fdir} from 'fdir';
 import mkdirp from 'mkdirp';
@@ -246,6 +246,11 @@ async function flushFileQueue(
       } else if (isPathImport(importedUrl)) {
         if (importedUrl[0] === '/') {
           if (!allFileUrlsUnique.has(importedUrl)) {
+            const {resolved} = await devServer.resolveUrl(importedUrl);
+            if (!resolved) {
+              logger.error(`[${fileUrl}] could not resolve "${importedUrl}"`);
+              continue;
+            }
             allFileUrlsUnique.add(importedUrl);
             allFileUrlsToProcess.push(importedUrl);
           }

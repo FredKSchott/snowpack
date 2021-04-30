@@ -3,7 +3,7 @@ import isCompressible from 'compressible';
 import {InstallTarget} from 'esinstall';
 import etag from 'etag';
 import {EventEmitter} from 'events';
-import {createReadStream, promises as fs, statSync} from 'fs';
+import {createReadStream, promises as fs, existsSync, statSync} from 'fs';
 import {fdir} from 'fdir';
 import picomatch from 'picomatch';
 import type {Socket} from 'net';
@@ -27,6 +27,7 @@ import {getPackageSource} from '../sources/util';
 import {createLoader as createServerRuntime} from '../ssr-loader';
 import {
   CommandOptions,
+  DevServerResolved,
   LoadResult,
   LoadUrlOptions,
   OnFileChangeCallback,
@@ -421,126 +422,59 @@ export async function startServer(
 
   const matchOutputExt = getOutputExtensionMatch();
 
-  async function loadUrl(
-    reqUrl: string,
-    opt?: (LoadUrlOptions & {encoding?: undefined}) | undefined,
-  ): Promise<LoadResult<Buffer | string> | undefined>;
-  async function loadUrl(
-    reqUrl: string,
-    opt: LoadUrlOptions & {encoding: BufferEncoding},
-  ): Promise<LoadResult<string> | undefined>;
-  async function loadUrl(
-    reqUrl: string,
-    opt: LoadUrlOptions & {encoding: null},
-  ): Promise<LoadResult<Buffer> | undefined>;
-  async function loadUrl(
-    reqUrl: string,
-    {
-      isSSR: _isSSR,
-      isHMR: _isHMR,
-      isResolve: _isResolve,
-      encoding: _encoding,
-      importMap,
-    }: LoadUrlOptions = {},
-  ): Promise<LoadResult | undefined> {
-    const isSSR = _isSSR ?? false;
-    //   // Default to HMR on, but disable HMR if SSR mode is enabled.
-    const isHMR = _isHMR ?? (!!config.devOptions.hmr && !isSSR);
-    const encoding = _encoding ?? null;
-    const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
+  /**
+   * Resolve URL
+   * Useful for determining whether a URL exists or not. Only use this to determine existence.
+   * If you want file contents, use loadUrl() (which calls this).
+   */
+  async function resolveUrl(reqUrl: string): Promise<DevServerResolved> {
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
 
-    if (reqPath === getMetaUrlPath('/hmr-client.js', config)) {
+    /**
+     * Type 0: meta (internal) URL
+     */
+    if (reqPath.startsWith(config.buildOptions.metaUrlPath)) {
+      // if this is an internal URL, this exists as far as we know (nothing on disk to check). Let the caller determine.
       return {
-        contents: encodeResponse(HMR_CLIENT_CODE, encoding),
-        imports: [],
-        originalFileLoc: null,
-        contentType: 'application/javascript',
+        resolved: reqPath,
+        attempted: undefined,
+        type: 'meta',
       };
     }
-    if (reqPath === getMetaUrlPath('/hmr-error-overlay.js', config)) {
-      return {
-        contents: encodeResponse(HMR_OVERLAY_CODE, encoding),
-        imports: [],
-        originalFileLoc: null,
-        contentType: 'application/javascript',
-      };
-    }
-    if (reqPath === getMetaUrlPath('/env.js', config)) {
-      return {
-        contents: encodeResponse(
-          generateEnvModule({
-            mode: config.mode,
-            isSSR,
-            configEnv: config.env,
-          }),
-          encoding,
-        ),
-        imports: [],
-        originalFileLoc: null,
-        contentType: 'application/javascript',
-      };
-    }
-    // * NPM Packages:
-    // NPM packages are served via `/_snowpack/pkg/` URLs. Behavior varies based on package source (local, remote)
-    // but as a general rule all URLs contained within are managed by the package source loader. When this URL
-    // prefix is hit, we load the file through the selected package source loader.
-    if (reqPath.startsWith(PACKAGE_PATH_PREFIX)) {
+
+    /**
+     * Type 1: npm package
+     */
+    const isNpmPackage = reqPath.startsWith(PACKAGE_PATH_PREFIX);
+    if (isNpmPackage) {
       // Backwards-compatable redirect for legacy package URLs: If someone has created an import URL manually
       // (ex: /_snowpack/pkg/react.js) then we need to redirect and warn to use our new API in the future.
-      if (reqUrl.split('.').length <= 2 && config.packageOptions.source !== 'remote') {
-        if (!warnedDeprecatedPackageImport.has(reqUrl)) {
+      if (reqPath.split('.').length <= 2 && config.packageOptions.source !== 'remote') {
+        if (!warnedDeprecatedPackageImport.has(reqPath)) {
           logger.warn(
-            `(${reqUrl}) Deprecated manual package import. Please use snowpack.getUrlForPackage() to create package URLs instead.`,
+            `(${reqPath}) Deprecated manual package import. Please use snowpack.getUrlForPackage() to create package URLs instead.`,
           );
-          warnedDeprecatedPackageImport.add(reqUrl);
+          warnedDeprecatedPackageImport.add(reqPath);
         }
         const redirectUrl = await pkgSource.resolvePackageImport(
-          reqUrl.replace(PACKAGE_PATH_PREFIX, '').replace(/\.js/, ''),
+          reqPath.replace(PACKAGE_PATH_PREFIX, '').replace(/\.js/, ''),
         );
         reqPath = decodeURI(url.parse(redirectUrl).pathname!);
       }
       const resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
-      const webModuleUrl = resourcePath.substr(PACKAGE_PATH_PREFIX.length);
-      let loadedModule = await pkgSource.load(webModuleUrl, {isSSR});
-      if (!loadedModule) {
-        throw new NotFoundError(reqPath);
-      }
-      if (reqPath.endsWith('.proxy.js')) {
-        return {
-          imports: [],
-          contents: await wrapImportProxy({
-            url: resourcePath,
-            code: loadedModule.contents,
-            hmr: isHMR,
-            config: config,
-          }),
-          originalFileLoc: null,
-          contentType: 'application/javascript',
-        };
-      }
+
       return {
-        imports: loadedModule.imports,
-        contents: encodeResponse(loadedModule.contents, encoding),
-        originalFileLoc: null,
-        contentType: mime.lookup(reqPath) || 'application/javascript',
+        resolved: resourcePath.substr(PACKAGE_PATH_PREFIX.length),
+        attempted: undefined,
+        type: 'package',
       };
     }
 
-    // Most of the time, resourcePath should have ".map" and ".proxy.js" extensions stripped to
-    // match the file on disk. However, sometimes the on disk is an actual source map in a static
-    // directory, so we can't strip that info just yet. Try the exact match first, and then strip
-    // it later on if there is no match.
-    let resourcePath = reqPath;
-    let resourceType = matchOutputExt(reqPath) || '.html';
-    let foundFile: FoundFile;
-
-    // * Workspaces & Linked Packages:
-    // The "local" package resolver supports npm packages that live in a local directory,
-    // usually a part of your monorepo/workspace. Snowpack treats these files as source files,
-    // with each file served individually and rebuilt instantly when changed. In the future,
-    // these linked packages may be bundled again with a rapid bundler like esbuild.
-    if (config.workspaceRoot && reqPath.startsWith(PACKAGE_LINK_PATH_PREFIX)) {
+    /**
+     * Type 2: workspace & symlinked directories
+     */
+    const isSymlink = config.workspaceRoot && reqPath.startsWith(PACKAGE_LINK_PATH_PREFIX);
+    if (isSymlink) {
       const symlinkResourceUrl = reqPath.substr(PACKAGE_LINK_PATH_PREFIX.length);
       const symlinkResourceLoc = path.resolve(
         config.workspaceRoot as string,
@@ -549,7 +483,12 @@ export async function startServer(
       const symlinkResourceDirectory = path.dirname(symlinkResourceLoc);
       const fileStat = await fs.stat(symlinkResourceDirectory).catch(() => null);
       if (!fileStat) {
-        throw new NotFoundError(reqPath, [symlinkResourceDirectory]);
+        // not found; exit
+        return {
+          resolved: undefined,
+          attempted: [symlinkResourceDirectory],
+          type: 'symlink',
+        };
       }
       // If this is the first file served out of this linked directory
       // - add it to our file watcher (to enable HMR)
@@ -601,67 +540,240 @@ export async function startServer(
       // guard: ensure directory is properly read and files registered before proceeding
       await symlinkDirectories.get(symlinkResourceDirectory);
 
-      let attemptedFileLoc = fileToUrlMapping.key(reqPath);
-      if (!attemptedFileLoc) {
-        resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
-        resourceType = path.extname(resourcePath) || '.html';
-      }
-      attemptedFileLoc = fileToUrlMapping.key(resourcePath);
-      if (!attemptedFileLoc) {
-        throw new NotFoundError(reqPath);
-      }
-      const fileLocationExists = await fs.stat(attemptedFileLoc).catch(() => null);
-      if (!fileLocationExists) {
-        throw new NotFoundError(reqPath, [attemptedFileLoc]);
-      }
-      foundFile = {
-        loc: attemptedFileLoc,
-        type: path.extname(reqPath),
-        isStatic: false,
-        isResolve: true,
-      };
-    }
-    // * Local Files
-    // If this is not a special URL route, then treat it as a normal file request.
-    // Check our file<>URL mapping for the most relevant match, and continue if found.
-    // Otherwise, return a 404.
-    else {
-      let attemptedFileLoc = fileToUrlMapping.key(resourcePath);
-      if (!attemptedFileLoc) {
-        resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
-        resourceType = path.extname(resourcePath) || '.html';
-      }
-      attemptedFileLoc =
-        fileToUrlMapping.key(resourcePath) ||
-        fileToUrlMapping.key(resourcePath + '.html') ||
-        fileToUrlMapping.key(resourcePath + 'index.html') ||
-        fileToUrlMapping.key(resourcePath + '/index.html');
-      if (!attemptedFileLoc) {
-        // last attempt: if this is a CSS Module, try and load JSON
-        if (resourcePath.endsWith('.module.css.json')) {
-          const srcLoc = resourcePath.replace(/\.json$/i, '');
+      const attemptedFileLoc = fileToUrlMapping.key(reqPath);
+      // first attempt: look up original URL
+      if (attemptedFileLoc) {
+        const fileLocationExists = existsSync(attemptedFileLoc);
+        if (fileLocationExists) {
+          // found!
           return {
-            imports: [],
-            contents: cssModuleJSON(srcLoc),
-            originalFileLoc: srcLoc,
-            contentType: mime.lookup('.json'),
+            resolved: reqPath,
+            attempted: undefined,
+            type: 'symlink',
           };
         }
-
-        throw new NotFoundError(reqPath);
+        // not found
+        return {
+          resolved: undefined,
+          attempted: [attemptedFileLoc],
+          type: 'symlink',
+        };
       }
 
-      const [, mountEntry] = getMountEntryForFile(attemptedFileLoc, config)!;
+      // fallback attempt: see if file exists without .map or .proxy.js
+      const resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
+      if (fileToUrlMapping.key(resourcePath)) {
+        // source file found
+        return {
+          resolved: resourcePath,
+          attempted: undefined,
+          type: 'symlink',
+        };
+      } else {
+        // not found
+        return {
+          resolved: undefined,
+          attempted: [resourcePath],
+          type: 'symlink',
+        };
+      }
+    }
 
-      // TODO: This data type structuring/destructuring is neccesary for now,
-      // but we hope to add "virtual file" support soon via plugins. This would
-      // be the interface for those response types.
-      foundFile = {
-        loc: attemptedFileLoc,
-        type: path.extname(reqPath) || '.html',
-        isStatic: mountEntry.static,
-        isResolve: mountEntry.resolve,
+    /**
+     * Type 3: local files (everything else)
+     */
+    let resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
+    const attempted = [
+      resourcePath,
+      resourcePath + '.html',
+      resourcePath + 'index.html',
+      resourcePath + '/index.html',
+    ];
+    for (const fileLoc of attempted) {
+      const resolved = fileToUrlMapping.key(fileLoc);
+      if (resolved) return {resolved, attempted: undefined, type: 'local'};
+    }
+
+    // fallback: if this is a CSS Module and didn’t match above, return JSON
+    // TODO: move this into a CSS module plugin once nested extension support is possible
+    if (resourcePath.endsWith('.module.css.json')) {
+      const srcLoc = resourcePath.replace(/\.json$/i, '');
+      return {
+        resolved: srcLoc,
+        attempted: undefined,
+        type: 'local',
       };
+    }
+
+    // not found
+    return {
+      resolved: undefined,
+      attempted: [],
+      type: 'local',
+    };
+  }
+
+  /**
+   * Load URL
+   * Resolves a URL AND loads its contents.
+   */
+  async function loadUrl(
+    reqUrl: string,
+    opt?: (LoadUrlOptions & {encoding?: undefined}) | undefined,
+  ): Promise<LoadResult<Buffer | string> | undefined>;
+  async function loadUrl(
+    reqUrl: string,
+    opt: LoadUrlOptions & {encoding: BufferEncoding},
+  ): Promise<LoadResult<string> | undefined>;
+  async function loadUrl(
+    reqUrl: string,
+    opt: LoadUrlOptions & {encoding: null},
+  ): Promise<LoadResult<Buffer> | undefined>;
+  async function loadUrl(
+    reqUrl: string,
+    {
+      isSSR: _isSSR,
+      isHMR: _isHMR,
+      isResolve: _isResolve,
+      encoding: _encoding,
+      importMap,
+    }: LoadUrlOptions = {},
+  ): Promise<LoadResult | undefined> {
+    const isSSR = _isSSR ?? false;
+    // Default to HMR on, but disable HMR if SSR mode is enabled.
+    const isHMR = _isHMR ?? (!!config.devOptions.hmr && !isSSR);
+    const encoding = _encoding ?? null;
+    const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
+    let reqPath = decodeURI(url.parse(reqUrl).pathname!);
+
+    let resourcePath = reqUrl;
+    let resourceType = matchOutputExt(reqUrl) || '.html';
+    let foundFile: FoundFile;
+
+    // 2. resolve URL
+    const resolvedUrl = await resolveUrl(reqPath);
+    if (!resolvedUrl.resolved) {
+      // 2a. handle Not Found
+      throw new NotFoundError(reqPath, resolvedUrl.attempted);
+    }
+    const {resolved} = resolvedUrl;
+
+    // 3. load URL differently based on type
+    switch (resolvedUrl.type) {
+      /**
+       * Meta URLs
+       * Internal Snowpack URLs. Note that the URL that’s resolved may or
+       * may not actually exist; that’s up to us to determine here.
+       */
+      case 'meta': {
+        if (reqPath === getMetaUrlPath('/hmr-client.js', config)) {
+          return {
+            contents: encodeResponse(HMR_CLIENT_CODE, encoding),
+            imports: [],
+            originalFileLoc: null,
+            contentType: 'application/javascript',
+          };
+        }
+        if (reqPath === getMetaUrlPath('/hmr-error-overlay.js', config)) {
+          return {
+            contents: encodeResponse(HMR_OVERLAY_CODE, encoding),
+            imports: [],
+            originalFileLoc: null,
+            contentType: 'application/javascript',
+          };
+        }
+        if (reqPath === getMetaUrlPath('/env.js', config)) {
+          return {
+            contents: encodeResponse(
+              generateEnvModule({
+                mode: config.mode,
+                isSSR,
+                configEnv: config.env,
+              }),
+              encoding,
+            ),
+            imports: [],
+            originalFileLoc: null,
+            contentType: 'application/javascript',
+          };
+        }
+        throw new NotFoundError(resolved);
+      }
+      /**
+       * NPM Packages
+       * NPM packages are served via `/_snowpack/pkg/` URLs. Behavior varies based on package source (local, remote)
+       * but as a general rule all URLs contained within are managed by the package source loader. When this URL
+       * prefix is hit, we load the file through the selected package source loader.
+       */
+      case 'package': {
+        let loadedModule = await pkgSource.load(resolved, {isSSR});
+        if (!loadedModule) {
+          throw new NotFoundError(reqPath);
+        }
+
+        if (reqPath.endsWith('.proxy.js')) {
+          return {
+            imports: [],
+            contents: await wrapImportProxy({
+              url: resolved,
+              code: loadedModule.contents,
+              hmr: isHMR,
+              config: config,
+            }),
+            originalFileLoc: null,
+            contentType: 'application/javascript',
+          };
+        }
+        return {
+          imports: loadedModule.imports,
+          contents: encodeResponse(loadedModule.contents, encoding),
+          originalFileLoc: null,
+          contentType: mime.lookup(reqPath) || 'application/javascript',
+        };
+      }
+      /**
+       * Workspaces & Linked Packages:
+       * The "local" package resolver supports npm packages that live in a local directory,
+       * usually a part of your monorepo/workspace. Snowpack treats these files as source files,
+       * with each file served individually and rebuilt instantly when changed. In the future,
+       * these linked packages may be bundled again with a rapid bundler like esbuild.
+       */
+      case 'symlink': {
+        foundFile = {
+          loc: resolved,
+          type: path.extname(reqPath),
+          isStatic: false,
+          isResolve: true,
+        };
+        break;
+      }
+      /**
+       * Local Files
+       * If this is not a special URL route, then treat it as a normal file request.
+       * Check our file<>URL mapping for the most relevant match, and continue if found.
+       * Otherwise, return a 404.
+       */
+      case 'local': {
+        // last attempt: if this is a CSS Module, try and load JSON
+        if (resourcePath.endsWith('.module.css.json')) {
+          return {
+            imports: [],
+            contents: cssModuleJSON(resolved),
+            originalFileLoc: resolved,
+            contentType: mime.lookup('.json'),
+          };
+        } else {
+          const mounted = getMountEntryForFile(resolved, config);
+          if (!mounted) throw new NotFoundError(resolved);
+          const [, mountEntry] = mounted;
+          foundFile = {
+            loc: resolved,
+            type: path.extname(reqPath) || '.html',
+            isStatic: mountEntry.static,
+            isResolve: mountEntry.resolve,
+          };
+        }
+      }
     }
 
     const {loc: fileLoc, type: responseType} = foundFile;
@@ -671,7 +783,7 @@ export async function startServer(
     const isStatic = foundFile.isStatic && responseType !== '.html';
     const isResolve = _isResolve ?? true;
 
-    // 1. Check the hot build cache. If it's already found, then just serve it.
+    // 4. Check the hot build cache. If it's already found, then just serve it.
     const cacheKey = getCacheKey(fileLoc, {isSSR, mode: config.mode});
     let fileBuilder: FileBuilder | undefined = inMemoryBuildCache.get(cacheKey);
     if (!fileBuilder) {
@@ -698,6 +810,7 @@ export async function startServer(
         });
     }
 
+    // 5. If there’s a cache miss, then build file & serve
     let finalizedResponse: string | Buffer | undefined;
     let resolvedImports: InstallTarget[] = [];
     try {
@@ -991,6 +1104,7 @@ export async function startServer(
     hmrEngine,
     rawServer: server,
     loadUrl,
+    resolveUrl,
     handleRequest,
     sendResponseFile,
     sendResponseError,
