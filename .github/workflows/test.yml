@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        node-version: [12.x, 14.x, 15.x]
+        node-version: [12.x, 14.x, 16.x]
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
@@ -27,10 +27,5 @@ jobs:
           CI: true
       - name: test
         run: yarn test
-        env:
-          CI: true
-      - name: dev test
-        run: yarn test:dev
-        if: matrix.os == 'ubuntu-latest'
         env:
           CI: true
