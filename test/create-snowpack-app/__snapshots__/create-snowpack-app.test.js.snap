@@ -19441,7 +19441,7 @@ function normalizeContainer(container) {
     }
     return container;
 }
-export { Fragment, createApp, createBlock, createTextVNode, createVNode, defineComponent, isVNode, openBlock, reactive, resolveComponent, toDisplayString };"
+export { createApp, createBlock, createTextVNode, createVNode, defineComponent, openBlock, reactive, resolveComponent, toDisplayString };"
 `;
 
 exports[`create-snowpack-app app-template-vue-typescript > build: allFiles 1`] = `
@@ -19452,20 +19452,6 @@ Array [
   "dist/App.vue.css",
   "dist/App.vue.css.proxy.js",
   "dist/App.vue.js",
-  "dist/components/Bar.js",
-  "dist/components/Bar.module.css",
-  "dist/components/Bar.module.css.json",
-  "dist/components/Bar.module.css.proxy.js",
-  "dist/components/BarJsx.vue.css",
-  "dist/components/BarJsx.vue.css.proxy.js",
-  "dist/components/BarJsx.vue.js",
-  "dist/components/Foo.js",
-  "dist/components/Foo.module.css",
-  "dist/components/Foo.module.css.json",
-  "dist/components/Foo.module.css.proxy.js",
-  "dist/components/FooTsx.vue.css",
-  "dist/components/FooTsx.vue.css.proxy.js",
-  "dist/components/FooTsx.vue.js",
   "dist/index.js",
   "favicon-32x32.png",
   "favicon.ico",
@@ -19531,17 +19517,7 @@ if (typeof document !== 'undefined') {
 exports[`create-snowpack-app app-template-vue-typescript > build: dist/App.vue.js 1`] = `
 "import './App.vue.css.proxy.js';
 import {defineComponent, reactive} from \\"../_snowpack/pkg/vue.js\\";
-import FooTsxVue from \\"./components/FooTsx.vue.js\\";
-import FooTsx from \\"./components/Foo.js\\";
-import BarJsxVue from \\"./components/BarJsx.vue.js\\";
-import BarJsx from \\"./components/Bar.js\\";
 const defaultExport = defineComponent({
-  components: {
-    FooTsxVue,
-    FooTsx,
-    BarJsxVue,
-    BarJsx
-  },
   setup() {
     const state = reactive({
       message: \\"Learn Vue\\"
@@ -19592,172 +19568,6 @@ export function render(_ctx, _cache) {
 };
 defaultExport.render = render;
 export default defaultExport;"
-`;
-
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/Bar.js 1`] = `
-"import {defineComponent, reactive} from \\"../../_snowpack/pkg/vue.js\\";
-import styles from \\"./Bar.module.css.proxy.js\\";
-export default defineComponent({
-  name: \\"BarJsx\\",
-  setup() {
-    const state = reactive({
-      name: \\"BarJsx\\"
-    });
-    return () => /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(\\"div\\", {
-      className: styles[\\"bar-jsx\\"]
-    }, state.name));
-  }
-});"
-`;
-
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/Bar.module.css 1`] = `
-"._bar-jsx_XXXXX_XX {
-  color: red;
-}"
-`;
-
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/Bar.module.css.json 1`] = `"{\\"bar-jsx\\":\\"_bar-jsx_XXXXX_XX\\"}"`;
-
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/Bar.module.css.proxy.js 1`] = `
-"
-export let code = \\"._bar-jsx_XXXXX_XX {  color: red;}\\";
-let json = {\\"bar-jsx\\":\\"_bar-jsx_XXXXX_XX\\"};
-export default json;
-// [snowpack] add styles to the page (skip if no document exists)
-if (typeof document !== 'undefined') {
-  const styleEl = document.createElement(\\"style\\");
-  const codeEl = document.createTextNode(code);
-  styleEl.type = 'text/css';
-  styleEl.appendChild(codeEl);
-  document.head.appendChild(styleEl);
-}"
-`;
-
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/BarJsx.vue.css 1`] = `
-"
-.bar-jsx-vue {
-  color: red;
-}"
-`;
-
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/BarJsx.vue.css.proxy.js 1`] = `
-"// [snowpack] add styles to the page (skip if no document exists)
-if (typeof document !== 'undefined') {
-  const code = \\"/* unsupport scoped css in vue with tsx, jsx*/.bar-jsx-vue {  color: red;}\\";
-  const styleEl = document.createElement(\\"style\\");
-  const codeEl = document.createTextNode(code);
-  styleEl.type = 'text/css';
-  styleEl.appendChild(codeEl);
-  document.head.appendChild(styleEl);
-}"
-`;
-
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/BarJsx.vue.js 1`] = `
-"import './BarJsx.vue.css.proxy.js';
-import { Fragment } from '../../_snowpack/pkg/vue.js';
-import {createVNode, isVNode} from '../../_snowpack/pkg/vue.js';
-const slice = Array.prototype.slice;
-export function jsx(tag, props = null, children = null) {
-  if (arguments.length > 3 || isVNode(children)) {
-    children = slice.call(arguments, 2);
-  }
-  return createVNode(tag, props, children);
-}
-import {defineComponent, reactive} from \\"../../_snowpack/pkg/vue.js\\";
-export default defineComponent({
-  name: \\"BarJsxVue\\",
-  setup() {
-    const state = reactive({
-      name: \\"BarJsxVue\\"
-    });
-    return () => /* @__PURE__ */ jsx(Fragment, null, /* @__PURE__ */ jsx(\\"div\\", {
-      className: \\"bar-jsx-vue\\"
-    }, state.name));
-  }
-});"
-`;
-
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/Foo.js 1`] = `
-"import {defineComponent, reactive} from \\"../../_snowpack/pkg/vue.js\\";
-import styles from \\"./Foo.module.css.proxy.js\\";
-export default defineComponent({
-  name: \\"FooTsx\\",
-  setup() {
-    const state = reactive({
-      name: \\"FooTsx\\"
-    });
-    return () => /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(\\"div\\", {
-      className: styles[\\"foo-tsx\\"]
-    }, state.name));
-  }
-});"
-`;
-
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/Foo.module.css 1`] = `
-"._foo-tsx_XXXXX_XX {
-    color: green;
-}"
-`;
-
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/Foo.module.css.json 1`] = `"{\\"foo-tsx\\":\\"_foo-tsx_XXXXX_XX\\"}"`;
-
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/Foo.module.css.proxy.js 1`] = `
-"
-export let code = \\"._foo-tsx_XXXXX_XX {    color: green;}\\";
-let json = {\\"foo-tsx\\":\\"_foo-tsx_XXXXX_XX\\"};
-export default json;
-// [snowpack] add styles to the page (skip if no document exists)
-if (typeof document !== 'undefined') {
-  const styleEl = document.createElement(\\"style\\");
-  const codeEl = document.createTextNode(code);
-  styleEl.type = 'text/css';
-  styleEl.appendChild(codeEl);
-  document.head.appendChild(styleEl);
-}"
-`;
-
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/FooTsx.vue.css 1`] = `
-"
-.foo-tsx-vue {
-  color: green;
-}"
-`;
-
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/FooTsx.vue.css.proxy.js 1`] = `
-"// [snowpack] add styles to the page (skip if no document exists)
-if (typeof document !== 'undefined') {
-  const code = \\"/* unsupport scoped css in vue with tsx, jsx*/.foo-tsx-vue {  color: green;}\\";
-  const styleEl = document.createElement(\\"style\\");
-  const codeEl = document.createTextNode(code);
-  styleEl.type = 'text/css';
-  styleEl.appendChild(codeEl);
-  document.head.appendChild(styleEl);
-}"
-`;
-
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/FooTsx.vue.js 1`] = `
-"import './FooTsx.vue.css.proxy.js';
-import { Fragment } from '../../_snowpack/pkg/vue.js';
-import {createVNode, isVNode} from '../../_snowpack/pkg/vue.js';
-const slice = Array.prototype.slice;
-export function jsx(tag, props = null, children = null) {
-  if (arguments.length > 3 || isVNode(children)) {
-    children = slice.call(arguments, 2);
-  }
-  return createVNode(tag, props, children);
-}
-import {defineComponent, reactive} from \\"../../_snowpack/pkg/vue.js\\";
-export default defineComponent({
-  name: \\"FooTsxVue\\",
-  setup() {
-    const state = reactive({
-      name: \\"FooTsxVue\\"
-    });
-    return () => /* @__PURE__ */ jsx(Fragment, null, /* @__PURE__ */ jsx(\\"div\\", {
-      className: \\"foo-tsx-vue\\"
-    }, state.name));
-  }
-});"
 `;
 
 exports[`create-snowpack-app app-template-vue-typescript > build: dist/index.js 1`] = `

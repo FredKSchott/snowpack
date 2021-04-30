@@ -21,22 +21,12 @@
 
 <script lang="ts">
 import {defineComponent, reactive} from 'vue';
-import FooTsxVue from './components/FooTsx.vue';
-import FooTsx from './components/Foo';
-import BarJsxVue from './components/BarJsx.vue';
-import BarJsx from './components/Bar';
 
 interface State {
   message: string;
 }
 
 export default defineComponent({
-  components: {
-    FooTsxVue,
-    FooTsx,
-    BarJsxVue,
-    BarJsx,
-  },
   setup() {
     const state = reactive({
       message: 'Learn Vue',
