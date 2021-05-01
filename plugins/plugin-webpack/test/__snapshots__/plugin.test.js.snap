@@ -101,3 +101,12 @@ console.log('test');
   },
 ]
 `;
+
+exports[`@snowpack/plugin-webpack respect extendedConfig.output.path: files 1`] = `
+Array [
+  Object {
+    "content": "<!DOCTYPE html><html lang=\\"en\\"><head><meta charset=\\"UTF-8\\"><title>Minimal test</title><link rel=\\"stylesheet\\" href=\\"/css/styles.XXXXXXXXXXXXXXXXXXXX.css\\"></head><body><script src=\\"/js/webpack-runtime.XXXXXXXXXXXXXXXXXXXX.js\\" async=\\"\\" defer=\\"\\"></script><script src=\\"/js/index.XXXXXXXXXXXXXXXXXXXX.js\\" async=\\"\\" defer=\\"\\"></script></body></html>",
+    "filename": "index.html",
+  },
+]
+`;

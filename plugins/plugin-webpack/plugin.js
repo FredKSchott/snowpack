@@ -15,6 +15,12 @@ function insertBefore(newNode, existingNode) {
   existingNode.parentNode.insertBefore(newNode, existingNode);
 }
 
+function ensureDirectoryExists(dir) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
+
 function parseHTMLFiles({buildDirectory}) {
   // Get all html files from the output folder
   const pattern = buildDirectory + '/**/*.html';
@@ -48,7 +54,7 @@ function parseHTMLFiles({buildDirectory}) {
   return {doms, jsEntries};
 }
 
-function emitHTMLFiles({doms, jsEntries, stats, baseUrl, buildDirectory, htmlMinifierOptions}) {
+function emitHTMLFiles({doms, jsEntries, stats, baseUrl, outputDirectory, htmlMinifierOptions}) {
   const entrypoints = stats.toJson({assets: false, hash: true}).entrypoints;
 
   //Now that webpack is done, modify the html files to point to the newly compiled resources
@@ -93,7 +99,10 @@ function emitHTMLFiles({doms, jsEntries, stats, baseUrl, buildDirectory, htmlMin
       ? minify(dom.serialize(), htmlMinifierOptions)
       : dom.serialize();
 
-    fs.writeFileSync(path.join(buildDirectory, htmlFile), html);
+    const outputFile = path.join(outputDirectory, htmlFile);
+    // If the user specified a different output, we may not have an existing folder structure
+    ensureDirectoryExists(path.dirname(outputFile))
+    fs.writeFileSync(outputFile, html);
   }
 }
 
@@ -425,12 +434,15 @@ module.exports = function plugin(config, args = {}) {
         );
       }
 
+      // If the user specified a path, we need to put the HTML there too
+      const outputDirectory = extendedConfig.output.path;
+
       emitHTMLFiles({
         doms,
         jsEntries,
         stats,
         baseUrl,
-        buildDirectory,
+        outputDirectory,
         htmlMinifierOptions,
       });
     },
