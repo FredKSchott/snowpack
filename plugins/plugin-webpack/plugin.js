@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const glob = require('glob');
 const path = require('path');
+const util = require('util');
 const url = require('url');
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -396,12 +397,12 @@ module.exports = function plugin(config, args = {}) {
           }
           const info = stats.toJson(extendedConfig.stats);
           if (stats.hasErrors()) {
-            console.error('Webpack errors:\n' + info.errors.join('\n-----\n'));
+            console.error('Webpack errors:\n' + info.errors.map((err) => err.message).join('\n-----\n'));
             reject(Error(`Webpack failed with ${info.errors} error(s).`));
             return;
           }
           if (stats.hasWarnings()) {
-            console.error('Webpack warnings:\n' + info.warnings.join('\n-----\n'));
+            console.error('Webpack warnings:\n' + info.warnings.map((err) => err.message).join('\n-----\n'));
             if (args.failOnWarnings) {
               reject(Error(`Webpack failed with ${info.warnings} warnings(s).`));
               return;
