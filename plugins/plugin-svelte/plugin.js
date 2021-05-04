@@ -169,6 +169,16 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
 
       const compiled = svelte.compile(codeToCompile, finalCompileOptions);
       const {js, css} = compiled;
+
+      var charset = 'utf-8';
+      const mapping = (m) =>
+        '\n//# sourceMappingURL=data:application/json;charset=' +
+        charset +
+        ';base64,' +
+        new Buffer(m.toString()).toString('base64');
+
+      js.code = js.code + mapping(js.map);
+
       const output = {
         '.js': {
           code: js.code,
