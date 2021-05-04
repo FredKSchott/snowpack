@@ -177,7 +177,9 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
         ';base64,' +
         new Buffer(m.toString()).toString('base64');
 
-      js.code = js.code + mapping(js.map);
+      if (useSourceMaps) {
+        js.code = js.code + mapping(js.map);
+      }
 
       const output = {
         '.js': {
