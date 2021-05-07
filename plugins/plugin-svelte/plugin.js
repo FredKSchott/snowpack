@@ -4,6 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const {createMakeHot} = require('svelte-hmr');
 
+const inlineSourcemap = (code, map) =>
+  code +
+  '\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,' +
+  new Buffer(map.toString()).toString('base64');
+
 module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   const isDev = snowpackConfig.mode !== 'production';
   const useSourceMaps =
@@ -170,15 +175,8 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       const compiled = svelte.compile(codeToCompile, finalCompileOptions);
       const {js, css} = compiled;
 
-      var charset = 'utf-8';
-      const mapping = (m) =>
-        '\n//# sourceMappingURL=data:application/json;charset=' +
-        charset +
-        ';base64,' +
-        new Buffer(m.toString()).toString('base64');
-
       if (useSourceMaps) {
-        js.code = js.code + mapping(js.map);
+        js.code = inlineSourcemap(js.code, js.map);
       }
 
       const output = {
