@@ -275,7 +275,7 @@ export interface SnowpackConfig {
     baseUrl: string;
     metaUrlPath: string;
     clean: boolean;
-    sourcemap: boolean;
+    sourcemap: 'inline' | false | undefined;
     watch: boolean;
     htmlFragments: boolean;
     jsxFactory: string | undefined;
