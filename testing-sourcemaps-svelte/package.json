@@ -1,7 +1,0 @@
-{
-  "name": "testing-sourcemaps",
-  "version": "0.1.0",
-  "scripts": {
-    "start": "node pack.js"
-  }
-}
