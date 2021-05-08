@@ -436,6 +436,13 @@ Inspired by the same [Create React App](https://create-react-app.dev/docs/using-
 
 Set to `false` to prevent Snowpack from deleting the build output folder (`buildOptions.out`) between builds.
 
+### buildOptions.cacheDirPath
+
+**Type**: `string`  
+**Default**: `./node_modules/.cache/snowpack`
+
+Specify the cache directory in which bundled Node modules will be cached.
+
 ### buildOptions.webModulesUrl
 
 _NOTE:_ Deprecated, see `buildOptions.metaUrlPath`.
