@@ -59,7 +59,7 @@ export class OneToManyMap {
     this.keyToValue.delete(key);
     if (value) {
       for (const val of value) {
-        this.keyToValue.delete(val);
+        this.valueToKey.delete(val);
       }
     }
   }
