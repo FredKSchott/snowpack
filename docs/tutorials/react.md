@@ -173,7 +173,9 @@ Now include it in `index.jsx`
   import React from 'react';
   import ReactDOM from 'react-dom';
 - ReactDOM.render(<div>"HELLO WORLD"</div>, document.getElementById('root'));
-+ import App from './App.jsx';
+
++ // No need to specify `.jsx` on imports
++ import App from './App';
 + ReactDOM.render(
 +   <React.StrictMode>
 +     <App />
