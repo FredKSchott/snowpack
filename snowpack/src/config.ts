@@ -174,7 +174,9 @@ const configSchema = {
         out: {type: 'string'},
         baseUrl: {type: 'string'},
         clean: {type: 'boolean'},
-        sourcemap: {type: 'boolean'},
+        sourcemap: {
+          oneOf: [{type: 'boolean'}, {type: 'string', enum: ['inline']}],
+        },
         watch: {type: 'boolean'},
         ssr: {type: 'boolean'},
         htmlFragments: {type: 'boolean'},

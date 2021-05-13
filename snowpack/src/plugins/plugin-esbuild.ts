@@ -42,8 +42,9 @@ export function esbuildPlugin(config: SnowpackConfig, {input}: {input: string[]}
         jsxFactory,
         jsxFragment,
         sourcefile: filePath,
-        sourcemap: config.buildOptions.sourcemap,
+        sourcemap: config.buildOptions.sourcemap && 'inline',
         charset: 'utf8',
+        sourcesContent: config.mode !== 'production',
       });
       for (const warning of warnings) {
         logger.error(`${colors.bold('!')} ${filePath}
