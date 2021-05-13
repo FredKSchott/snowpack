@@ -5,7 +5,6 @@ description: 'Get started with this in-depth tutorial on how to build Vue applic
 date: 2020-12-01
 sidebarTitle: Vue
 tags: communityGuide
-cover: '/img/VueGuide.jpg'
 img: '/img/VueGuide.jpg'
 ---
 
@@ -123,8 +122,6 @@ Now you can use the new `App.vue` file in your `index.js`:
 
 The page should now say "Learn Vue". Congratulations! you now have your first Vue component!
 
-<div class="frame"><img src="/img/guides/vue/vue-component-snowpack.gif" alt="code and site side by side, site is a 'Learn Vue' link on a white background. When the text is edit to add 'Hello world' and the file saves, the changes show up in the site immediately." class="screenshot"/></div>
-
 ## Customize your project layout
 
 Snowpack is flexible enough to support whatever project layout that you prefer. In this guide, you'll learn how to use a popular project pattern from the Vue community.
@@ -199,8 +196,6 @@ In Vue you can add CSS directly to your component. This step demonstrates this c
     </a>
 ```
 
-<div class="frame"><img src="/img/guides/vue/vue-logo-snowpack.jpg" alt="Side by side of code and site. The site now has a very large Vue logo. The code shows the src/App.vue file "  class="screenshot"/></div>
-
 With Vue, CSS can go directly in your `.vue` component. Add this code to the top of `App.vue` between the `<style>` tags:
 
 ```html
@@ -233,8 +228,6 @@ With Vue, CSS can go directly in your `.vue` component. Add this code to the top
   }
 </style>
 ```
-
-<div class="frame"><img src="/img/guides/vue/vue-logo-style-snowpack.gif" alt="code and site side by side, when the css is added to the Vue component, the background becomes a beige, the logo shrinks down, and the logo has a pulsing animation" class="screenshot"/></div>
 
 ## Adding a counter to your Vue component
 
@@ -274,8 +267,6 @@ Then lower down in your component's body, add this code that displays the result
 ```
 
 Change some code on the page (like the "Learn Vue" button). You'll see the timer does not reset.
-
-<div class="frame"><img src="/img/guides/vue/vue-snowpack-counter-1.gif" alt="Showing code and site side by side, when the word 'Hello' is added to the .vue page and the code is saved, the change shows up in the browser without the timer resetting (it keeps counting)" class="screenshot"/></div>
 
 What about other, non-Vue files like `src/index.js`? To re-render your Vue application when other files change, add this code snippet to the bottom:
 
