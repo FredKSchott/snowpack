@@ -4,6 +4,13 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.4.0 [2021-05-13]
+
+* 4403595e - Sourcemaps (#3271) <Luke Jackson>
+* fa7a5e3f - Typo (#3291) <Jacty>
+* 680272eb - Fix appending port 80 to url sometimes breaks hmr connectivity #3268 (#3269) <Mark Dorrill>
+* dc60a025 - chore: update create-snowpack-app template deps (#3233) <Drew Powers>
+
 ## snowpack@3.3.7 [2021-04-29]
 
 * 5e34b829 - Fix missing build files from load plugins (#3230) <Drew Powers>
