@@ -101,8 +101,8 @@ Create a file named `App.vue` in your project directory with the following code:
   export default {
     setup() {
       return {};
-    },
-  };
+    }
+  }
 </script>
 <template>
   <div>Welcome to my Vue app!</div>
