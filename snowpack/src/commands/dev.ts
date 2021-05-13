@@ -926,11 +926,11 @@ export async function startServer(
 
   // Watch src files
   async function onWatchEvent(fileLoc: string) {
+
     logger.info(
       colors.cyan('File changed: ') + path.relative(config.workspaceRoot || config.root, fileLoc),
     );
-    // TODO: If this needs to build a new dependency, report to the browser via HMR event.
-    await pkgSource.prepareSingleFile(fileLoc);
+
     const updatedUrls = getUrlsForFile(fileLoc, config);
     if (updatedUrls) {
       handleHmrUpdate && handleHmrUpdate(fileLoc, updatedUrls[0]);
@@ -940,6 +940,7 @@ export async function startServer(
     inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: true, mode: config.mode}));
     inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: false, mode: config.mode}));
     await onFileChangeCallback({filePath: fileLoc});
+
     for (const plugin of config.plugins) {
       plugin.onChange && plugin.onChange({filePath: fileLoc});
     }
@@ -956,18 +957,21 @@ export async function startServer(
       disableGlobbing: false,
       useFsEvents: isFsEventsEnabled(),
     });
-    watcher.on('add', (fileLoc) => {
+    watcher.on('add', async (fileLoc) => {
       knownETags.clear();
-      onWatchEvent(fileLoc);
+      await pkgSource.prepareSingleFile(fileLoc);
+      await onWatchEvent(fileLoc);
       fileToUrlMapping.add(fileLoc, getUrlsForFile(fileLoc, config)!);
     });
-    watcher.on('unlink', (fileLoc) => {
+    watcher.on('unlink', async (fileLoc) => {
       knownETags.clear();
-      onWatchEvent(fileLoc);
+      await onWatchEvent(fileLoc);
       fileToUrlMapping.delete(fileLoc);
     });
-    watcher.on('change', (fileLoc) => {
-      onWatchEvent(fileLoc);
+    watcher.on('change', async (fileLoc) => {
+      // TODO: If this needs to build a new dependency, report to the browser via HMR event.
+      await pkgSource.prepareSingleFile(fileLoc);
+      await onWatchEvent(fileLoc);
     });
     // [hmrDelay] - Let users with noisy startups delay HMR (ex: 11ty, tsc builds)
     setTimeout(() => {
