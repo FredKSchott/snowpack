@@ -15,7 +15,7 @@ async function transformAsync(css, {filepath, config, cwd, map}) {
   }
 
   const result = await process(css);
-  return JSON.stringify({css: result.css, map: result.map});
+  return JSON.stringify({css: result.css, map: result.map, messages: result.messages});
 }
 
 // create a worker and register public functions
