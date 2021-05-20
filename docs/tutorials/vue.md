@@ -18,7 +18,7 @@ This guide is a step by step from an empty directory to a fully configured Snowp
 - Enabling Hot Module Replacement (HMR)
 - Connecting your favorite tools
 
-Prerequisites: Snowpack is a command-line tool installed from npm. This guide assumes a basic understanding of Node.js, npm, and how to run commands in the terminal. Knowledge of Vue is not required: Snowpack is an excellent way to learn Vue!
+Prerequisites: Snowpack is a command-line tool installed from npm. This guide assumes a basic understanding of Node.js, npm, and how to run commands in the terminal. Knowledge of Vue is not required; Snowpack is an excellent way to learn Vue!
 
 > 💡 Tip: a [Vue/Snowpack](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-vue) working example is available in our Create Snowpack App templates.
 
@@ -43,7 +43,7 @@ You should see your new website up and running!
 
 <div class="frame"><img src="/img/guides/react/minimalist-hello-world.png" alt="screenshot of project-template-minimal, which shows 'Hello world' in text on a white background." class="screenshot"/></div>
 
-Now that you have a basic project up and running! The next step is to install Vue. Run the following command in your project directory:
+Now that you have a basic project up and running, the next step is to install Vue. Run the following command in your project directory:
 
 ```bash
 npm install vue@3.0.11 --save
@@ -62,14 +62,14 @@ Once installed, you'll need to add the plugin to your Snowpack configuration fil
 ```diff
 // snowpack.config.js
 
-module.exports = {
-  mount: {
-    /* ... */
-  },
-  plugins: [
-+  '@snowpack/plugin-vue'
-  ]
-}
+  module.exports = {
+    mount: {
+      /* ... */
+    },
+    plugins: [
++    '@snowpack/plugin-vue'
+    ]
+  }
 ```
 
 Restart your Snowpack dev server to run it with the new configuration. Exit the process (ctrl + c in most Windows/Linux/macOS) and start it again with `npm run start`.
@@ -112,27 +112,26 @@ Now you can use the new `App.vue` file in your `index.js`:
 
 ```diff
 // index.js
--console.log('Hello World! You did it! Welcome to Snowpack :D');
+- console.log('Hello World! You did it! Welcome to Snowpack :D');
++ import { createApp } from 'vue';
++ import App from './App.vue';
 
-+import { createApp } from 'vue';
-+import App from './App.vue';
-
-+createApp(App).mount('#root');
++ createApp(App).mount('#root');
 ```
 
-The page should now say "Learn Vue". Congratulations! you now have your first Vue component!
+The page should now say "Learn Vue". Congratulations! You now have your first Vue component!
 
 ## Customize your project layout
 
 Snowpack is flexible enough to support whatever project layout that you prefer. In this guide, you'll learn how to use a popular project pattern from the Vue community.
 
 ```
-📁 src : your Vue components and their assets (CSS, images)
-    ↳ index.js
-    ↳ App.vue
-📁 public : global assets like images, fonts, icons, and global CSS
-    ↳ index.css
-    ↳ index.html
+├── src/        <- your Vue components and their assets (CSS, images)
+│   ├── index.js
+│   └── App.vue
+└── public/     <- global assets like images, fonts, icons, and global CSS
+    ├── index.css
+    └── index.html
 ```
 
 Use your favorite visual editor to rearrange and rename, or run these commands in the terminal:
@@ -162,7 +161,7 @@ The `mount` configuration changes where Snowpack scan for and builds files. Head
 
 <img src="/img/guides/folder-structure.png" alt="Graphic shows the original and new folder structures side by side. Arrows indicate that the files are built to where the arrow points. The Original side shows a folder labeled ./ entire directory with an arrow pointing to a folder labeled  mysite.com/*. The New side shows a folder labeled ./src/* with an arrow pointing to a folder labeled mysite.com/_dist/*. Then a second folder labeled ./public/* with an arrow pointing to a folder labeled mysite.com/* " />
 
-`mount` is part of the [Snowpack Configuration API](/reference/configuration). It allows you to customize the file structure of your project. The key is the name of the directory and the value is where you'd like them in the final build. With this new configuration, Snowpack builds files in the `public` directory - like `public/index.css` - into `index.css`. Likewise, it builds files in `src` like `src/index.js` into `/dist/index.js`, so change that path in your `index.html`:
+`mount` is part of the [Snowpack Configuration API](/reference/configuration). It allows you to customize the file structure of your project. The key is the name of the directory and the value is where you'd like them in the final build. With this new configuration, Snowpack builds files in the `public` directory (e.g. `public/index.css -> [build]/index.css`). Likewise, it builds files in `src` (e.g. `src/index.js -> [build]/dist/index.js`, so change that path in your `index.html`:
 
 ```diff
 <!-- public/index.html -->
@@ -253,9 +252,9 @@ Vue components include component specific scripts in a `<script>` tag. Add the c
 Then lower down in your component's body, add this code that displays the results of the timer.
 
 ```diff
-<!-- src/App.vue -->
+  <!-- src/App.vue -->
 
-<div class="App">
+  <div class="App">
     <header class="App-header">
       <img src="/logo.svg" class="App-logo" alt="logo" />
 +     <p>Page has been open for <code>{count}</code> seconds.</p>
@@ -263,7 +262,7 @@ Then lower down in your component's body, add this code that displays the result
         Learn Vue
       </a>
     </header>
-</div>
+  </div>
 ```
 
 Change some code on the page (like the "Learn Vue" button). You'll see the timer does not reset.
@@ -271,18 +270,18 @@ Change some code on the page (like the "Learn Vue" button). You'll see the timer
 What about other, non-Vue files like `src/index.js`? To re-render your Vue application when other files change, add this code snippet to the bottom:
 
 ```diff
-<!-- src/index.js-->
+// src/index.js
 
-export default app;
+  export default app;
 
-+// Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
-+// Learn more: https://www.snowpack.dev/concepts/hot-module-replacement
-+if (import.meta.hot) {
-+  import.meta.hot.accept();
-+  import.meta.hot.dispose(() => {
-+    app.$destroy();
-+  });
-+}
++ // Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
++ // Learn more: https://www.snowpack.dev/concepts/hot-module-replacement
++ if (import.meta.hot) {
++   import.meta.hot.accept();
++   import.meta.hot.dispose(() => {
++     app.$destroy();
++   });
++ }
 ```
 
 ## Going further
