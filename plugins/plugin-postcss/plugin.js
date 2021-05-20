@@ -1,6 +1,6 @@
 'use strict';
 
-const {resolve} = require('path');
+const {resolve, relative, isAbsolute} = require('path');
 const workerpool = require('workerpool');
 
 module.exports = function postcssPlugin(snowpackConfig, options) {
@@ -13,6 +13,8 @@ module.exports = function postcssPlugin(snowpackConfig, options) {
   }
 
   let worker, pool;
+
+  const dependencies = new Map();
 
   return {
     name: '@snowpack/postcss-transform',
@@ -41,12 +43,45 @@ module.exports = function postcssPlugin(snowpackConfig, options) {
               }
             : false,
       });
-      const {css, map} = JSON.parse(encodedResult);
+      const {css, map, messages} = JSON.parse(encodedResult);
+
+      const files = new Set();
+      const dirs = new Set();
+      for (const message of messages) {
+        if (message.type === 'dependency') {
+          files.add(message.file);
+        } else if (message.type === 'dir-dependency') {
+          dirs.add(message.dir);
+        }
+      }
+      dependencies.set(id, {files, dirs});
+
       return {
         code: css, // old API (keep)
         contents: css, // new API
         map,
       };
+    },
+    onChange({filePath}) {
+      eachId: for (const [id, {files, dirs}] of dependencies) {
+        for (const file of files) {
+          if (file === filePath) {
+            this.markChanged(id);
+            continue eachId;
+          }
+        }
+        for (const dir of dirs) {
+          // https://stackoverflow.com/a/45242825
+          const relativePath = relative(dir, filePath);
+          const dirContainsFilePath =
+            relativePath && !relativePath.startsWith('..') && !isAbsolute(relativePath);
+
+          if (dirContainsFilePath) {
+            this.markChanged(id);
+            continue eachId;
+          }
+        }
+      }
     },
     cleanup() {
       pool && pool.terminate();
