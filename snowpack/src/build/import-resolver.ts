@@ -33,8 +33,6 @@ function resolveSourceSpecifier(
 
   if (lazyFileStat && lazyFileStat.isFile()) {
     lazyFileLoc = lazyFileLoc;
-  } else if (hasExtension(lazyFileLoc, '.css')) {
-    lazyFileLoc = lazyFileLoc;
   } else if (hasExtension(lazyFileLoc, '.js')) {
     const tsWorkaroundImportFileLoc = replaceExtension(lazyFileLoc, '.js', '.ts');
     if (getFsStat(tsWorkaroundImportFileLoc)) {
