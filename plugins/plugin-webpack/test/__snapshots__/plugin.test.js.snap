@@ -101,3 +101,39 @@ console.log('test');
   },
 ]
 `;
+
+exports[`@snowpack/plugin-webpack multiple entrypoints w/ same filename: files 1`] = `
+Array [
+  Object {
+    "content": "<!DOCTYPE html><html lang=\\"en\\"><head><meta charset=\\"UTF-8\\"><title>Multiple entrypoints test - root</title></head><body><script src=\\"/js/webpack-runtime.XXXXXXXXXXXXXXXXXXXX.js\\" async=\\"\\" defer=\\"\\"></script><script src=\\"/js/index.XXXXXXXXXXXXXXXXXXXX.js\\" async=\\"\\" defer=\\"\\"></script></body></html>",
+    "filename": "index.html",
+  },
+  Object {
+    "content": "console.log('root test');
+",
+    "filename": "index.js",
+  },
+  Object {
+    "content": "{
+  \\"name\\": \\"plugin-webpack-test-minimal\\",
+  \\"main\\": \\"src/index.js\\"
+}
+",
+    "filename": "package.json",
+  },
+]
+`;
+
+exports[`@snowpack/plugin-webpack multiple entrypoints w/ same filename: files 2`] = `
+Array [
+  Object {
+    "content": "<!DOCTYPE html><html lang=\\"en\\"><head><meta charset=\\"UTF-8\\"><title>Multiple entrypoints test - /admin</title></head><body><script src=\\"/js/webpack-runtime.XXXXXXXXXXXXXXXXXXXX.js\\" async=\\"\\" defer=\\"\\"></script><script src=\\"/js/admin/index.XXXXXXXXXXXXXXXXXXXX.js\\" async=\\"\\" defer=\\"\\"></script></body></html>",
+    "filename": "index.html",
+  },
+  Object {
+    "content": "console.log('admin test');
+",
+    "filename": "index.js",
+  },
+]
+`;

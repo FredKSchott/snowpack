@@ -1,0 +1,4 @@
+{
+  "name": "plugin-webpack-test-minimal",
+  "main": "src/index.js"
+}
