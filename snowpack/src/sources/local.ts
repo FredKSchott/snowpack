@@ -1,12 +1,10 @@
 import Arborist from '@npmcli/arborist';
-import crypto from 'crypto';
 import {
   InstallOptions,
   InstallTarget,
   resolveDependencyManifest as _resolveDependencyManifest,
   resolveEntrypoint,
 } from 'esinstall';
-import projectCacheDir from 'find-cache-dir';
 import findUp from 'find-up';
 import {existsSync, promises as fs} from 'fs';
 import * as colors from 'kleur/colors';
@@ -123,12 +121,9 @@ export class PackageSourceLocal implements PackageSource {
     this.config = config;
     this.npmConnectionOptions = getNpmConnectionOptions(config.packageOptions.source);
     if (config.packageOptions.source === 'local') {
-      this.cacheDirectory =
-        projectCacheDir({name: 'snowpack'}) ||
-        // If `projectCacheDir()` is null, no node_modules directory exists.
-        // Use the current path (hashed) to create a cache entry in the global cache instead.
-        // Because this is specifically for dependencies, this fallback should rarely be used.
-        path.join(GLOBAL_CACHE_DIR, crypto.createHash('md5').update(process.cwd()).digest('hex'));
+      this.cacheDirectory = config.buildOptions.cacheDirPath
+        ? path.resolve(config.buildOptions.cacheDirPath)
+        : GLOBAL_CACHE_DIR;
       this.packageSourceDirectory = config.root;
       this.arb = null;
     } else {

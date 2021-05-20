@@ -67,6 +67,7 @@ ${colors.bold('Flags:')}
   --help                 Show this help message.
   --version              Show the current version.
   --reload               Clear the local cache (useful for troubleshooting).
+  --cache-dir-path       Specify a custom cache directory.
   --verbose              Enable verbose log messages.
   --quiet                Enable minimal log messages.
     `.trim(),
