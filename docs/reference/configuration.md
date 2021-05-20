@@ -198,7 +198,7 @@ module.exports = {
 **Type**: `string`  
 **Default**: `localhost`
 
-The hostname that the dev server is running on. Snowpack uses this information to configure the HMR websocket and properly 
+The hostname that the dev server is running on. Snowpack uses this information to configure the HMR websocket and properly open
 your browser on startup (see: [`devOptions.open`](#devoptions.open)).
 
 ### devOptions.port
