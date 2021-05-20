@@ -69,8 +69,12 @@ describe('@snowpack/plugin-webpack', () => {
       buildDirectory: IGNORED_MULTIPLE_DIR,
     });
 
-    const rootHtml = fs.readFileSync(path.join(IGNORED_MULTIPLE_DIR, 'index.html'), { encoding: 'utf8' });
-    const adminHtml = fs.readFileSync(path.join(IGNORED_MULTIPLE_DIR, 'admin/index.html'), { encoding: 'utf8' });
+    const rootHtml = fs.readFileSync(path.join(IGNORED_MULTIPLE_DIR, 'index.html'), {
+      encoding: 'utf8',
+    });
+    const adminHtml = fs.readFileSync(path.join(IGNORED_MULTIPLE_DIR, 'admin/index.html'), {
+      encoding: 'utf8',
+    });
 
     const rootScripts = rootHtml.match(/<script src="([^>]+)">/g);
     const adminScripts = adminHtml.match(/<script src="([^>]+)">/g);
