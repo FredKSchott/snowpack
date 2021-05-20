@@ -57,24 +57,23 @@ npm install @snowpack/plugin-vue --save-dev
 
 Snowpack [plugins](/plugins) are a way to extend Snowpack's capabilities without having to do custom configuration yourself. Install the `@snowpack/plugin-vue` plugin so that Snowpack knows how built `.vue` files into JavaScript and CSS files that run in the browser:
 
-Once installed, you'll need to add the plugin to your Snowpack configuration file (`snowpack.config.js`) so that Snowpack knows to use it:
+Once installed, you'll need to add the plugin to your Snowpack configuration file (`snowpack.config.mjs`) so that Snowpack knows to use it:
 
 ```diff
-// snowpack.config.js
-
-  module.exports = {
+  // snowpack.config.mjs
+  export default {
     mount: {
       /* ... */
     },
     plugins: [
-+    '@snowpack/plugin-vue'
-    ]
-  }
++    '@snowpack/plugin-vue',
+    ],
+  };
 ```
 
 Restart your Snowpack dev server to run it with the new configuration. Exit the process (ctrl + c in most Windows/Linux/macOS) and start it again with `npm run start`.
 
-> 💡 Tip: Restart the Snowpack development server when you make configuration changes (changes to the `snowpack.config.js`).
+> 💡 Tip: Restart the Snowpack development server when you make configuration changes (changes to the `snowpack.config.mjs`).
 
 Snowpack will recognize the new dependency (Vue, or "vue/internal") and print the following output as installs your dependencies for the frontend:
 
@@ -147,16 +146,17 @@ mv index.css public/index.css
 
 This means if you are running Snowpack right now, the site is now broken as the files are all in different places. Lets add a "mount" configuration to update your site to your new project layout.
 
-The `mount` configuration changes where Snowpack scan for and builds files. Head back to the `snowpack.config.js` file you edited when you added `@snowpack/plugin-vue`. Add this to the empty `mount` object:
+The `mount` configuration changes where Snowpack scan for and builds files. Head back to the `snowpack.config.mjs` file you edited when you added `@snowpack/plugin-vue`. Add this to the empty `mount` object:
 
 ```diff
-// snowpack.config.js
-
-  mount: {
--   /* ... */
-+   public: '/',
-+   src: '/dist',
-  },
+  // snowpack.config.mjs
+  export default {
+    mount: {
+-     /* ... */
++     public: '/',
++     src: '/dist',
+    },
+  };
 ```
 
 <img src="/img/guides/folder-structure.png" alt="Graphic shows the original and new folder structures side by side. Arrows indicate that the files are built to where the arrow points. The Original side shows a folder labeled ./ entire directory with an arrow pointing to a folder labeled  mysite.com/*. The New side shows a folder labeled ./src/* with an arrow pointing to a folder labeled mysite.com/_dist/*. Then a second folder labeled ./public/* with an arrow pointing to a folder labeled mysite.com/* " />

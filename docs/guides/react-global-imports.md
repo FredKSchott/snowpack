@@ -25,7 +25,7 @@ export default MyComponent;
 To recreate this setup, follow 2 steps:
 
 1. Create a [babel.config.js](./babel.config.js) file in the root of the project. Copy the settings shown.
-2. Install [@snowpack/plugin-babel][snowpack-babel] and add it to [snowpack.config.js](./snowpack.config.js)
+2. Install [@snowpack/plugin-babel][snowpack-babel] and add it to [snowpack.config.mjs](./snowpack.config.js)
 
 ### ⚠️ Caveat
 

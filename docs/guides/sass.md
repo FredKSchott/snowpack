@@ -17,8 +17,10 @@ This article is a stub, you can help expand it into <a href="https://diataxis.fr
 **To use Sass with Snowpack:** use [@snowpack/plugin-sass](https://www.npmjs.com/package/@snowpack/plugin-sass).
 
 ```diff
-// snowpack.config.js
-"plugins": [
-+  "@snowpack/plugin-sass"
-]
+  // snowpack.config.mjs
+  export default {
+    plugins: [
++    '@snowpack/plugin-sass',
+    ],
+  };
 ```

@@ -5,11 +5,11 @@ description: The Snowpack configuration API reference.
 ---
 
 ```js
-// Example: snowpack.config.js
+// Example: snowpack.config.mjs
 // The added "@type" comment will enable TypeScript type information via VSCode, etc.
 
 /** @type {import("snowpack").SnowpackUserConfig } */
-module.exports = {
+export default {
   plugins: [
     /* ... */
   ],
@@ -80,14 +80,14 @@ Mount local directories to custom URLs in your built application.
 Example:
 
 ```js
-// snowpack.config.js
+// snowpack.config.mjs
 // Example: Basic "mount" usage
-{
-  "mount": {
-    "src": "/dist",
-    "public": "/"
-  }
-}
+export default {
+  mount: {
+    src: '/dist',
+    public: '/',
+  },
+};
 ```
 
 You can further customize this the build behavior for any mounted directory by using the expanded object notation:
@@ -95,16 +95,16 @@ You can further customize this the build behavior for any mounted directory by u
  <!-- snowpack/src/config.ts -->
 
 ```js
-// snowpack.config.js
+// snowpack.config.mjs
 // Example: expanded object notation "mount" usage
-{
-  "mount": {
+export default {
+  mount: {
     // Same behavior as the "src" example above:
-    "src": {url: "/dist"},
+    src: {url: '/dist'},
     // Mount "public" to the root URL path ("/*") and serve files with zero transformations:
-    "public": {url: "/", static: true, resolve: false}
-  }
-}
+    public: {url: '/', static: true, resolve: false},
+  },
+};
 ```
 
 ## env
@@ -114,11 +114,12 @@ You can further customize this the build behavior for any mounted directory by u
 Declare any environment variables that should be exposed on `import.meta.env` at runtime. See [Environment Variables](/reference/environment-variables) for more information.
 
 ```js
-{
-  "env": {
-    "API_URL": "api.google.com"
-  }
-}
+// snowpack.config.mjs
+export default {
+  env: {
+    API_URL: 'api.google.com',
+  },
+};
 ```
 
 ## alias
@@ -130,18 +131,18 @@ Configure import aliases for directories and packages.
 Note: In an older version of Snowpack, all mounted directories were also available as aliases by **Default**. As of Snowpack 2.7, this is no longer the case and no aliases are defined by **Default**.
 
 ```js
-// snowpack.config.js
+// snowpack.config.mjs
 // Example: alias types
-{
+export default {
   alias: {
     // Type 1: Package Import Alias
-    "lodash": "lodash-es",
-    "react": "preact/compat",
+    lodash: 'lodash-es',
+    react: 'preact/compat',
     // Type 2: Local Directory Import Alias (relative to cwd)
-    "components": "./src/components"
-    "@app": "./src"
-  }
-}
+    components: './src/components',
+    '@app': './src',
+  },
+};
 ```
 
 ## plugins
@@ -153,9 +154,9 @@ Enable Snowpack plugins and their options.
 Also see our [Plugin guide](/guides/plugins)
 
 ```js
-// snowpack-config.js
+// snowpack.config.mjs
 // Example: enable plugins both simple and expanded
-{
+export default {
   plugins: [
     // Simple format: no options needed
     'plugin-1',
@@ -181,12 +182,13 @@ Toggles whether Snowpack dev server should use HTTPS with HTTP2 enabled. See the
 If the value is `true`, Snowpack will look for a `snowpack.crt` and `snowpack.key` file in your `root` directory. If the value is an `object`, you may pass your custom `cert` and `key` files directly to it.
 
 ```js
-const fs = require('fs');
+// snowpack.config.mjs
+import fs from 'fs';
 
-const cert = fs.readFileSync('/path/to/server.crt');
-const key = fs.readFileSync('/path/to/server.key');
+const cert = await fs.promises.readFile('/path/to/server.crt');
+const key = await fs.promises.readFile('/path/to/server.key');
 
-module.exports = {
+export default {
   devOptions: {
     secure: {cert, key},
   },
@@ -337,12 +339,15 @@ Converts packages that depend on Node.js built-in modules (`"fs"`, `"path"`, `"u
 If you'd like to customize this polyfill behavior, you can provide your own Rollup plugin for the installer:
 
 ```js
+// snowpack.config.mjs
 // Example: If `--polyfill-node` doesn't support your use-case, you can provide your own custom Node.js polyfill behavior
-module.exports = {
+import rollupPluginNodePolyfills from 'rollup-plugin-node-polyfills';
+
+export default {
   packageOptions: {
     polyfillNode: false,
     rollup: {
-      plugins: [require('rollup-plugin-node-polyfills')({crypto: true, ...})],
+      plugins: [rollupPluginNodePolyfills({crypto: true, ...})],
     },
   },
 };

@@ -17,6 +17,6 @@ module.exports = {
 
 ## Options
 
-None! If you need to configure Snowpack, you can do so in your project `snowpack.config.js` file.
+None! If you need to configure Snowpack, you can do so in your project `snowpack.config.mjs` file.
 
 Looking for support for some missing option/configuration? Please file an isuse! Your feedback is important.

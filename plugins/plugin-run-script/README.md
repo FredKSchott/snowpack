@@ -11,9 +11,9 @@ npm i @snowpack/plugin-run-script
 Then add the plugin to your Snowpack config:
 
 ```js
-// snowpack.config.js
+// snowpack.config.mjs
 
-module.exports = {
+export default {
   plugins: [
     [
       '@snowpack/plugin-run-script',

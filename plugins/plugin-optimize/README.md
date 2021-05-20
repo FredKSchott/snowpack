@@ -19,12 +19,17 @@ npm install --save-dev @snowpack/plugin-optimize
 Then add this plugin to your Snowpack config:
 
 ```js
-// snowpack.config.json
-{
-  "plugins": [
-    ["@snowpack/plugin-optimize", { /* see options below */ }]
-  ]
-}
+// snowpack.config.mjs
+export default {
+  plugins: [
+    [
+      '@snowpack/plugin-optimize',
+      {
+        /* see options below */
+      },
+    ],
+  ],
+};
 ```
 
 ### Plugin Options
