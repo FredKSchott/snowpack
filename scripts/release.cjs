@@ -80,6 +80,8 @@ module.exports = function release(pkgFolder, tag, bump, skipBuild) {
   console.log(execa.sync('git', ['add', '-A'], {cwd: dir}));
   console.log(execa.sync('git', ['commit', '-m', `[skip ci] ${newPkgTag}`], {cwd: dir}));
   console.log(execa.sync('git', ['tag', newPkgTag], {cwd: dir}));
+  if (pkgName === 'snowpack')
+    console.log(execa.sync('git', ['tag', `v${newPkgVersion}`], {cwd: dir})); // 'snowpack' only: also tag as vX.X.X (for GitHub releases)
   console.log(execa.sync('npm', ['publish', '--tag', tag], {cwd: dir}));
 
   // Only push to github on latest release, since a pre-release will break
