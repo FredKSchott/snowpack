@@ -4,6 +4,10 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## @snowpack/plugin-postcss@1.3.0 [2021-05-20]
+
+* b5bd57f8 - Add support for PostCSS dependency messages (#3309) <Brad Cornes>
+
 ## @snowpack/plugin-postcss@1.2.2 [2021-03-31]
 
 * 56c5a231 - fix typo in changelog 

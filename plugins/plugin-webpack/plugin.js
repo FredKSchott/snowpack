@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const glob = require('glob');
 const path = require('path');
+const util = require('util');
 const url = require('url');
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -39,7 +40,15 @@ function parseHTMLFiles({buildDirectory}) {
     for (const el of scripts) {
       const src = el.src.trim();
       const parsedPath = path.parse(src);
-      const name = parsedPath.name;
+
+      // Using path + filename to avoid problems if files have the same name, i.e.
+      // /index.js and /admin/index.js
+      const name = path
+        .join(parsedPath.dir, parsedPath.name)
+        .replace(/\\/g, '/')
+        // Paths other than the root will have a leading separator
+        .replace(/^\//, '');
+
       if (!(name in jsEntries)) {
         jsEntries[name] = {
           path: path.join(buildDirectory, src),
@@ -405,12 +414,16 @@ module.exports = function plugin(config, args = {}) {
           }
           const info = stats.toJson(extendedConfig.stats);
           if (stats.hasErrors()) {
-            console.error('Webpack errors:\n' + info.errors.join('\n-----\n'));
+            console.error(
+              'Webpack errors:\n' + info.errors.map((err) => err.message).join('\n-----\n'),
+            );
             reject(Error(`Webpack failed with ${info.errors} error(s).`));
             return;
           }
           if (stats.hasWarnings()) {
-            console.error('Webpack warnings:\n' + info.warnings.join('\n-----\n'));
+            console.error(
+              'Webpack warnings:\n' + info.warnings.map((err) => err.message).join('\n-----\n'),
+            );
             if (args.failOnWarnings) {
               reject(Error(`Webpack failed with ${info.warnings} warnings(s).`));
               return;

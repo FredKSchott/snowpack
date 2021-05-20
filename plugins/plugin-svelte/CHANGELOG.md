@@ -4,6 +4,12 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## @snowpack/plugin-svelte@3.7.0 [2021-05-13]
+
+* 4403595e - Sourcemaps (#3271) <Luke Jackson>
+* c9d2835c - chore: Update Node versions in GitHub CI (#3238) <Drew Powers>
+* d9956f73 - add explicit "mode" config (#3135) 
+
 ## @snowpack/plugin-svelte@3.6.1 [2021-03-31]
 
 * 56c5a231 - fix typo in changelog 

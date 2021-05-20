@@ -49,7 +49,7 @@ function sendSocketMessage(msg) {
 let socketURL = isWindowDefined && window.HMR_WEBSOCKET_URL;
 if (!socketURL) {
   const socketHost =
-    isWindowDefined && window.HMR_WEBSOCKET_PORT
+    isWindowDefined && window.HMR_WEBSOCKET_PORT && (window.HMR_WEBSOCKET_PORT !== 80)
       ? `${location.hostname}:${window.HMR_WEBSOCKET_PORT}`
       : location.host;
   socketURL = (location.protocol === 'http:' ? 'ws://' : 'wss://') + socketHost + '/';

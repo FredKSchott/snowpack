@@ -4,6 +4,11 @@ const hashsum = require('hash-sum');
 const compiler = require('@vue/compiler-sfc');
 const scriptCompilers = require('./src/script-compilers');
 
+const inlineSourcemap = (code, map) =>
+  code +
+  '\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,' +
+  new Buffer(map.toString()).toString('base64');
+
 /** Friendly error display */
 function displayError({contents, filePath, error}) {
   const pad = (number, pad) => `${Array.from(new Array(pad + 1)).join(' ')}${number}`;
@@ -146,7 +151,10 @@ module.exports = function plugin(snowpackConfig) {
         }
         output['.js'].code += `\n\nexport default defaultExport;`;
 
-        if ((sourcemap || sourceMaps) && js.map) output['.js'].map += JSON.stringify(js.map);
+        if ((sourcemap || sourceMaps) && js.map) {
+          output['.js'].code = inlineSourcemap(output['.js'].code, JSON.stringify(js.map));
+          output['.js'].map += JSON.stringify(js.map);
+        }
       }
 
       // clean up
