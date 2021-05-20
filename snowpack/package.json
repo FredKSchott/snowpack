@@ -56,7 +56,7 @@
     "rollup": "~2.37.1"
   },
   "optionalDependencies": {
-    "fsevents": "^2.2.0"
+    "fsevents": "^2.3.2"
   },
   "devDependencies": {
     "@npmcli/arborist": "^2.2.9",
