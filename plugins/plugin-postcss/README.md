@@ -32,7 +32,7 @@ module.exports = {
 
 ### Plugin Options
 
-| Name     |    Type    | Description                                                                                                                                             |
-| :------- | :--------: | :------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `input`  | `string[]` | File extensions to transform (default: `['.css']`)                                                                                                      |
-| `config` |  `string`  | (optional) Set a custom path to your PostCSS config (in case PostCSS has trouble loading it automatically, or in case you want multiple PostCSS setups) |
+| Name     |        Type        | Description                                                                       |
+| :------- | :----------------: | :-------------------------------------------------------------------------------- |
+| `input`  |     `string[]`     | File extensions to transform (default: `['.css']`)                                |
+| `config` | `string \| object` | (optional) Pass in a PostCSS config object or path to your PostCSS config on disk |
