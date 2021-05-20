@@ -37,8 +37,9 @@ function parseHTMLFiles({buildDirectory}) {
       // Using path + filename to avoid problems if files have the same name, i.e.
       // /index.js and /admin/index.js
       const name = path.join(parsedPath.dir, parsedPath.name)
+        .replace(/\\/g, '/')
         // Paths other than the root will have a leading separator
-        .match(/[\\/]?(.+)/)[1];
+        .replace(/^\//, '');
 
       if (!(name in jsEntries)) {
         jsEntries[name] = {
