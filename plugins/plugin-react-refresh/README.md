@@ -9,10 +9,15 @@ npm install --save-dev @snowpack/plugin-react-refresh
 ## Setup
 
 ```js
-// snowpack.config.json
-{
-  "plugins": ["@snowpack/plugin-react-refresh", {/* options: see below */}]
-}
+// snowpack.config.mjs
+export default {
+  plugins: [
+    '@snowpack/plugin-react-refresh',
+    {
+      /* options: see below */
+    },
+  ],
+};
 ```
 
 ## Plugin Options

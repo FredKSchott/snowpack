@@ -38,16 +38,14 @@ For testing, [create a new, example Snowpack project](/tutorials/getting-started
 
 > The alternative would be to use `npm install --save-dev path_to_your_plugin`, which would create the "symlink-like" entry in your example Snowpack project’s `package.json`
 
-In your example Snowpack project, add your plugin to the `snowpack.config.js` along with any plugin options you’d like to test:
+In your example Snowpack project, add your plugin to the `snowpack.config.mjs` along with any plugin options you’d like to test:
 
 ```js
-// snowpack.config.js
+// snowpack.config.mjs
 // Example: enabling a Snowpack plugin called "my-snowpack-plugin"
-{
-  "plugins": [
-    "my-snowpack-plugin"
-  ]
-}
+export default {
+  plugins: ['my-snowpack-plugin'],
+};
 ```
 
 ## Testing and Troubleshooting
@@ -63,26 +61,26 @@ In this step, you'll learn how to add user-configurable options to your plugin a
 In your example Snowpack project, instead of enabling the plugin as a string containing the plugin name, use an array. The first item is name of your plugin and the second a new object containing the plugin options.
 
 ```diff
-// snowpack.config.js
-{
-  "plugins": [
--    "my-snowpack-plugin"
-+    ["my-snowpack-plugin", { "optionA": "foo", "optionB": true }]
-  ]
-}
+  // snowpack.config.mjs
+  export default {
+    plugins: [
+-     'my-snowpack-plugin'
++     ['my-snowpack-plugin', { optionA: 'foo', optionB: true }]
+    ]
+  };
 ```
 
 You access these through the `pluginOptions`
 
 ```diff
-// my-snowpack-plugin.js
-module.exports = function (snowpackConfig, pluginOptions) {
-+ let optionA = pluginOptions.optionA
-+ let optionB = pluginOptions.optionB
-  return {
-    name: 'my-snowpack-plugin'
+  // my-snowpack-plugin.js
+  module.exports = function (snowpackConfig, pluginOptions) {
++   let optionA = pluginOptions.optionA;
++   let optionB = pluginOptions.optionB;
+    return {
+      name: 'my-snowpack-plugin',
+    };
   };
-};
 ```
 
 ### Plugin Use-Cases
@@ -121,11 +119,19 @@ module.exports = function (snowpackConfig, pluginOptions) {
 };
 ```
 
-```json
-// snowpack.config.json
-{
-  "plugins": [["./my-snowpack-plugin.js", {"optionA": "foo", "optionB": "bar"}]]
-}
+```js
+// snowpack.config.mjs
+export default {
+  plugins: [
+    [
+      './my-snowpack-plugin.js',
+      {
+        optionA: 'foo',
+        optionB: 'bar',
+      },
+    ],
+  ],
+};
 ```
 
 A Snowpack plugin should be distributed as a function that can be called with plugin-specific options to return a plugin object.
@@ -283,14 +289,20 @@ To develop and test a Snowpack plugin, the strategy is the same as with other np
   - Be aware that `npm install` will remove your linked plugin, so on any install, you will need to redo the `npm link my-snowpack-plugin`.
   - (The alternative would be to use `npm install --save-dev &lt;folder_to_your_plugin_project&gt;`, which would create the "symlink-like" entry in your example Snowpack project’s `package.json`)
 
-In your example Snowpack project, add your plugin to the `snowpack.config.json` along with any plugin options you’d like to test:
+In your example Snowpack project, add your plugin to the `snowpack.config.mjs` along with any plugin options you’d like to test:
 
-```json
-{
-  "plugins": [
-    ["my-snowpack-plugin", { "option-1": "testing", "another-option": false }]
-  "
-}
+```js
+export default {
+  plugins: [
+    [
+      'my-snowpack-plugin',
+      {
+        'option-1': 'testing',
+        'another-option': false,
+      },
+    ],
+  ],
+};
 ```
 
 ### Publishing a Plugin

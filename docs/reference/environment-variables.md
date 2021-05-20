@@ -23,18 +23,18 @@ SNOWPACK_PUBLIC_API_URL=api.google.com snowpack dev
 **New in v3.1.0** Pass environment variables as an object to the `env` property. Note that these environment variables do not need to use the `SNOWPACK_PUBLIC_` prefix and anything set here will be available on `import.meta.env` (see below).
 
 ```js
-// snowpack.config.js
-module.exports = {
+// snowpack.config.mjs
+export default {
   env: {
     API_URL: 'api.google.com',
   },
 };
 ```
 
-**In prior versions**, we recommended setting environment variables by adding to `process.env.*` at the top of your `snowpack.config.js` file. This ended up being pretty confusing, so using the `env` property is now the recommended approach.
+**In prior versions**, we recommended setting environment variables by adding to `process.env.*` at the top of your `snowpack.config.mjs` file. This ended up being pretty confusing, so using the `env` property is now the recommended approach.
 
 ```js
-// snowpack.config.js
+// snowpack.config.mjs
 process.env.SNOWPACK_PUBLIC_API_URL = 'api.google.com';
 // ...rest of config
 ```

@@ -16,9 +16,9 @@ Snowpack build optimizations come in two flavors: **built-in** (esbuild) & **plu
 Snowpack recently released a built-in optimization pipeline powered by [esbuild](https://esbuild.github.io/). Using this built-in optimizer, you can now bundle, transpile, and minify your production builds 10x-100x faster than Webpack or Rollup. However, esbuild is still young and [not yet production-ready](https://esbuild.github.io/faq/#production-readiness). At the moment, we only recommended this for smaller projects.
 
 ```js
-// snowpack.config.js
+// snowpack.config.mjs
 // Example: Using Snowpack's built-in bundling support
-module.exports = {
+export default {
   optimize: {
     bundle: true,
     minify: true,

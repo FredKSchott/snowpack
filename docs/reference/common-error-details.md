@@ -35,12 +35,12 @@ This error could also appear if named imports are used with older, Common.js npm
 **To solve:** Use the default import (`import pkg from 'my-old-package'`) for legacy Common.js/UMD packages that cannot be analyzed. Or, add the package name to your `packageOptions.namedExports` configuration for runtime import scanning.
 
 ```js
-// snowpack.config.js
-{
-  "packageOptions": {
-    "namedExports": ["@shopify/polaris-tokens"]
-  }
-}
+// snowpack.config.mjs
+export default {
+  packageOptions: {
+    namedExports: ['@shopify/polaris-tokens'],
+  },
+};
 ```
 
 ### Installing Non-JS Packages
@@ -49,13 +49,13 @@ When installing packages from npm, you may encounter some file formats that can 
 
 Because our internal installer is powered by Rollup, you can also add Rollup plugins to your [Snowpack config](/reference/configuration) to handle these special, rare files:
 
-```js
-/* snowpack.config.js */
-module.exports = {
-  rollup: {
-    plugins: [require('rollup-plugin-sass')()],
-  },
-};
+```diff
+  // snowpack.config.mjs
+  export default {
++   rollup: {
++     plugins: [require('rollup-plugin-sass')()],
++   },
+  };
 ```
 
 Refer to [Rollup’s documentation on plugins](https://rollupjs.org/guide/en/#using-plugins) for more information.
@@ -64,13 +64,13 @@ Refer to [Rollup’s documentation on plugins](https://rollupjs.org/guide/en/#us
 
 **To solve this issue:** Use any other port than `8080` for the dev server. To do so, specify a port in your [Snowpack config](/reference/configuration):
 
-```js
-/* snowpack.config.js */
-module.exports = {
-  devOptions: {
-    port: 3000,
-  },
-};
+```diff
+  // snowpack.config.mjs
+  export default {
++   devOptions: {
++     port: 3000,
++   },
+  };
 ```
 
 ### Package "[name]" not found. Have you installed it?
@@ -89,14 +89,13 @@ npm install [package].
 
 Then re-running Snowpack. If the issue still persists, try telling Snowpack where to find this with [an alias](https://www.snowpack.dev/reference/configuration#alias):
 
-```js
-// snowpack.config.js
-
-module.exports = {
-  alias: {
-    myPackage: './path/to/myPackage',
-  },
-};
+```diff
+  // snowpack.config.mjs
+  export default {
++   alias: {
++     myPackage: './path/to/myPackage',
++   },
+  };
 ```
 
 #### I’m trying to import a local `.js` file

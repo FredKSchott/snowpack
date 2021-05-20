@@ -1,12 +1,10 @@
 /** @type {import("snowpack").SnowpackUserConfig } */
-module.exports = {
+export default {
   mount: {
     public: { url: '/', static: true },
     src: { url: '/dist' },
   },
   plugins: [
-    '@snowpack/plugin-babel',
-    '@snowpack/plugin-dotenv',
     [
       '@snowpack/plugin-typescript',
       {

@@ -28,7 +28,6 @@ You’ll need to create two files in the root of your project: `postcss.config.j
 
 ```js
 // postcss.config.js
-
 module.exports = {
   plugins: {
     tailwindcss: {},
@@ -39,7 +38,6 @@ module.exports = {
 
 ```js
 // tailwind.config.js
-
 module.exports = {
   mode: 'jit',
   purge: ['./public/**/*.html', './src/**/*.{js,jsx,ts,tsx,vue}'],
@@ -52,9 +50,8 @@ _Note: be sure to set `purge: []` correctly for your project structure_
 Also, you’ll need to add the Snowpack PostCSS plugin to your Snowpack config, if you haven‘t already:
 
 ```diff
-  // snowpack.config.js
-
-  module.exports = {
+  // snowpack.config.mjs
+  export default {
     mount: {
       src: '/_dist',
       public: '/',

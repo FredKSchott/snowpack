@@ -113,15 +113,17 @@ mv index.css public/index.css
 
 This means if you are running Snowpack right now, the site is now broken as the files are all in different places. Lets add a "mount" configuration to update your site to your new project layout.
 
-The `mount` configuration changes where Snowpack looks for and builds files. Every Snowpack project comes with a `snowpack.config.js` file for any configuration that you might need. Right now, you should see a configuration file with empty options. Add this to the empty `mount` object:
+The `mount` configuration changes where Snowpack looks for and builds files. Every Snowpack project comes with a `snowpack.config.mjs` file for any configuration that you might need. Right now, you should see a configuration file with empty options. Add this to the empty `mount` object:
 
 ```diff
-  mount: {
--   /* ... */
-+   // directory name: 'build directory'
-+   public: '/',
-+   src: '/dist',
-  },
+  export default {
+    mount: {
+-     /* ... */
++     // directory name: 'build directory'
++     public: '/',
++     src: '/dist',
+    },
+  };
 ```
 
 <img src="/img/guides/react/folderstructure.png" alt="The original file configuration had Snowpack building the directory structure the same as the directories in the project, including root. Now the config builds only src and public. Src to the dist folder and public to root." />

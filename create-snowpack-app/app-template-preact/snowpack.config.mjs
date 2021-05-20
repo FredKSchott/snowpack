@@ -1,20 +1,10 @@
 /** @type {import("snowpack").SnowpackUserConfig } */
-module.exports = {
+export default {
   mount: {
     public: { url: '/', static: true },
     src: { url: '/dist' },
   },
-  plugins: [
-    '@prefresh/snowpack',
-    '@snowpack/plugin-dotenv',
-    [
-      '@snowpack/plugin-typescript',
-      {
-        /* Yarn PnP workaround: see https://www.npmjs.com/package/@snowpack/plugin-typescript */
-        ...(process.versions.pnp ? { tsc: 'yarn pnpify tsc' } : {}),
-      },
-    ],
-  ],
+  plugins: ['@snowpack/plugin-dotenv', '@prefresh/snowpack'],
   routes: [
     /* Enable an SPA Fallback in development: */
     // {"match": "routes", "src": ".*", "dest": "/index.html"},
@@ -30,6 +20,10 @@ module.exports = {
     /* ... */
   },
   buildOptions: {
+    /* ... */
+  },
+
+  alias: {
     /* ... */
   },
 };

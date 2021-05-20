@@ -10,10 +10,10 @@ See our [build pipeline](https://www.snowpack.dev/concepts/build-pipeline) docs 
 npm install --save-dev @snowpack/plugin-webpack
 ```
 
-Then add `@snowpack/plugin-webpack` to `snowpack.config.js`:
+Then add `@snowpack/plugin-webpack` to `snowpack.config.mjs`:
 
 ```js
-module.exports = {
+export default {
   plugins: [
     [
       '@snowpack/plugin-webpack',
@@ -41,8 +41,8 @@ Once added to the configuration, `@snowpack/plugin-webpack` will run automatical
 The `extendConfig` option is a function that you can provide to configure the default webpack config. If you provide this function, the plugin will pass its return value to `webpack.compile()`. Use this to make changes, add plugins, configure loaders, etc.
 
 ```js
-// snowpack.config.js
-module.exports = {
+// snowpack.config.mjs
+export default {
   plugins: [
     [
       '@snowpack/plugin-webpack',
@@ -62,8 +62,8 @@ module.exports = {
 With `htmlMinifierOptions` you can either disable the minification entirely or provide your own [options](https://github.com/kangax/html-minifier#options-quick-reference).
 
 ```js
-// snowpack.config.js
-module.exports = {
+// snowpack.config.mjs
+export default {
   plugins: [
     [
       '@snowpack/plugin-webpack',

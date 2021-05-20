@@ -15,8 +15,10 @@ description: How to use Babel in your Snowpack project.
 **To use Babel with Snowpack:** add the [@snowpack/plugin-babel](https://www.npmjs.com/package/@snowpack/plugin-babel) plugin to your project.
 
 ```diff
-// snowpack.config.js
-"plugins": [
-+  ["@snowpack/plugin-babel"]
-]
+  // snowpack.config.mjs
+  export default {
+    "plugins": [
++     ['@snowpack/plugin-babel'],
+    ],
+  };
 ```

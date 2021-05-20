@@ -13,12 +13,10 @@ npm install --save-dev @snowpack/plugin-postcss postcss postcss-cli
 Then add this plugin to your Snowpack config:
 
 ```js
-// snowpack.config.json
-{
-  "plugins": [
-    "@snowpack/plugin-postcss"
-  ]
-}
+// snowpack.config.mjs
+export default {
+  plugins: ['@snowpack/plugin-postcss'],
+};
 ```
 
 Lastly, add a `postcss.config.js` file to the root of your project as you would normally:

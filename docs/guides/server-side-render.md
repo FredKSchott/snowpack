@@ -28,7 +28,7 @@ Serving built files directly out of Snowpack's `build/` directory is the easiest
 
 During development, Snowpack will rebuild files on every change thanks to the `--watch` command. To enable dev features like automatic page reloads and hot module replacement (HMR), check out the ["Custom Server" section](/guides/hmr#enable-hmr%3A-custom-server) of our HMR guide for more info.
 
-This setup also has the benefit of pulling from the same `build/` directory in both development and production. You can control this `build/` output behavior yourself by passing different `--out` CLI flags to Snowpack for development vs production. You can even pass entirely different config files via the `--config` CLI flag, or put custom logic in your `snowpack.config.js` file to behave differently for different builds.
+This setup also has the benefit of pulling from the same `build/` directory in both development and production. You can control this `build/` output behavior yourself by passing different `--out` CLI flags to Snowpack for development vs production. You can even pass entirely different config files via the `--config` CLI flag, or put custom logic in your `snowpack.config.mjs` file to behave differently for different builds.
 
 The downside of this static approach is that you need to wait for Snowpack to build the entire `build/` directory on startup before your site will run. This is something that all other build tools (like Webpack) have to deal with, but Snowpack has the ability to build files only when they are requested by the browser, leading to ~0ms startup wait time.
 

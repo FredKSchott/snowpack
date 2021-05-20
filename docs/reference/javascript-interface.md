@@ -17,7 +17,7 @@ import {createConfiguration} from 'snowpack';
 const config = createConfiguration({...});
 ```
 
-Almost everything that you do with Snowpack requires a configuration object. Snowpack is designed to work with zero config, and the `config` argument that this function takes can be full, empty, or only contain a couple of properties. The rest of the configuration object will be filled out with Snowpack's usual set of defaults, outlined in our [snowpack.config.js documentation.](/reference/configuration).
+Almost everything that you do with Snowpack requires a configuration object. Snowpack is designed to work with zero config, and the `config` argument that this function takes can be full, empty, or only contain a couple of properties. The rest of the configuration object will be filled out with Snowpack's usual set of defaults, outlined in our [snowpack.config.mjs documentation.](/reference/configuration).
 
 The easiest way to think about the difference is that `SnowpackUserConfig` is the externally-documented configuration format, and `SnowpackConfig` is our internal representation with all optional/undefined values populated with the actual defaults.
 
@@ -27,7 +27,7 @@ The easiest way to think about the difference is that `SnowpackUserConfig` is th
 
 ```js
 import {loadConfiguration} from 'snowpack';
-const config = await loadConfiguration({...}, '/path/to/snowpack.config.js');
+const config = await loadConfiguration({...}, '/path/to/snowpack.config.mjs');
 ```
 
 Similar to `createConfiguration`, but this function will actually check the file system to load a configuration file from disk.

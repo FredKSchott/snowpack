@@ -7,12 +7,17 @@ npm install --save-dev @snowpack/plugin-svelte
 ```
 
 ```js
-// snowpack.config.json
-{
-  "plugins": [
-    ["@snowpack/plugin-svelte", { /* see optional “Plugin Options” below */ }]
-  ]
-}
+// snowpack.config.mjs
+export default {
+  plugins: [
+    [
+      '@snowpack/plugin-svelte',
+      {
+        /* see optional “Plugin Options” below */
+      },
+    ],
+  ],
+};
 ```
 
 ## Plugin Options

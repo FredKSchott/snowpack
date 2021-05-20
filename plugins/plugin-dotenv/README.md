@@ -7,10 +7,10 @@ npm install --save-dev @snowpack/plugin-dotenv
 ```
 
 ```js
-// snowpack.config.json
-{
-  "plugins": ["@snowpack/plugin-dotenv"]
-}
+// snowpack.config.mjs
+export default {
+  plugins: ['@snowpack/plugin-dotenv'],
+};
 ```
 
 ```

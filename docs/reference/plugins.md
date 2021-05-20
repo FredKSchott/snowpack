@@ -21,11 +21,13 @@ module.exports = function (snowpackConfig, pluginOptions) {
   };
 };
 
-// To use this plugin, add it to your snowpack.config.js:
+// To use this plugin, add it to your snowpack.config.mjs:
 //
-// "plugins": [
-//   ["./my-first-snowpack-plugin.js", {/* pluginOptions */ }]
-//  ]
+// export default {
+//   plugins: [
+//     ["./my-first-snowpack-plugin.js", {/* pluginOptions */ }],
+//   ],
+// };
 ```
 
 A **Snowpack Plugin** is an object interface that lets you customize Snowpack's behavior. Snowpack provides different hooks for your plugin to connect to. For example, you can add a plugin to handle Svelte files, optimize CSS, convert SVGs to React components, run TypeScript during development, and much more.

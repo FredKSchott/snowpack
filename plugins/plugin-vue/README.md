@@ -7,12 +7,10 @@ npm install --save-dev @snowpack/plugin-vue
 ```
 
 ```js
-// snowpack.config.json
-{
-  "plugins": [
-    "@snowpack/plugin-vue"
-  ]
-}
+// snowpack.config.mjs
+export default {
+  plugins: ['@snowpack/plugin-vue'],
+};
 ```
 
 #### Plugin Options

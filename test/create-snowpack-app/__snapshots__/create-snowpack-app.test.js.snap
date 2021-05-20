@@ -7055,24 +7055,14 @@ exports[`create-snowpack-app app-template-minimal > build: package.json 1`] = `
 `;
 
 exports[`create-snowpack-app app-template-minimal > build: snowpack.config.js 1`] = `
-"/** @type {import(\\"snowpack\\").SnowpackUserConfig } */
-module.exports = {
-  mount: {
-  },
-  plugins: [
-  ],
-  routes: [
-    // {\\"match\\": \\"routes\\", \\"src\\": \\".*\\", \\"dest\\": \\"/index.html\\"},
-  ],
-  optimize: {
-    // \\"bundle\\": true,
-  },
-  packageOptions: {
-  },
-  devOptions: {
-  },
-  buildOptions: {
-  },
+"export default {
+  mount: {},
+  plugins: [],
+  routes: [],
+  optimize: {},
+  packageOptions: {},
+  devOptions: {},
+  buildOptions: {}
 };"
 `;
 

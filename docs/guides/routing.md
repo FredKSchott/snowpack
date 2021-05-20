@@ -16,10 +16,16 @@ Single Page Applications (SPA) give the client application complete control over
 To implement this pattern, you'll want to define a single "catch-all" route for development:
 
 ```js
-// snowpack.config.js
-"routes": [
-    {"match": "routes", "src": ".*", "dest": "/index.html"}
-]
+// snowpack.config.mjs
+export default {
+  routes: [
+    {
+      match: 'routes',
+      src: '.*',
+      dest: '/index.html',
+    },
+  ],
+};
 ```
 
 This tells Snowpack's dev server to serve the fallback `/index.html` URL for all routes (`.*` in RegEx means "match everything").
@@ -33,10 +39,10 @@ Many modern frontend applications will talk directly to an API. Often this API i
 To serve the correct API response to a URL like `/api/users` in development, you can configure Snowpack to proxy some requests to another server. In this example, we'll proxy all "/api/\*" requests to another server that we have running locally on port `3001`:
 
 ```js
-// snowpack.config.js
-const proxy = require('http2-proxy');
+// snowpack.config.mjs
+import proxy from 'http2-proxy';
 
-module.exports = {
+export default {
   routes: [
     {
       src: '/api/.*',
@@ -61,10 +67,10 @@ We recommend the [http2-proxy](https://www.npmjs.com/package/http2-proxy) librar
 Proxied requests can be upgraded to a WebSocket connection via the "upgrade" event handler. This allows you to proxy WebSocket requests through the Snowpack dev server during development. You can learn more about the upgrade mechanism on [MDN Web Docs.](https://developer.mozilla.org/en-US/docs/Web/HTTP/Protocol_upgrade_mechanism#upgrading_to_a_websocket_connection).
 
 ```js
-// snowpack.config.js
-const proxy = require('http2-proxy');
+// snowpack.config.mjs
+import proxy = from 'http2-proxy';
 
-module.exports = {
+export default {
   routes: [
     {
       src: '/ws',

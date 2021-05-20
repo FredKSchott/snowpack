@@ -10,10 +10,12 @@ Snowpack v3.0 introduces a new feature called **Streaming Imports** that fetches
 ## Enable Streaming Imports
 
 ```js
-// snowpack.config.js
-"packageOptions": {
-  "source": "remote"
-}
+// snowpack.config.mjs
+export default {
+  packageOptions: {
+    source: 'remote',
+  },
+};
 ```
 
 Set `packageOptions.source` to "remote" to enable streaming imports. This tells Snowpack to fetch your imports from the Skypack CDN instead of bundling them locally. Read our [full documentation on `packageOptions`](/reference/configuration#packageoptions.source%3Dremote) to learn more about customizing this behavior.
@@ -48,11 +50,13 @@ Running `snowpack add [package-name]` for the first time will create a new `snow
 ## Using Streaming Imports with TypeScript
 
 ```js
-// snowpack.config.js /w TypeScript Support
-"packageOptions": {
-  "source": "remote",
-  "types": true,
-}
+// snowpack.config.mjs /w TypeScript Support
+export default {
+  packageOptions: {
+    source: 'remote',
+    types: true,
+  },
+};
 ```
 
 Setting `types=true` tells Snowpack to install TypeScript types in your project. Snowpack will install those types into a local `.snowpack/types` directory in your project, which you can then point to in your project `tsconfig.json` to get automatic types for your npm packages:
