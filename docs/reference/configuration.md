@@ -198,7 +198,8 @@ module.exports = {
 **Type**: `string`  
 **Default**: `localhost`
 
-The hostname that the dev server is running on. Snowpack uses this information to configure the HMR websocket and properly open your browser on startup (see: [`devOptions.open`](#devoptions.open)).
+The hostname that the dev server is running on. Snowpack uses this information to configure the HMR websocket and properly 
+your browser on startup (see: [`devOptions.open`](#devoptions.open)).
 
 ### devOptions.port
 
@@ -231,7 +232,7 @@ When using the Single-Page Application (SPA) pattern, this is the HTML "shell" f
 
 Configures how the dev server opens in the browser when it starts.
 
-Any installed browser, e.g., "chrome", "firefox", "brave". Set "none" to disable.
+Any installed browser, e.g., "chrome", "firefox", "brave", or the path to a browser. Set "none" to disable.
 
 ### devOptions.output
 
