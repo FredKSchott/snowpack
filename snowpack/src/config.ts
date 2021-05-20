@@ -135,6 +135,7 @@ const configSchema = {
         hmrDelay: {type: 'number'},
         hmrPort: {type: 'number'},
         hmrErrorOverlay: {type: 'boolean'},
+        tailwindConfig: {type: 'string'},
       },
     },
     packageOptions: {

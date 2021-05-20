@@ -683,7 +683,12 @@ export async function startServer(
         config,
         hmrEngine,
       });
-      inMemoryBuildCache.set(cacheKey, fileBuilder);
+      // note: for Tailwind, CSS needs to avoid caching in dev server (Tailwind needs to handle rebuilding, not Snowpack)
+      const isTailwind =
+        config.devOptions.tailwindConfig && (fileLoc.endsWith('.css') || fileLoc.endsWith('.pcss'));
+      if (!isTailwind) {
+        inMemoryBuildCache.set(cacheKey, fileBuilder);
+      }
     }
 
     function handleFinalizeError(err: Error) {

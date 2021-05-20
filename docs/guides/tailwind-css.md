@@ -49,7 +49,7 @@ module.exports = {
 
 _Note: be sure to set `purge: []` correctly for your project structure_
 
-Also, you’ll need to add the Snowpack PostCSS plugin to your Snowpack config, if you haven‘t already:
+Also, you’ll need to add the Snowpack PostCSS plugin to your Snowpack config, and set the [Tailwind config option][config-tailwind], if you haven‘t already:
 
 ```diff
   // snowpack.config.js
@@ -59,6 +59,9 @@ Also, you’ll need to add the Snowpack PostCSS plugin to your Snowpack config,
       src: '/_dist',
       public: '/',
     },
++   devOptions: {
++     tailwindConfig: './tailwind.config.js',
++   },
 +   plugins: [
 +     '@snowpack/plugin-postcss',
 +   ],
@@ -90,6 +93,7 @@ When you load these with Snowpack, you should see these replaced with Tailwind C
 - [Official Tailwind Documentation][tailwind-postcss]
 - [PostCSS + Snowpack][snowpack-postcss]
 
+[config-tailwind]: https://snowpack.dev/reference/configuration#devoptions.tailwindConfig
 [snowpack-postcss]: /guides/postcss/
 [tailwind-jit]: https://tailwindcss.com/docs/just-in-time-mode
 [tailwind-postcss]: https://tailwindcss.com/docs/installation/#using-tailwind-with-postcss

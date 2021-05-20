@@ -274,6 +274,7 @@ export interface SnowpackConfig {
     hmrDelay: number;
     hmrPort: number | undefined;
     hmrErrorOverlay: boolean;
+    tailwindConfig?: string;
   };
   buildOptions: {
     out: string;
