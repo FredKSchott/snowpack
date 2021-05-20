@@ -4,6 +4,14 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.5.0 [2021-05-20]
+
+* 91bb53c0 - Don’t cache .css files for Tailwind projects (#3326) <Drew Powers>
+* 48f9c524 - [ci] yarn format <drwpow>
+* 84e39f8a - Enable cache directory path to be set explicitly (#3064) <François Wouts>
+* 45e2a22b - Avoid uncaught exception when file is deleted (#3313) <Adam Hupp>
+* e321bbee - resolve `.css` ESM imports to `.css.{js,ts}` if there's no `.css` file on disk (#3315) <Matt Mulder>
+
 ## snowpack@3.4.0 [2021-05-13]
 
 * 4403595e - Sourcemaps (#3271) <Luke Jackson>
