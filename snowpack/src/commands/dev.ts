@@ -926,7 +926,6 @@ export async function startServer(
 
   // Watch src files
   async function onWatchEvent(fileLoc: string) {
-
     logger.info(
       colors.cyan('File changed: ') + path.relative(config.workspaceRoot || config.root, fileLoc),
     );
