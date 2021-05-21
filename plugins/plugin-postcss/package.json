@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/plugin-postcss",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "main": "plugin.js",
   "license": "MIT",
   "homepage": "https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-postcss#readme",

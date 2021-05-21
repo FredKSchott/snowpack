@@ -4,6 +4,11 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## @snowpack/plugin-postcss@1.4.0 [2021-05-21]
+
+* 4f9da737 - Feat: Allow dynamic config in @snowpack/plugin-postcss (#3344) <Drew Powers>
+* 1823b35f - Chore: update docs to refer to snowpack.config.mjs (#3341) <Drew Powers>
+
 ## @snowpack/plugin-postcss@1.3.0 [2021-05-20]
 
 * b5bd57f8 - Add support for PostCSS dependency messages (#3309) <Brad Cornes>
