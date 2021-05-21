@@ -44,6 +44,8 @@ import {
 } from '../util';
 import {getPort, startDashboard, paintEvent} from './paint';
 import {cssModuleJSON} from '../build/import-css';
+import {runPipelineCleanupStep} from '../build/build-pipeline';
+
 export class OneToManyMap {
   readonly keyToValue = new Map<string, string[]>();
   readonly valueToKey = new Map<string, string>();
@@ -1013,6 +1015,7 @@ export async function startServer(
     getServerRuntime: (options) => getServerRuntime(sp, options),
     async shutdown() {
       watcher && (await watcher.close());
+      await runPipelineCleanupStep(config);
       server && server.close();
     },
   };
