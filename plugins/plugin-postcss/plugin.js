@@ -1,6 +1,6 @@
 'use strict';
 
-const {resolve, relative, isAbsolute} = require('path');
+const path = require('path');
 const workerpool = require('workerpool');
 
 module.exports = function postcssPlugin(snowpackConfig, options) {
@@ -8,8 +8,11 @@ module.exports = function postcssPlugin(snowpackConfig, options) {
   if (options) {
     if (typeof options !== 'object' || Array.isArray(options))
       throw new Error('options isn’t an object. Please see README.');
-    if (options.config && typeof options.config !== 'string')
-      throw new Error('options.config must be a path to a PostCSS config file.');
+    if (
+      (options.config && typeof options !== 'string' && typeof options !== 'object') ||
+      Array.isArray(options)
+    )
+      throw new Error('options.config must be a config object or a path to a PostCSS config file.');
   }
 
   let worker, pool;
@@ -23,8 +26,8 @@ module.exports = function postcssPlugin(snowpackConfig, options) {
 
       if (!input.includes(fileExt) || !contents) return;
 
-      if (config) {
-        config = resolve(config);
+      if (config && typeof config === 'string') {
+        config = path.resolve(config);
       }
 
       pool = pool || workerpool.pool(require.resolve('./worker.js'));
@@ -72,9 +75,9 @@ module.exports = function postcssPlugin(snowpackConfig, options) {
         }
         for (const dir of dirs) {
           // https://stackoverflow.com/a/45242825
-          const relativePath = relative(dir, filePath);
+          const relativePath = path.relative(dir, filePath);
           const dirContainsFilePath =
-            relativePath && !relativePath.startsWith('..') && !isAbsolute(relativePath);
+            relativePath && !relativePath.startsWith('..') && !path.isAbsolute(relativePath);
 
           if (dirContainsFilePath) {
             this.markChanged(id);
