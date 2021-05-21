@@ -4,6 +4,10 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.5.1 [2021-05-21]
+
+* 398ad9f1 - Allow clean shutdown of dev server (#3349) <Drew Powers>
+
 ## snowpack@3.5.0 [2021-05-20]
 
 * 91bb53c0 - Don’t cache .css files for Tailwind projects (#3326) <Drew Powers>
