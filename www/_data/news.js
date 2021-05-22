@@ -96,6 +96,12 @@ const NEWS = [
       'https://dev.to/takeshape/create-a-3d-product-landing-page-with-threejs-and-react-3coh',
     img: '/img/news/3d-product.jpeg',
   },
+  {
+    title: 'Get started with snowpack in less than 1 minute',
+    description: 'Boilerplate/Template using snowpack for quickly getting started',
+    url: 'https://github.com/nexys-system/boilerplate_snowpack_bootstrap',
+    img: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'
+  }
 ];
 
 module.exports = NEWS.reverse();
