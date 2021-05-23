@@ -407,7 +407,7 @@ function normalizeMount(config: SnowpackConfig) {
 }
 
 function normalizeRoutes(routes: RouteConfigObject[]): RouteConfigObject[] {
-  return routes.map(({src, dest, match, ...rest}, i) => {
+  return routes.map(({src = '.*', dest, match, ...rest}, i) => {
     // Normalize
     if (typeof dest === 'string') {
       dest = addLeadingSlash(dest);

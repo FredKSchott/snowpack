@@ -230,7 +230,8 @@ export type HeadersTransformer = (
 ) => http.OutgoingHttpHeaders | http.OutgoingHttpHeader[] | undefined;
 
 export interface RouteConfigObject {
-  src: string;
+  /** @default '.*' */
+  src?: string;
   dest: string | ((req: http.IncomingMessage, res: http.ServerResponse) => void) | undefined;
   upgrade: ((req: http.IncomingMessage, socket: net.Socket, head: Buffer) => void) | undefined;
   headers?: HeadersTransformer;
