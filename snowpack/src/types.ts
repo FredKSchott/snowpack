@@ -224,10 +224,16 @@ export interface OptimizeOptions {
   target: 'es2020' | 'es2019' | 'es2018' | 'es2017';
 }
 
+export type HeadersTransformer = (
+  req: http.IncomingMessage,
+  proposed: http.OutgoingHttpHeaders | http.OutgoingHttpHeader[] | undefined
+) => http.OutgoingHttpHeaders | http.OutgoingHttpHeader[] | undefined;
+
 export interface RouteConfigObject {
   src: string;
   dest: string | ((req: http.IncomingMessage, res: http.ServerResponse) => void) | undefined;
   upgrade: ((req: http.IncomingMessage, socket: net.Socket, head: Buffer) => void) | undefined;
+  headers?: HeadersTransformer;
   match: 'routes' | 'all';
   _srcRegex: RegExp;
 }
@@ -323,7 +329,7 @@ export type SnowpackUserConfig = {
   testOptions?: Partial<SnowpackConfig['testOptions']>;
   packageOptions?: Partial<SnowpackConfig['packageOptions']>;
   optimize?: Partial<SnowpackConfig['optimize']>;
-  routes?: Pick<RouteConfigObject, 'src' | 'dest' | 'match'>[];
+  routes?: Pick<RouteConfigObject, 'src' | 'dest' | 'match' | 'headers'>[];
   experiments?: {
     /* intentionally left blank */
   };

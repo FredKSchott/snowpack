@@ -27,6 +27,7 @@ import {getPackageSource} from '../sources/util';
 import {createLoader as createServerRuntime} from '../ssr-loader';
 import {
   CommandOptions,
+  HeadersTransformer,
   LoadResult,
   LoadUrlOptions,
   OnFileChangeCallback,
@@ -118,6 +119,44 @@ class NotFoundError extends Error {
       super(`Not Found (${url}):\n${lookups.map((loc) => '  ✘ ' + loc).join('\n')}`);
     }
   }
+}
+
+const noOpHeadersTransformer: HeadersTransformer = (_req, proposed) => proposed;
+
+/**
+ * Decorates res.writeHead, such that a user-supplied HeadersTransformer may inspect
+ * the proposed response headers, and (with reference to the request): optionally propose
+ * alternative headers.
+ * This enables users to apply their own CORS or security policies, and to override decisions
+ * about Content-Type.
+ */
+function decorateWriteHead(
+  req: http.IncomingMessage,
+  res: http.ServerResponse,
+  headersTransformer: HeadersTransformer
+): void {
+  const original = res.writeHead;
+  const decorated: http.ServerResponse['writeHead'] =
+  // writeHead has two overloads, so our method signature is the (messy) union of those
+  function writeHead(
+    this: http.ServerResponse,
+    statusCode: number,
+    reasonPhraseOrHeaders?: string | http.OutgoingHttpHeaders | http.OutgoingHttpHeader[],
+    headers?: http.OutgoingHttpHeaders | http.OutgoingHttpHeader[]
+  ): http.ServerResponse {
+    if (typeof reasonPhraseOrHeaders === 'string') {
+      // reasonPhraseOrHeaders is reasonPhrase
+      const transformed = headersTransformer(req, headers);
+      // TS doesn't understand that a 3rd arg is possible (writeHead has a 3-ary overload)
+      // @ts-ignore
+      return original.call(res, statusCode, reasonPhraseOrHeaders, transformed);
+    }
+
+    // reasonPhraseOrHeaders is headers
+    const transformed = headersTransformer(req, reasonPhraseOrHeaders);
+    return original.call(res, statusCode, transformed);
+  };
+  res.writeHead = decorated.bind(res);
 }
 
 function sendResponseFile(
@@ -751,18 +790,10 @@ export async function startServer(
    */
   const knownETags = new Map<string, string>();
 
-  function matchRouteHandler(
+  function matchRouteHandler<Expect extends 'dest' | 'upgrade' | 'headers'>(
     reqUrl: string,
-    expectHandler: 'dest',
-  ): RouteConfigObject['dest'] | null;
-  function matchRouteHandler(
-    reqUrl: string,
-    expectHandler: 'upgrade',
-  ): RouteConfigObject['upgrade'] | null;
-  function matchRouteHandler(
-    reqUrl: string,
-    expectHandler: 'dest' | 'upgrade',
-  ): RouteConfigObject['dest'] | RouteConfigObject['upgrade'] | null {
+    expectHandler: Expect
+  ): RouteConfigObject[Expect] | null {
     if (reqUrl.startsWith(config.buildOptions.metaUrlPath)) {
       return null;
     }
@@ -794,6 +825,10 @@ export async function startServer(
     {handleError}: {handleError?: boolean} = {},
   ) {
     let reqUrl = req.url!;
+
+    const headersTransformer: HeadersTransformer = matchRouteHandler(reqUrl, 'headers') ?? noOpHeadersTransformer;
+    decorateWriteHead(req, res, headersTransformer);
+
     const matchedRouteHandler = matchRouteHandler(reqUrl, 'dest');
     // If a route is matched, rewrite the URL or call the route function
     if (matchedRouteHandler) {
