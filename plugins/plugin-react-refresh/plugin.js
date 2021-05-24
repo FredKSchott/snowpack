@@ -70,10 +70,10 @@ async function transformJs(contents, id, cwd, babelConfig) {
 
   return `
 /** React Refresh: Setup **/
-if (!window.oldComponents){
-  window.oldComponents = {}
+if (!window.$reactOldComponents$){
+  window.$reactOldComponents$ = {}
 }
-window.functionComponentWasChanged = false
+window.$reactfunctionComponentWasChanged$ = false
 if (import.meta.hot) {
   if (!window.$RefreshReg$ || !window.$RefreshSig$ || !window.$RefreshRuntime$) {
     console.warn('@snowpack/plugin-react-refresh: HTML setup script not run. React Fast Refresh only works when Snowpack serves your HTML routes. You may want to remove this plugin.');
@@ -83,10 +83,10 @@ if (import.meta.hot) {
     window.$RefreshReg$ = (type, id) => {
       const newComponent = type.toString()
       //check if any (function) components tracked by React Refresh have been changed.
-      if (window.oldComponents[id] && window.oldComponents[id] !== newComponent){
-        window.functionComponentWasChanged = true
+      if (window.$reactOldComponents$[id] && window.$reactOldComponents$[id] !== newComponent){
+        window.$reactfunctionComponentWasChanged$ = true
       }
-      window.oldComponents[id] = newComponent
+      window.$reactOldComponents$[id] = newComponent
       window.$RefreshRuntime$.register(type, ${JSON.stringify(id)} + " " + id);
     }
     window.$RefreshSig$ = window.$RefreshRuntime$.createSignatureFunctionForTransform;
@@ -102,7 +102,7 @@ if (import.meta.hot) {
   import.meta.hot.accept(() => {
     // If a change occured somewhere outside of a function component,
     // that means there is a change that React Refresh cannot deal with, so do a full reload.
-    if (window.functionComponentWasChanged) {
+    if (window.$reactfunctionComponentWasChanged$) {
       window.$RefreshRuntime$.performReactRefresh()
     } else import.meta.hot.invalidate();
   });
