@@ -1,7 +1,7 @@
 {
   "name": "@snowpack/app-template-11ty",
   "description": "A preconfigured template for Snowpack with Eleventy",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "license": "MIT",
   "homepage": "https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-11ty#readme",
   "repository": {
