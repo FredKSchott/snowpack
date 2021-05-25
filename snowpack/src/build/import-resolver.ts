@@ -7,7 +7,6 @@ import {
   findMatchingAliasEntry,
   getExtensionMatch,
   hasExtension,
-  isPathImport,
   isRemoteUrl,
   replaceExtension,
 } from '../util';
