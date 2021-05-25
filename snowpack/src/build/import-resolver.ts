@@ -106,7 +106,7 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
     if (spec[0] === '/') {
       return spec;
     }
-    if (isPathImport(spec)) {
+    if (spec[0] === '.') {
       const importedFileLoc = path.resolve(path.dirname(fileLoc), path.normalize(spec));
       return resolveSourceSpecifier(importedFileLoc, {parentFile: fileLoc, config}) || spec;
     }
