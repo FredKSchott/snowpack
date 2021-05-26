@@ -59,7 +59,7 @@ export async function getInstallTargets(
       const pPath = path.join(config.root, 'node_modules', t.specifier, 'package.json')
       if (existsSync(pPath)) {
         readPackageJsonFast(pPath).then((pkg) => {
-          t.specifier = `${t.specifier}/${pkg.unpkg || pkg.main}`
+          pkg.unpkg && (t.specifier = `${t.specifier}/${pkg.unpkg}`)
           if (installTargets.length === index + 1) {
             resolve(installTargets)
           }
