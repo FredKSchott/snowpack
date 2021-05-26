@@ -4,7 +4,6 @@
   let count: number = 0
   onMount(() => {
     const interval = setInterval(() => count++, 1000)
-		debugger
     return () => {
       clearInterval(interval)
     }
