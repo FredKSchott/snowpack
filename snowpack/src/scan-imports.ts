@@ -54,23 +54,27 @@ export async function getInstallTargets(
         isImportOfPackage(dep.specifier, packageName),
       ),
   );
-  return new Promise((resolve) => {
-    installTargets.map((t, index) => {
-      const pPath = path.join(config.root, 'node_modules', t.specifier, 'package.json')
-      if (existsSync(pPath)) {
-        readPackageJsonFast(pPath).then((pkg) => {
-          pkg.unpkg && (t.specifier = `${t.specifier}/${pkg.unpkg}`)
+  if (process.env.NODE_ENV === 'production') {
+    return installTargets;
+  } else {
+    return new Promise((resolve) => {
+      installTargets.map((t, index) => {
+        const pPath = path.join(config.root, 'node_modules', t.specifier, 'package.json')
+        if (existsSync(pPath)) {
+          readPackageJsonFast(pPath).then((pkg) => {
+            pkg.unpkg && (t.specifier = `${t.specifier}/${pkg.unpkg}`)
+            if (installTargets.length === index + 1) {
+              resolve(installTargets)
+            }
+          })
+        } else {
           if (installTargets.length === index + 1) {
             resolve(installTargets)
           }
-        })
-      } else {
-        if (installTargets.length === index + 1) {
-          resolve(installTargets)
         }
-      }
+      })
     })
-  })
+  }
 }
 
 export function matchDynamicImportValue(importStatement: string) {
