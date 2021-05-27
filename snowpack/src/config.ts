@@ -213,6 +213,7 @@ const configSchema = {
       properties: {
         preload: {type: 'boolean'},
         bundle: {type: 'boolean'},
+        loader: {type: 'object'},
         splitting: {type: 'boolean'},
         treeshake: {type: 'boolean'},
         manifest: {type: 'boolean'},
@@ -465,6 +466,7 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
       entrypoints: config.optimize.entrypoints ?? 'auto',
       preload: config.optimize.preload ?? false,
       bundle: config.optimize.bundle ?? false,
+      loader: config.optimize.loader,
       sourcemap: config.optimize.sourcemap ?? true,
       splitting: config.optimize.splitting ?? false,
       treeshake: config.optimize.treeshake ?? true,

@@ -1,4 +1,5 @@
 import type {InstallOptions as EsinstallOptions, InstallTarget} from 'esinstall';
+import type { Loader } from 'esbuild';
 import type * as net from 'net';
 import type * as http from 'http';
 import type * as http2 from 'http2';
@@ -216,6 +217,7 @@ export interface OptimizeOptions {
   entrypoints: 'auto' | string[] | ((options: {files: string[]}) => string[]);
   preload: boolean;
   bundle: boolean;
+  loader?: { [ext: string]: Loader; };
   sourcemap: boolean | 'both' | 'inline' | 'external';
   splitting: boolean;
   treeshake: boolean;
