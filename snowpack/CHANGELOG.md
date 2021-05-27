@@ -4,6 +4,10 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.5.2 [2021-05-27]
+
+* 0f65cdf2 - fix: construct NotFoundError before throwing (#3380) <Nate Moore>
+
 ## snowpack@3.5.1 [2021-05-21]
 
 * 398ad9f1 - Allow clean shutdown of dev server (#3349) <Drew Powers>
