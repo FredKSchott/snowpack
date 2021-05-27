@@ -42,16 +42,16 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   // Enable proper tree-shaking for Vue's ESM bundler
   // See http://link.vuejs.org/feature-flags
   const packageOptions = snowpackConfig.packageOptions || snowpackConfig.installOptions;
-  if (packageOptions.source === 'local') {
+  if (packageOptions && packageOptions.source === 'local') {
     packageOptions.rollup = packageOptions.rollup || {};
     packageOptions.rollup.plugins = packageOptions.rollup.plugins || [];
-    const { optionsApi = true, prodDevtools = false } = pluginOptions;
+    const {optionsApi = true, prodDevtools = false} = pluginOptions;
     packageOptions.rollup.plugins.push(
       replace({
         values: {
-          '__VUE_OPTIONS_API__': JSON.stringify(optionsApi),
-          '__VUE_PROD_DEVTOOLS__': JSON.stringify(prodDevtools),
-        }
+          __VUE_OPTIONS_API__: JSON.stringify(optionsApi),
+          __VUE_PROD_DEVTOOLS__: JSON.stringify(prodDevtools),
+        },
       }),
     );
   }
