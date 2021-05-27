@@ -110,7 +110,7 @@ function encodeResponse(
 /**
  * A helper class for "Not Found" errors, storing data about what file lookups were attempted.
  */
-class NotFoundError extends Error {
+export class NotFoundError extends Error {
   constructor(url: string, lookups?: string[]) {
     if (!lookups) {
       super(`Not Found (${url})`);
@@ -234,7 +234,7 @@ function getServerRuntime(
   const runtime = createServerRuntime({
     load: async (url) => {
       const result = await sp.loadUrl(url, {isSSR: true, allowStale: false, encoding: 'utf8'});
-      if (!result) throw NotFoundError;
+      if (!result) throw new NotFoundError(url);
       return result;
     },
   });
@@ -837,7 +837,7 @@ export async function startServer(
     try {
       const result = await loadUrl(reqUrl, {allowStale: true, encoding: null});
       if (!result) {
-        throw NotFoundError;
+        throw new NotFoundError(reqUrl);
       }
       sendResponseFile(req, res, result);
       if (result.checkStale) {

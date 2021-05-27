@@ -15,7 +15,7 @@ import {getUrlsForFile} from './build/file-urls';
 export * from './types';
 
 // Stable API
-export {startServer} from './commands/dev';
+export {startServer, NotFoundError} from './commands/dev';
 export {build} from './commands/build';
 export {loadConfiguration, createConfiguration} from './config.js';
 export {readLockfile as loadLockfile} from './util.js';
