@@ -7031,7 +7031,7 @@ exports[`create-snowpack-app app-template-minimal > build: package.json 1`] = `
 "{
   \\"name\\": \\"@snowpack/app-template-minimal\\",
   \\"description\\": \\"A preconfigured minimal template for Snowpack\\",
-  \\"version\\": \\"2.1.0\\",
+  \\"version\\": \\"2.1.1\\",
   \\"license\\": \\"MIT\\",
   \\"homepage\\": \\"https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-preact#readme\\",
   \\"repository\\": {
@@ -9141,20 +9141,6 @@ const toNumber = (val) => {
     const n = parseFloat(val);
     return isNaN(n) ? val : n;
 };
-let _globalThis;
-const getGlobalThis = () => {
-    return (_globalThis ||
-        (_globalThis =
-            typeof globalThis !== 'undefined'
-                ? globalThis
-                : typeof self !== 'undefined'
-                    ? self
-                    : typeof window !== 'undefined'
-                        ? window
-                        : typeof global !== 'undefined'
-                            ? global
-                            : {}));
-};
 const targetMap = new WeakMap();
 const effectStack = [];
 let activeEffect;
@@ -10235,41 +10221,6 @@ function checkRecursiveUpdates(seen, fn) {
         }
     }
 }
-let devtools;
-function setDevtoolsHook(hook) {
-    devtools = hook;
-}
-function devtoolsInitApp(app, version) {
-    // TODO queue if devtools is undefined
-    if (!devtools)
-        return;
-    devtools.emit(\\"app:init\\" /* APP_INIT */, app, version, {
-        Fragment,
-        Text,
-        Comment,
-        Static
-    });
-}
-function devtoolsUnmountApp(app) {
-    if (!devtools)
-        return;
-    devtools.emit(\\"app:unmount\\" /* APP_UNMOUNT */, app);
-}
-const devtoolsComponentAdded = /*#__PURE__*/ createDevtoolsComponentHook(\\"component:added\\" /* COMPONENT_ADDED */);
-const devtoolsComponentUpdated = /*#__PURE__*/ createDevtoolsComponentHook(\\"component:updated\\" /* COMPONENT_UPDATED */);
-const devtoolsComponentRemoved = /*#__PURE__*/ createDevtoolsComponentHook(\\"component:removed\\" /* COMPONENT_REMOVED */);
-function createDevtoolsComponentHook(hook) {
-    return (component) => {
-        if (!devtools)
-            return;
-        devtools.emit(hook, component.appContext.app, component.uid, component.parent ? component.parent.uid : undefined, component);
-    };
-}
-function devtoolsComponentEmit(component, event, params) {
-    if (!devtools)
-        return;
-    devtools.emit(\\"component:emit\\" /* COMPONENT_EMIT */, component.appContext.app, component, event, params);
-}
 function emit(instance, event, ...rawArgs) {
     const props = instance.vnode.props || EMPTY_OBJ;
     let args = rawArgs;
@@ -10285,9 +10236,6 @@ function emit(instance, event, ...rawArgs) {
         else if (number) {
             args = rawArgs.map(toNumber);
         }
-    }
-    if ( __VUE_PROD_DEVTOOLS__) {
-        devtoolsComponentEmit(instance, event, args);
     }
     let handlerName;
     let handler = props[(handlerName = toHandlerKey(event))] ||
@@ -10320,7 +10268,7 @@ function normalizeEmitsOptions(comp, appContext, asMixin = false) {
     let normalized = {};
     // apply mixin/extends props
     let hasExtends = false;
-    if (__VUE_OPTIONS_API__ && !isFunction(comp)) {
+    if ( !isFunction(comp)) {
         const extendEmits = (raw) => {
             const normalizedFromExtend = normalizeEmitsOptions(raw, appContext, true);
             if (normalizedFromExtend) {
@@ -10867,7 +10815,7 @@ function normalizePropsOptions(comp, appContext, asMixin = false) {
     const needCastKeys = [];
     // apply mixin/extends props
     let hasExtends = false;
-    if (__VUE_OPTIONS_API__ && !isFunction(comp)) {
+    if ( !isFunction(comp)) {
         const extendProps = (raw) => {
             hasExtends = true;
             const [props, keys] = normalizePropsOptions(raw, appContext, true);
@@ -11378,7 +11326,7 @@ function createAppAPI(render, hydrate) {
                 return app;
             },
             mixin(mixin) {
-                if (__VUE_OPTIONS_API__) {
+                {
                     if (!context.mixins.includes(mixin)) {
                         context.mixins.push(mixin);
                         // global mixin with props/emits de-optimizes props/emits
@@ -11419,18 +11367,12 @@ function createAppAPI(render, hydrate) {
                     isMounted = true;
                     app._container = rootContainer;
                     rootContainer.__vue_app__ = app;
-                    if ( __VUE_PROD_DEVTOOLS__) {
-                        devtoolsInitApp(app, version);
-                    }
                     return vnode.component.proxy;
                 }
             },
             unmount() {
                 if (isMounted) {
                     render(null, app._container);
-                    if ( __VUE_PROD_DEVTOOLS__) {
-                        devtoolsUnmountApp(app);
-                    }
                     delete app._container.__vue_app__;
                 }
             },
@@ -11443,21 +11385,6 @@ function createAppAPI(render, hydrate) {
         });
         return app;
     };
-}
-/**
- * This is only called in esm-bundler builds.
- * It is called when a renderer is created, in \`baseCreateRenderer\` so that
- * importing runtime-core is side-effects free.
- *
- * istanbul-ignore-next
- */
-function initFeatureFlags() {
-    if (typeof __VUE_OPTIONS_API__ !== 'boolean') {
-        getGlobalThis().__VUE_OPTIONS_API__ = true;
-    }
-    if (typeof __VUE_PROD_DEVTOOLS__ !== 'boolean') {
-        getGlobalThis().__VUE_PROD_DEVTOOLS__ = false;
-    }
 }
 const isAsyncWrapper = (i) => !!i.type.__asyncLoader;
 const prodEffectOptions = {
@@ -11559,15 +11486,6 @@ function createRenderer(options) {
 }
 // implementation
 function baseCreateRenderer(options, createHydrationFns) {
-    // compile-time feature flags check
-    {
-        initFeatureFlags();
-    }
-    if ( __VUE_PROD_DEVTOOLS__) {
-        const target = getGlobalThis();
-        target.__VUE__ = true;
-        setDevtoolsHook(target.__VUE_DEVTOOLS_GLOBAL_HOOK__);
-    }
     const { insert: hostInsert, remove: hostRemove, patchProp: hostPatchProp, forcePatchProp: hostForcePatchProp, createElement: hostCreateElement, createText: hostCreateText, createComment: hostCreateComment, setText: hostSetText, setElementText: hostSetElementText, parentNode: hostParentNode, nextSibling: hostNextSibling, setScopeId: hostSetScopeId = NOOP, cloneNode: hostCloneNode, insertStaticContent: hostInsertStaticContent } = options;
     // Note: functions inside this closure should use \`const xxx = () => {}\`
     // style in order to prevent being inlined by minifiers.
@@ -11708,16 +11626,6 @@ function baseCreateRenderer(options, createHydrationFns) {
             }
             // scopeId
             setScopeId(el, vnode, vnode.scopeId, slotScopeIds, parentComponent);
-        }
-        if ( __VUE_PROD_DEVTOOLS__) {
-            Object.defineProperty(el, '__vnode', {
-                value: vnode,
-                enumerable: false
-            });
-            Object.defineProperty(el, '__vueParentComponent', {
-                value: parentComponent,
-                enumerable: false
-            });
         }
         if (dirs) {
             invokeDirectiveHook(vnode, null, parentComponent, 'beforeMount');
@@ -12049,9 +11957,6 @@ function baseCreateRenderer(options, createHydrationFns) {
                     queuePostRenderEffect(a, parentSuspense);
                 }
                 instance.isMounted = true;
-                if ( __VUE_PROD_DEVTOOLS__) {
-                    devtoolsComponentAdded(instance);
-                }
                 // #2458: deference mount-only object parameters to prevent memleaks
                 initialVNode = container = anchor = null;
             }
@@ -12101,9 +12006,6 @@ function baseCreateRenderer(options, createHydrationFns) {
                     queuePostRenderEffect(() => {
                         invokeVNodeHook(vnodeHook, parent, next, vnode);
                     }, parentSuspense);
-                }
-                if ( __VUE_PROD_DEVTOOLS__) {
-                    devtoolsComponentUpdated(instance);
                 }
             }
         },  prodEffectOptions);
@@ -12557,9 +12459,6 @@ function baseCreateRenderer(options, createHydrationFns) {
             if (parentSuspense.deps === 0) {
                 parentSuspense.resolve();
             }
-        }
-        if ( __VUE_PROD_DEVTOOLS__) {
-            devtoolsComponentRemoved(instance);
         }
     };
     const unmountChildren = (children, parentComponent, parentSuspense, doRemove = false, optimized = false, start = 0) => {
@@ -13395,10 +13294,10 @@ const publicPropertiesMap = extend(Object.create(null), {
     $parent: i => getPublicInstance(i.parent),
     $root: i => getPublicInstance(i.root),
     $emit: i => i.emit,
-    $options: i => (__VUE_OPTIONS_API__ ? resolveMergedOptions(i) : i.type),
+    $options: i => ( resolveMergedOptions(i) ),
     $forceUpdate: i => () => queueJob(i.update),
     $nextTick: i => nextTick.bind(i.proxy),
-    $watch: i => (__VUE_OPTIONS_API__ ? instanceWatch.bind(i) : NOOP)
+    $watch: i => ( instanceWatch.bind(i) )
 });
 const PublicInstanceProxyHandlers = {
     get({ _: instance }, key) {
@@ -13449,7 +13348,7 @@ const PublicInstanceProxyHandlers = {
                 accessCache[key] = 3 /* CONTEXT */;
                 return ctx[key];
             }
-            else if (!__VUE_OPTIONS_API__ || shouldCacheAccess) {
+            else if ( shouldCacheAccess) {
                 accessCache[key] = 4 /* OTHER */;
             }
         }
@@ -13671,11 +13570,6 @@ function handleSetupResult(instance, setupResult, isSSR) {
         }
     }
     else if (isObject(setupResult)) {
-        // setup returned bindings.
-        // assuming a render function compiled from template is present.
-        if ( __VUE_PROD_DEVTOOLS__) {
-            instance.devtoolsRawSetupState = setupResult;
-        }
         instance.setupState = proxyRefs(setupResult);
     }
     else ;
@@ -13694,7 +13588,7 @@ function finishComponentSetup(instance, isSSR) {
         }
     }
     // support for 2.x options
-    if (__VUE_OPTIONS_API__) {
+    {
         currentInstance = instance;
         pauseTracking();
         applyOptions(instance, Component);
@@ -14585,20 +14479,6 @@ const toNumber = (val) => {
     const n = parseFloat(val);
     return isNaN(n) ? val : n;
 };
-let _globalThis;
-const getGlobalThis = () => {
-    return (_globalThis ||
-        (_globalThis =
-            typeof globalThis !== 'undefined'
-                ? globalThis
-                : typeof self !== 'undefined'
-                    ? self
-                    : typeof window !== 'undefined'
-                        ? window
-                        : typeof global !== 'undefined'
-                            ? global
-                            : {}));
-};
 const targetMap = new WeakMap();
 const effectStack = [];
 let activeEffect;
@@ -15679,41 +15559,6 @@ function checkRecursiveUpdates(seen, fn) {
         }
     }
 }
-let devtools;
-function setDevtoolsHook(hook) {
-    devtools = hook;
-}
-function devtoolsInitApp(app, version) {
-    // TODO queue if devtools is undefined
-    if (!devtools)
-        return;
-    devtools.emit(\\"app:init\\" /* APP_INIT */, app, version, {
-        Fragment,
-        Text,
-        Comment,
-        Static
-    });
-}
-function devtoolsUnmountApp(app) {
-    if (!devtools)
-        return;
-    devtools.emit(\\"app:unmount\\" /* APP_UNMOUNT */, app);
-}
-const devtoolsComponentAdded = /*#__PURE__*/ createDevtoolsComponentHook(\\"component:added\\" /* COMPONENT_ADDED */);
-const devtoolsComponentUpdated = /*#__PURE__*/ createDevtoolsComponentHook(\\"component:updated\\" /* COMPONENT_UPDATED */);
-const devtoolsComponentRemoved = /*#__PURE__*/ createDevtoolsComponentHook(\\"component:removed\\" /* COMPONENT_REMOVED */);
-function createDevtoolsComponentHook(hook) {
-    return (component) => {
-        if (!devtools)
-            return;
-        devtools.emit(hook, component.appContext.app, component.uid, component.parent ? component.parent.uid : undefined, component);
-    };
-}
-function devtoolsComponentEmit(component, event, params) {
-    if (!devtools)
-        return;
-    devtools.emit(\\"component:emit\\" /* COMPONENT_EMIT */, component.appContext.app, component, event, params);
-}
 function emit(instance, event, ...rawArgs) {
     const props = instance.vnode.props || EMPTY_OBJ;
     let args = rawArgs;
@@ -15729,9 +15574,6 @@ function emit(instance, event, ...rawArgs) {
         else if (number) {
             args = rawArgs.map(toNumber);
         }
-    }
-    if ( __VUE_PROD_DEVTOOLS__) {
-        devtoolsComponentEmit(instance, event, args);
     }
     let handlerName;
     let handler = props[(handlerName = toHandlerKey(event))] ||
@@ -15764,7 +15606,7 @@ function normalizeEmitsOptions(comp, appContext, asMixin = false) {
     let normalized = {};
     // apply mixin/extends props
     let hasExtends = false;
-    if (__VUE_OPTIONS_API__ && !isFunction(comp)) {
+    if ( !isFunction(comp)) {
         const extendEmits = (raw) => {
             const normalizedFromExtend = normalizeEmitsOptions(raw, appContext, true);
             if (normalizedFromExtend) {
@@ -16311,7 +16153,7 @@ function normalizePropsOptions(comp, appContext, asMixin = false) {
     const needCastKeys = [];
     // apply mixin/extends props
     let hasExtends = false;
-    if (__VUE_OPTIONS_API__ && !isFunction(comp)) {
+    if ( !isFunction(comp)) {
         const extendProps = (raw) => {
             hasExtends = true;
             const [props, keys] = normalizePropsOptions(raw, appContext, true);
@@ -16822,7 +16664,7 @@ function createAppAPI(render, hydrate) {
                 return app;
             },
             mixin(mixin) {
-                if (__VUE_OPTIONS_API__) {
+                {
                     if (!context.mixins.includes(mixin)) {
                         context.mixins.push(mixin);
                         // global mixin with props/emits de-optimizes props/emits
@@ -16863,18 +16705,12 @@ function createAppAPI(render, hydrate) {
                     isMounted = true;
                     app._container = rootContainer;
                     rootContainer.__vue_app__ = app;
-                    if ( __VUE_PROD_DEVTOOLS__) {
-                        devtoolsInitApp(app, version);
-                    }
                     return vnode.component.proxy;
                 }
             },
             unmount() {
                 if (isMounted) {
                     render(null, app._container);
-                    if ( __VUE_PROD_DEVTOOLS__) {
-                        devtoolsUnmountApp(app);
-                    }
                     delete app._container.__vue_app__;
                 }
             },
@@ -16887,21 +16723,6 @@ function createAppAPI(render, hydrate) {
         });
         return app;
     };
-}
-/**
- * This is only called in esm-bundler builds.
- * It is called when a renderer is created, in \`baseCreateRenderer\` so that
- * importing runtime-core is side-effects free.
- *
- * istanbul-ignore-next
- */
-function initFeatureFlags() {
-    if (typeof __VUE_OPTIONS_API__ !== 'boolean') {
-        getGlobalThis().__VUE_OPTIONS_API__ = true;
-    }
-    if (typeof __VUE_PROD_DEVTOOLS__ !== 'boolean') {
-        getGlobalThis().__VUE_PROD_DEVTOOLS__ = false;
-    }
 }
 // implementation, close to no-op
 function defineComponent(options) {
@@ -17007,15 +16828,6 @@ function createRenderer(options) {
 }
 // implementation
 function baseCreateRenderer(options, createHydrationFns) {
-    // compile-time feature flags check
-    {
-        initFeatureFlags();
-    }
-    if ( __VUE_PROD_DEVTOOLS__) {
-        const target = getGlobalThis();
-        target.__VUE__ = true;
-        setDevtoolsHook(target.__VUE_DEVTOOLS_GLOBAL_HOOK__);
-    }
     const { insert: hostInsert, remove: hostRemove, patchProp: hostPatchProp, forcePatchProp: hostForcePatchProp, createElement: hostCreateElement, createText: hostCreateText, createComment: hostCreateComment, setText: hostSetText, setElementText: hostSetElementText, parentNode: hostParentNode, nextSibling: hostNextSibling, setScopeId: hostSetScopeId = NOOP, cloneNode: hostCloneNode, insertStaticContent: hostInsertStaticContent } = options;
     // Note: functions inside this closure should use \`const xxx = () => {}\`
     // style in order to prevent being inlined by minifiers.
@@ -17156,16 +16968,6 @@ function baseCreateRenderer(options, createHydrationFns) {
             }
             // scopeId
             setScopeId(el, vnode, vnode.scopeId, slotScopeIds, parentComponent);
-        }
-        if ( __VUE_PROD_DEVTOOLS__) {
-            Object.defineProperty(el, '__vnode', {
-                value: vnode,
-                enumerable: false
-            });
-            Object.defineProperty(el, '__vueParentComponent', {
-                value: parentComponent,
-                enumerable: false
-            });
         }
         if (dirs) {
             invokeDirectiveHook(vnode, null, parentComponent, 'beforeMount');
@@ -17497,9 +17299,6 @@ function baseCreateRenderer(options, createHydrationFns) {
                     queuePostRenderEffect(a, parentSuspense);
                 }
                 instance.isMounted = true;
-                if ( __VUE_PROD_DEVTOOLS__) {
-                    devtoolsComponentAdded(instance);
-                }
                 // #2458: deference mount-only object parameters to prevent memleaks
                 initialVNode = container = anchor = null;
             }
@@ -17549,9 +17348,6 @@ function baseCreateRenderer(options, createHydrationFns) {
                     queuePostRenderEffect(() => {
                         invokeVNodeHook(vnodeHook, parent, next, vnode);
                     }, parentSuspense);
-                }
-                if ( __VUE_PROD_DEVTOOLS__) {
-                    devtoolsComponentUpdated(instance);
                 }
             }
         },  prodEffectOptions);
@@ -18005,9 +17801,6 @@ function baseCreateRenderer(options, createHydrationFns) {
             if (parentSuspense.deps === 0) {
                 parentSuspense.resolve();
             }
-        }
-        if ( __VUE_PROD_DEVTOOLS__) {
-            devtoolsComponentRemoved(instance);
         }
     };
     const unmountChildren = (children, parentComponent, parentSuspense, doRemove = false, optimized = false, start = 0) => {
@@ -18884,10 +18677,10 @@ const publicPropertiesMap = extend(Object.create(null), {
     $parent: i => getPublicInstance(i.parent),
     $root: i => getPublicInstance(i.root),
     $emit: i => i.emit,
-    $options: i => (__VUE_OPTIONS_API__ ? resolveMergedOptions(i) : i.type),
+    $options: i => ( resolveMergedOptions(i) ),
     $forceUpdate: i => () => queueJob(i.update),
     $nextTick: i => nextTick.bind(i.proxy),
-    $watch: i => (__VUE_OPTIONS_API__ ? instanceWatch.bind(i) : NOOP)
+    $watch: i => ( instanceWatch.bind(i) )
 });
 const PublicInstanceProxyHandlers = {
     get({ _: instance }, key) {
@@ -18938,7 +18731,7 @@ const PublicInstanceProxyHandlers = {
                 accessCache[key] = 3 /* CONTEXT */;
                 return ctx[key];
             }
-            else if (!__VUE_OPTIONS_API__ || shouldCacheAccess) {
+            else if ( shouldCacheAccess) {
                 accessCache[key] = 4 /* OTHER */;
             }
         }
@@ -19160,11 +18953,6 @@ function handleSetupResult(instance, setupResult, isSSR) {
         }
     }
     else if (isObject(setupResult)) {
-        // setup returned bindings.
-        // assuming a render function compiled from template is present.
-        if ( __VUE_PROD_DEVTOOLS__) {
-            instance.devtoolsRawSetupState = setupResult;
-        }
         instance.setupState = proxyRefs(setupResult);
     }
     else ;
@@ -19183,7 +18971,7 @@ function finishComponentSetup(instance, isSSR) {
         }
     }
     // support for 2.x options
-    if (__VUE_OPTIONS_API__) {
+    {
         currentInstance = instance;
         pauseTracking();
         applyOptions(instance, Component);
