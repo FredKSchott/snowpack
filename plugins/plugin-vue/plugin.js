@@ -3,6 +3,7 @@ const path = require('path');
 const hashsum = require('hash-sum');
 const compiler = require('@vue/compiler-sfc');
 const scriptCompilers = require('./src/script-compilers');
+const replace = require('@rollup/plugin-replace');
 
 const inlineSourcemap = (code, map) =>
   code +
@@ -37,7 +38,23 @@ function displayError({contents, filePath, error}) {
   return output.join('\n');
 }
 
-module.exports = function plugin(snowpackConfig) {
+module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
+  // Enable proper tree-shaking for Vue's ESM bundler
+  // See http://link.vuejs.org/feature-flags
+  const packageOptions = snowpackConfig.packageOptions || snowpackConfig.installOptions;
+  if (packageOptions && packageOptions.source === 'local') {
+    packageOptions.rollup = packageOptions.rollup || {};
+    packageOptions.rollup.plugins = packageOptions.rollup.plugins || [];
+    const {optionsApi = true, prodDevtools = false} = pluginOptions;
+    packageOptions.rollup.plugins.push(
+      replace({
+        values: {
+          __VUE_OPTIONS_API__: JSON.stringify(optionsApi),
+          __VUE_PROD_DEVTOOLS__: JSON.stringify(prodDevtools),
+        },
+      }),
+    );
+  }
   return {
     name: '@snowpack/plugin-vue',
     resolve: {
