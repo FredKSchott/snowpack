@@ -13,6 +13,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@rollup/plugin-replace": "^2.4.2",
     "@vue/compiler-sfc": "^3.0.10",
     "hash-sum": "^2.0.0"
   },
