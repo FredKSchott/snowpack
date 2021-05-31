@@ -13,6 +13,7 @@ import getDefaultBrowserId from 'default-browser-id';
 import type {ImportMap, LockfileManifest, SnowpackConfig} from './types';
 import type {InstallTarget} from 'esinstall';
 import {SkypackSDK} from 'skypack';
+import {REMOTE_PACKAGE_ORIGIN} from './config';
 
 // (!) Beware circular dependencies! No relative imports!
 // Because this file is imported from so many different parts of Snowpack,
@@ -31,7 +32,19 @@ export const REQUIRE_OR_IMPORT: (
   id: string,
 ) => Promise<any> = require('../assets/require-or-import.js');
 
-export const remotePackageSDK = new SkypackSDK({origin: 'https://pkg.snowpack.dev'});
+export function createRemotePackageSDK(config: SnowpackConfig) {
+  // This should only be called when config.packageOptions.source is 'remote'.
+  if (config.packageOptions.source !== 'remote') {
+    throw new Error('expected "remote" packageOptions.source');
+  }
+
+  // For consistency with previous behavior, we default to REMOTE_PACKAGE_ORIGIN
+  // if no origin is provided.  We could simply leave it undefined and allow
+  // SkypackSDK to use its own default.
+  return new SkypackSDK({
+    origin: config.packageOptions.origin || REMOTE_PACKAGE_ORIGIN,
+  });
+}
 
 // A note on cache naming/versioning: We currently version our global caches
 // with the version of the last breaking change. This allows us to re-use the

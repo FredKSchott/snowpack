@@ -8,7 +8,7 @@ import {
   convertSkypackImportMapToLockfile,
   LOCKFILE_NAME,
   writeLockfile,
-  remotePackageSDK,
+  createRemotePackageSDK,
 } from '../util';
 import {getPackageSource} from '../sources/util';
 
@@ -28,6 +28,7 @@ export async function addCommand(addValue: string, commandOptions: CommandOption
   if (config.packageOptions.source !== 'remote') {
     throw new Error(`add command requires packageOptions.source="remote".`);
   }
+  const remotePackageSDK = createRemotePackageSDK(config);
   let [pkgName, pkgSemver] = pkgInfoFromString(addValue);
   const installMessage = pkgSemver ? `${pkgName}@${pkgSemver}` : pkgName;
   logger.info(`fetching ${cyan(installMessage)} from CDN...`);
@@ -71,6 +72,7 @@ export async function rmCommand(addValue: string, commandOptions: CommandOptions
   if (config.packageOptions.source !== 'remote') {
     throw new Error(`rm command requires packageOptions.source="remote".`);
   }
+  const remotePackageSDK = createRemotePackageSDK(config);
   let [pkgName] = pkgInfoFromString(addValue);
   logger.info(`removing ${cyan(pkgName)} from project lockfile...`);
   const newLockfile: LockfileManifest = convertSkypackImportMapToLockfile(

@@ -9,7 +9,7 @@ import {IncomingHttpHeaders} from 'http';
 import {ImportMap, RESOURCE_CACHE, HAS_CDN_HASH_REGEX} from './util';
 
 export {rollupPluginSkypack} from './rollup-plugin-remote-cdn';
-export const SKYPACK_ORIGIN = `https://cdn.skypack.dev`;
+export const SKYPACK_ORIGIN = 'https://cdn.skypack.dev';
 
 function parseRawPackageImport(spec: string): [string, string | null] {
   const impParts = spec.split('/');
@@ -25,7 +25,7 @@ export class SkypackSDK {
   origin: string;
 
   constructor(options: {origin?: string} = {}) {
-    this.origin = options.origin || `https://cdn.skypack.dev`;
+    this.origin = options.origin || SKYPACK_ORIGIN;
   }
 
   async generateImportMap(
