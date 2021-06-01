@@ -4,6 +4,10 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.5.4 [2021-06-01]
+
+* 78d6ecf1 - Fix: remove external override (#3401) <Nate Moore>
+
 ## snowpack@3.5.3 [2021-06-01]
 
 * c659b7c3 - [ci] yarn format <natemoo-re>
