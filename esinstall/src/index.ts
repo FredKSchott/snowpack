@@ -125,7 +125,8 @@ type PublicInstallOptions = Partial<InstallOptions>;
 export {PublicInstallOptions as InstallOptions};
 export type InstallResult = {importMap: ImportMap; stats: DependencyStatsOutput | null};
 
-const FAILED_INSTALL_MESSAGE = (message?: string) => !message ? 'Install failed.' :  `Install failed ${message}.`;
+const FAILED_INSTALL_MESSAGE = (message?: string) =>
+  !message ? 'Install failed.' : `Install failed ${message}.`;
 
 function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
   if ((_options as any).lockfile) {
@@ -403,7 +404,10 @@ ${colors.dim(
       if (isFatalWarningFound) {
         // We don't know exactly which package failed because it happened in rollup
         // but users need all the information we *do know* in order to debug
-        const packageName = Object.keys(installEntrypoints).length === 1 ? `for ${Object.keys(installEntrypoints)[0]}` : `for one of ${Object.keys(installEntrypoints).join(', ')}`;
+        const packageName =
+          Object.keys(installEntrypoints).length === 1
+            ? `for ${Object.keys(installEntrypoints)[0]}`
+            : `for one of ${Object.keys(installEntrypoints).join(', ')}`;
         throw new Error(FAILED_INSTALL_MESSAGE(packageName));
       }
       logger.debug(`writing install results to disk`);

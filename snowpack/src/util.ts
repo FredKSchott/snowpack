@@ -29,7 +29,7 @@ export const NATIVE_REQUIRE = eval('require');
 // NOTE: revisit this when `node@10` reaches EOL. Can we move everything to ESM and just use `import`?
 export const REQUIRE_OR_IMPORT: (
   id: string,
-  opts?: { from?: string }
+  opts?: {from?: string},
 ) => Promise<any> = require('../assets/require-or-import.js');
 
 export const remotePackageSDK = new SkypackSDK({origin: 'https://pkg.snowpack.dev'});
