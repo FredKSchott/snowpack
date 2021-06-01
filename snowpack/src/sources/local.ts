@@ -451,6 +451,13 @@ export class PackageSourceLocal implements PackageSource {
       // that's fine, package just doesn't exist yet. Go download it.
     }
 
+    // Check to see if this package is marked as external, in which case skip the build.
+    for (const externalPackage of config.packageOptions.external) {
+      if (_packageName === externalPackage || _packageName.startsWith(externalPackage + '/')) {
+        return;
+      }
+    }
+
     await this.installPackage(_packageName, source);
     const entrypoint = resolveEntrypoint(spec, {
       cwd: source,
@@ -674,6 +681,14 @@ export class PackageSourceLocal implements PackageSource {
       }
     }
     const [packageName] = parsePackageImportSpecifier(spec);
+
+    // If this import is marked as external, do not transform the original spec
+    for (const externalPackage of config.packageOptions.external) {
+      if (packageName === externalPackage || packageName.startsWith(externalPackage + '/')) {
+        return spec;
+      }
+    }
+
     const isSymlink = !entrypoint.includes(path.join('node_modules', packageName));
     const isWithinRoot = config.workspaceRoot && entrypoint.startsWith(config.workspaceRoot);
     if (isSymlink && config.workspaceRoot && isWithinRoot) {
@@ -713,7 +728,7 @@ export class PackageSourceLocal implements PackageSource {
     );
     // Built the new import, and then try resolving again.
     if (options.isRetry) {
-      throw new Error(`Unexpected: Unscanned package import couldn't be built/resolved.`);
+      throw new Error(`Unexpected: Unscanned package import "${spec}" couldn't be built/resolved.`);
     }
     await this.buildPackageImport(_spec, options.source, true);
     return this.resolvePackageImport(_spec, {source: options.source, isRetry: true});
