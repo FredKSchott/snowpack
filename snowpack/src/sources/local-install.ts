@@ -48,10 +48,10 @@ export async function installPackages({
       warn: (...args: [any, ...any[]]) => logger.warn(util.format(...args), {name: loggerName}),
       error: (...args: [any, ...any[]]) => logger.error(util.format(...args), {name: loggerName}),
     },
+    // Important! Lots of options come in through here,
+    // `external` is a very important one to NOT override.
     ...installOptions,
     stats: false,
-    // Important! Pass `external` packages to `esinstall`
-    external: config.packageOptions.external,
     rollup: {
       plugins: [
         ...(installOptions?.rollup?.plugins ?? []),
