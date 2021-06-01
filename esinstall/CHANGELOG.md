@@ -4,6 +4,13 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## esinstall@1.1.5 [2021-06-01]
+
+* c659b7c3 - [ci] yarn format <natemoo-re>
+* b375b8a3 - Fix `external` behavior for local package source and SSR. (#3399) <Nate Moore>
+* 068b7d75 - Set `preventAssignment` option of rollup-plugin-replace to true (#3222) <Ian VanSchooten>
+* d9956f73 - add explicit "mode" config (#3135) 
+
 ## esinstall@1.1.4 [2021-04-05]
 
 * 9eb50368 - update deps (#2928) 
