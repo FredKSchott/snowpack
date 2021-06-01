@@ -125,7 +125,7 @@ type PublicInstallOptions = Partial<InstallOptions>;
 export {PublicInstallOptions as InstallOptions};
 export type InstallResult = {importMap: ImportMap; stats: DependencyStatsOutput | null};
 
-const FAILED_INSTALL_MESSAGE = 'Install failed.';
+const FAILED_INSTALL_MESSAGE = (message?: string) => !message ? 'Install failed.' :  `Install failed ${message}.`;
 
 function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
   if ((_options as any).lockfile) {
@@ -401,7 +401,10 @@ ${colors.dim(
       const packageBundle = await rollup(inputOptions);
       logger.debug(`installing npm packages: ${Object.keys(installEntrypoints).join(', ')}`);
       if (isFatalWarningFound) {
-        throw new Error(FAILED_INSTALL_MESSAGE);
+        // We don't know exactly which package failed because it happened in rollup
+        // but users need all the information we *do know* in order to debug
+        const packageName = Object.keys(installEntrypoints).length === 1 ? `for ${Object.keys(installEntrypoints)[0]}` : `for one of ${Object.keys(installEntrypoints).join(', ')}`;
+        throw new Error(FAILED_INSTALL_MESSAGE(packageName));
       }
       logger.debug(`writing install results to disk`);
       await packageBundle.write(outputOptions);
@@ -437,7 +440,7 @@ ${colors.dim(
       // Display posix-style on all environments, mainly to help with CI :)
       const fileName = path.relative(cwd, errFilePath).replace(/\\/g, '/');
       logger.error(`Failed to load ${colors.bold(fileName)}\n  ${suggestion}`);
-      throw new Error(FAILED_INSTALL_MESSAGE);
+      throw new Error(FAILED_INSTALL_MESSAGE());
     }
   }
 
