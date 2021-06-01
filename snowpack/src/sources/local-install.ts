@@ -50,6 +50,8 @@ export async function installPackages({
     },
     ...installOptions,
     stats: false,
+    // Important! Pass `external` packages to `esinstall`
+    external: config.packageOptions.external,
     rollup: {
       plugins: [
         ...(installOptions?.rollup?.plugins ?? []),

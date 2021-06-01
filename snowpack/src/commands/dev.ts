@@ -32,6 +32,7 @@ import {
   OnFileChangeCallback,
   RouteConfigObject,
   ServerRuntime,
+  SnowpackConfig,
   SnowpackDevServer,
 } from '../types';
 import {
@@ -229,9 +230,11 @@ function handleResponseError(req, res, err: Error | NotFoundError) {
 
 function getServerRuntime(
   sp: SnowpackDevServer,
+  config: SnowpackConfig,
   options: {invalidateOnChange?: boolean} = {},
 ): ServerRuntime {
   const runtime = createServerRuntime({
+    config,
     load: async (url) => {
       const result = await sp.loadUrl(url, {isSSR: true, allowStale: false, encoding: 'utf8'});
       if (!result) throw new NotFoundError(url);
@@ -1012,7 +1015,7 @@ export async function startServer(
       return result ? result[0] : null;
     },
     onFileChange: (callback) => (onFileChangeCallback = callback),
-    getServerRuntime: (options) => getServerRuntime(sp, options),
+    getServerRuntime: (options) => getServerRuntime(sp, config, options),
     async shutdown() {
       watcher && (await watcher.close());
       await runPipelineCleanupStep(config);
