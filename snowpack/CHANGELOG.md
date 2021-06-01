@@ -4,6 +4,11 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.5.3 [2021-06-01]
+
+* c659b7c3 - [ci] yarn format <natemoo-re>
+* b375b8a3 - Fix `external` behavior for local package source and SSR. (#3399) <Nate Moore>
+
 ## snowpack@3.5.2 [2021-05-27]
 
 * 0f65cdf2 - fix: construct NotFoundError before throwing (#3380) <Nate Moore>
