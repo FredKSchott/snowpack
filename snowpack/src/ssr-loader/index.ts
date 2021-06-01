@@ -6,7 +6,7 @@ import {transform} from './transform';
 import {REQUIRE_OR_IMPORT} from '../util';
 
 // This function makes it possible to load modules from the snowpack server, for the sake of SSR.
-export function createLoader({load}: ServerRuntimeConfig): ServerRuntime {
+export function createLoader({config,load}: ServerRuntimeConfig): ServerRuntime {
   const cache = new Map();
   const graph = new Map();
 
@@ -17,7 +17,7 @@ export function createLoader({load}: ServerRuntimeConfig): ServerRuntime {
       graph.get(pathname).add(importer);
       return _load(pathname, urlStack);
     }
-    const mod = await REQUIRE_OR_IMPORT(imported);
+    const mod = await REQUIRE_OR_IMPORT(imported, { from: config.root || config.workspaceRoot || process.cwd() });
 
     return {
       exports: mod,
