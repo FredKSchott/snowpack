@@ -3,7 +3,7 @@
 const path = require('path');
 const workerpool = require('workerpool');
 const minimatch = require('minimatch');
-const normalizePath = require('normalize-path')
+const normalizePath = require('normalize-path');
 
 module.exports = function postcssPlugin(snowpackConfig, options) {
   // options validation
