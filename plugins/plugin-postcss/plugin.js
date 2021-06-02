@@ -55,7 +55,7 @@ module.exports = function postcssPlugin(snowpackConfig, options) {
         if (message.type === 'dependency') {
           patterns.add(normalizePath(message.file));
         } else if (message.type === 'dir-dependency') {
-          patterns.add(normalizePath(`${message.dir}/${message.glob ?? '**/*'}`));
+          patterns.add(normalizePath(`${message.dir}/${message.glob || '**/*'}`));
         }
       }
       dependencies.set(id, patterns);
