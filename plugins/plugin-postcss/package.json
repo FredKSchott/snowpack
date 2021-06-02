@@ -13,6 +13,8 @@
     "access": "public"
   },
   "dependencies": {
+    "minimatch": "^3.0.4",
+    "normalize-path": "^3.0.0",
     "postcss-load-config": "^3.0.1",
     "workerpool": "^6.1.2"
   },

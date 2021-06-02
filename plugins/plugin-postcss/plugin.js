@@ -2,6 +2,8 @@
 
 const path = require('path');
 const workerpool = require('workerpool');
+const minimatch = require('minimatch');
+const normalizePath = require('normalize-path')
 
 module.exports = function postcssPlugin(snowpackConfig, options) {
   // options validation
@@ -48,16 +50,15 @@ module.exports = function postcssPlugin(snowpackConfig, options) {
       });
       const {css, map, messages} = JSON.parse(encodedResult);
 
-      const files = new Set();
-      const dirs = new Set();
+      const patterns = new Set();
       for (const message of messages) {
         if (message.type === 'dependency') {
-          files.add(message.file);
+          patterns.add(normalizePath(message.file));
         } else if (message.type === 'dir-dependency') {
-          dirs.add(message.dir);
+          patterns.add(normalizePath(`${message.dir}/${message.glob ?? '**/*'}`));
         }
       }
-      dependencies.set(id, {files, dirs});
+      dependencies.set(id, patterns);
 
       return {
         code: css, // old API (keep)
@@ -66,20 +67,10 @@ module.exports = function postcssPlugin(snowpackConfig, options) {
       };
     },
     onChange({filePath}) {
-      eachId: for (const [id, {files, dirs}] of dependencies) {
-        for (const file of files) {
-          if (file === filePath) {
-            this.markChanged(id);
-            continue eachId;
-          }
-        }
-        for (const dir of dirs) {
-          // https://stackoverflow.com/a/45242825
-          const relativePath = path.relative(dir, filePath);
-          const dirContainsFilePath =
-            relativePath && !relativePath.startsWith('..') && !path.isAbsolute(relativePath);
-
-          if (dirContainsFilePath) {
+      const normalizedFilePath = normalizePath(filePath);
+      eachId: for (const [id, patterns] of dependencies) {
+        for (const pattern of patterns) {
+          if (minimatch(normalizedFilePath, pattern)) {
             this.markChanged(id);
             continue eachId;
           }
