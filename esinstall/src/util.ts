@@ -184,11 +184,7 @@ export function isJavaScript(pathname: string): boolean {
  *   - BUNDLE: Install and bundle this file with Rollup engine.
  *   - ASSET: Copy this file directly.
  */
-const bundleTypeExtensions = new Set([
-  '.svelte',
-  '.vue',
-  '.astro'
-]);
+const bundleTypeExtensions = new Set(['.svelte', '.vue', '.astro']);
 
 export function getWebDependencyType(pathname: string): 'ASSET' | 'BUNDLE' | 'DTS' {
   const ext = path.extname(pathname).toLowerCase();

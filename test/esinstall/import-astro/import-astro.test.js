@@ -7,19 +7,22 @@ describe('importing .astro files', () => {
     const dest = path.join(cwd, 'test-astro');
 
     // Run Test
-    const { importMap: { imports }} = await runTest(['astro-components/Wow.astro'], {
-      cwd, dest,
+    const {
+      importMap: {imports},
+    } = await runTest(['astro-components/Wow.astro'], {
+      cwd,
+      dest,
       rollup: {
         plugins: [
           {
             load() {
-              return 'export default "so wow";'
-            }
-          }
-        ]
-      }
+              return 'export default "so wow";';
+            },
+          },
+        ],
+      },
     });
-    
+
     expect(imports['astro-components/Wow.astro']).toBe('./astro-components/Wow.astro.js');
   });
 });
