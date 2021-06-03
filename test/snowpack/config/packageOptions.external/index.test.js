@@ -25,7 +25,7 @@ describe('packageOptions.external', () => {
     expect(result['index.js']).toContain(`import 'fs';`);
   });
 
-  it.only('Does not install externals that are deep package imports', async () => {
+  it('Does not install externals that are deep package imports', async () => {
     const result = await testFixture({
       'packages/some-thing/main.js': dedent`
         export default 'ok';
