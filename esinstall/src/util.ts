@@ -184,16 +184,22 @@ export function isJavaScript(pathname: string): boolean {
  *   - BUNDLE: Install and bundle this file with Rollup engine.
  *   - ASSET: Copy this file directly.
  */
+const bundleTypeExtensions = new Set([
+  '.svelte',
+  '.vue',
+  '.astro'
+]);
+
 export function getWebDependencyType(pathname: string): 'ASSET' | 'BUNDLE' | 'DTS' {
   const ext = path.extname(pathname).toLowerCase();
   // JavaScript should always be bundled.
   if (isJavaScript(pathname)) {
     return 'BUNDLE';
   }
-  // Svelte & Vue should always be bundled because we want to show the missing plugin
-  // error if a Svelte or Vue file is the install target. Without this, the .svelte/.vue
+  // Svelte & Vue (& Astro) should always be bundled because we want to show the missing plugin
+  // error if a Svelte or Vue or Astro file is the install target. Without this, the .svelte/.vue
   // file would be treated like an asset and sent to the web as-is.
-  if (ext === '.svelte' || ext === '.vue') {
+  if (bundleTypeExtensions.has(ext)) {
     return 'BUNDLE';
   }
 
