@@ -43,7 +43,7 @@ directory and Snowpack will recreate it on next run.
 
 [.meta.version=2]`;
 
-const NEVER_PEER_PACKAGES: string[] = [
+const NEVER_PEER_PACKAGES: Set<string> = new Set([
   '@babel/runtime',
   '@babel/runtime-corejs3',
   'babel-runtime',
@@ -53,7 +53,7 @@ const NEVER_PEER_PACKAGES: string[] = [
   'whatwg-fetch',
   'tslib',
   '@ant-design/icons-svg',
-];
+]);
 
 function isPackageCJS(manifest: any): boolean {
   return (
@@ -510,17 +510,24 @@ export class PackageSourceLocal implements PackageSource {
           .filter((spec) => spec.startsWith(packageUID))
           .map((spec) => spec.substr(packageUID.length + 1));
         // TODO: external should be a function in esinstall
-        const externalPackages = [
-          ...config.packageOptions.external,
-          ...Object.keys(packageManifest.dependencies || {}),
-          ...Object.keys(packageManifest.peerDependencies || {}),
-        ].filter((ext) => ext !== _packageName && !NEVER_PEER_PACKAGES.includes(ext));
-        const externalPackagesFull = [
-          ...externalPackages,
-          ...Object.keys(packageManifest.devDependencies || {}).filter(
-            (ext) => ext !== _packageName && !NEVER_PEER_PACKAGES.includes(ext),
-          ),
-        ];
+
+        const filteredExternal = (ext: string) => ext !== _packageName && !NEVER_PEER_PACKAGES.has(ext);
+
+        const dependenciesAndPeerDependencies = Object.keys(packageManifest.dependencies || {}).concat(
+          Object.keys(packageManifest.peerDependencies || {})
+        );
+        const devDependencies = Object.keys(packageManifest.devDependencies || {});
+
+        // Packages that should be marked as externalized. Any dependency
+        // or peerDependency that is not one of the packages we want to always bundle
+        const externalPackages = config.packageOptions.external.concat(
+          dependenciesAndPeerDependencies.filter(filteredExternal)
+        );
+
+        // The same as above, but includes devDependencies.
+        const externalPackagesFull = externalPackages.concat(
+          devDependencies.filter(filteredExternal)
+        );
 
         // To improve our ESM<>CJS conversion, we need to know the status of all dependencies.
         // This function returns a function, which can be used to fetch package.json manifests.
