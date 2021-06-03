@@ -63,5 +63,42 @@ describe('packageOptions.external', () => {
     });
 
     expect(result['index.js']).toContain(`import 'some-thing/deep.js';`);
-  })
+  });
+
+  it('will make node-fetch external if marked as external', async () => {
+    const result = await testFixture({
+      'packages/other/package.json': dedent`
+        {
+          "version": "1.0.0",
+          "name": "other",
+          "module": "main.js"
+        }
+      `,
+      'packages/other/main.js': dedent`
+        export default 'works';
+      `,
+      'package.json': dedent`
+        {
+          "version": "1.0.1",
+          "name": "@snowpack/test-config-external-node-fetch",
+          "dependencies": {
+            "other": "file:./packages/other"
+          }
+        }
+      `,
+      'index.js': dedent`
+        import 'node-fetch';
+        import 'other';
+      `,
+      'snowpack.config.js': dedent`
+        module.exports = {
+          packageOptions: {
+            external: ['node-fetch']
+          }
+        }
+      `
+    });
+
+    expect(result['index.js']).toContain(`import 'node-fetch';`);
+  });
 });
