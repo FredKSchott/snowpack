@@ -59,9 +59,9 @@ describe('packageOptions.external', () => {
             external: ['some-thing/deep.js']
           }
         }
-      `
+      `,
     });
 
     expect(result['index.js']).toContain(`import 'some-thing/deep.js';`);
-  })
+  });
 });

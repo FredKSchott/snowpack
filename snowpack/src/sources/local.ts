@@ -452,7 +452,7 @@ export class PackageSourceLocal implements PackageSource {
     }
 
     // Check to see if this package is marked as external, in which case skip the build.
-    if(this.isExternal(_packageName, spec)) {
+    if (this.isExternal(_packageName, spec)) {
       return;
     }
 
@@ -682,7 +682,7 @@ export class PackageSourceLocal implements PackageSource {
     const [packageName] = parsePackageImportSpecifier(spec);
 
     // If this import is marked as external, do not transform the original spec
-    if(this.isExternal(packageName, spec)) {
+    if (this.isExternal(packageName, spec)) {
       return spec;
     }
 
@@ -742,7 +742,11 @@ export class PackageSourceLocal implements PackageSource {
   private isExternal(packageName: string, specifier: string): boolean {
     const {config} = this;
     for (const external of config.packageOptions.external) {
-      if (packageName === external || specifier === external || packageName.startsWith(external + '/')) {
+      if (
+        packageName === external ||
+        specifier === external ||
+        packageName.startsWith(external + '/')
+      ) {
         return true;
       }
     }
