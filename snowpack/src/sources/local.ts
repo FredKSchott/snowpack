@@ -511,7 +511,7 @@ export class PackageSourceLocal implements PackageSource {
           .map((spec) => spec.substr(packageUID.length + 1));
         // TODO: external should be a function in esinstall
 
-        const filteredExternal = (ext: string) => ext !== _packageName && !NEVER_PEER_PACKAGES.has(ext);
+        const filteredExternal = (external: string) => external !== _packageName && !NEVER_PEER_PACKAGES.has(external);
 
         const dependenciesAndPeerDependencies = Object.keys(packageManifest.dependencies || {}).concat(
           Object.keys(packageManifest.peerDependencies || {})
