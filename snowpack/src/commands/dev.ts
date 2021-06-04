@@ -27,6 +27,8 @@ import {getPackageSource} from '../sources/util';
 import {createLoader as createServerRuntime} from '../ssr-loader';
 import {
   CommandOptions,
+  DevServerResponseHeaders,
+  HeadersTransformer,
   LoadResult,
   LoadUrlOptions,
   OnFileChangeCallback,
@@ -46,6 +48,7 @@ import {
 import {getPort, startDashboard, paintEvent} from './paint';
 import {cssModuleJSON} from '../build/import-css';
 import {runPipelineCleanupStep} from '../build/build-pipeline';
+import { parseObjectLiteralOrPattern } from 'meriyah/dist/src/parser';
 
 export class OneToManyMap {
   readonly keyToValue = new Map<string, string[]>();
@@ -121,14 +124,21 @@ export class NotFoundError extends Error {
   }
 }
 
+const noOpHeadersTransformer: HeadersTransformer = (_req, proposed) => proposed;
+
+type WriteTransformedHeaders = (status: number, proposedHeaders: DevServerResponseHeaders) => void;
+interface SnowpackServerResponse extends http.ServerResponse {
+  writeTransformedHeaders: WriteTransformedHeaders;
+}
+
 function sendResponseFile(
   req: http.IncomingMessage,
-  res: http.ServerResponse,
-  {contents, originalFileLoc, contentType}: LoadResult,
+  res: SnowpackServerResponse,
+  {contents, originalFileLoc, contentType}: LoadResult
 ) {
   const body = Buffer.from(contents);
   const ETag = etag(body, {weak: true});
-  const headers: Record<string, string> = {
+  const headers: DevServerResponseHeaders = {
     'Accept-Ranges': 'bytes',
     'Access-Control-Allow-Origin': '*',
     'Content-Type': contentType || 'application/octet-stream',
@@ -137,7 +147,7 @@ function sendResponseFile(
   };
 
   if (req.headers['if-none-match'] === ETag) {
-    res.writeHead(304, headers);
+    res.writeTransformedHeaders(304, headers);
     res.end();
     return;
   }
@@ -156,7 +166,7 @@ function sendResponseFile(
   if (/\bgzip\b/.test(acceptEncoding) && stream.Readable.from) {
     const bodyStream = stream.Readable.from([body]);
     headers['Content-Encoding'] = 'gzip';
-    res.writeHead(200, headers);
+    res.writeTransformedHeaders(200, headers);
     stream.pipeline(bodyStream, zlib.createGzip(), res, function onError(err) {
       if (err) {
         res.end();
@@ -182,7 +192,7 @@ function sendResponseFile(
     const chunkSize = end - start + 1;
 
     const fileStream = createReadStream(originalFileLoc, {start, end});
-    res.writeHead(206, {
+    res.writeTransformedHeaders(206, {
       ...headers,
       'Content-Range': `bytes ${start}-${end}/${fileSize}`,
       'Content-Length': chunkSize,
@@ -191,24 +201,24 @@ function sendResponseFile(
     return;
   }
 
-  res.writeHead(200, headers);
+  res.writeTransformedHeaders(200, headers);
   res.write(body);
   res.end();
 }
 
-function sendResponseError(req: http.IncomingMessage, res: http.ServerResponse, status: number) {
+function sendResponseError(req: http.IncomingMessage, res: SnowpackServerResponse, status: number) {
   const contentType = mime.contentType(path.extname(req.url!) || '.html');
-  const headers: Record<string, string> = {
+  const headers: DevServerResponseHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Accept-Ranges': 'bytes',
     'Content-Type': contentType || 'application/octet-stream',
     Vary: 'Accept-Encoding',
   };
-  res.writeHead(status, headers);
+  res.writeTransformedHeaders(status, headers);
   res.end();
 }
 
-function handleResponseError(req, res, err: Error | NotFoundError) {
+function handleResponseError(req: http.IncomingMessage, res: SnowpackServerResponse, err: Error | NotFoundError) {
   if (err instanceof NotFoundError) {
     // Don't log favicon "Not Found" errors. Browsers automatically request a favicon.ico file
     // from the server, which creates annoying errors for new apps / first experiences.
@@ -754,18 +764,10 @@ export async function startServer(
    */
   const knownETags = new Map<string, string>();
 
-  function matchRouteHandler(
+  function matchRouteHandler<Expect extends 'dest' | 'upgrade' | 'transformHeaders'>(
     reqUrl: string,
-    expectHandler: 'dest',
-  ): RouteConfigObject['dest'] | null;
-  function matchRouteHandler(
-    reqUrl: string,
-    expectHandler: 'upgrade',
-  ): RouteConfigObject['upgrade'] | null;
-  function matchRouteHandler(
-    reqUrl: string,
-    expectHandler: 'dest' | 'upgrade',
-  ): RouteConfigObject['dest'] | RouteConfigObject['upgrade'] | null {
+    expectHandler: Expect
+    ): RouteConfigObject[Expect] | null {
     if (reqUrl.startsWith(config.buildOptions.metaUrlPath)) {
       return null;
     }
@@ -793,7 +795,7 @@ export async function startServer(
    */
   async function handleRequest(
     req: http.IncomingMessage,
-    res: http.ServerResponse,
+    res: SnowpackServerResponse,
     {handleError}: {handleError?: boolean} = {},
   ) {
     let reqUrl = req.url!;
@@ -811,7 +813,7 @@ export async function startServer(
     const quickETagCheckUrl = reqUrl.replace(/\/$/, '/index.html');
     if (quickETagCheck && quickETagCheck === knownETags.get(quickETagCheckUrl)) {
       logger.debug(`optimized etag! sending 304...`);
-      res.writeHead(304, {'Access-Control-Allow-Origin': '*'});
+      res.writeTransformedHeaders(304, {'Access-Control-Allow-Origin': '*'});
       res.end();
       return;
     }
@@ -831,7 +833,7 @@ export async function startServer(
       const redirectUrl = await pkgSource.resolvePackageImport(
         reqUrl.replace(PACKAGE_PATH_PREFIX, '').replace(/\.js/, ''),
       );
-      res.writeHead(301, {Location: redirectUrl});
+      res.writeTransformedHeaders(301, {Location: redirectUrl});
       res.end();
       return;
     }
@@ -887,6 +889,20 @@ export async function startServer(
     return http.createServer(responseHandler as http.RequestListener);
   };
 
+  function convertToSnowpackResponse(req: http.IncomingMessage, res: http.ServerResponse): SnowpackServerResponse {
+    const transformHeaders: HeadersTransformer = matchRouteHandler(req.url!, 'transformHeaders') ?? noOpHeadersTransformer;
+    return Object.assign(res, {
+      writeTransformedHeaders(
+        this: SnowpackServerResponse,
+        status: number,
+        proposedHeaders: DevServerResponseHeaders
+      ): SnowpackServerResponse {
+        const transformedHeaders: DevServerResponseHeaders = transformHeaders(req, proposedHeaders);
+        return this.writeHead(status, transformedHeaders);
+      }
+    });
+  }
+
   let server: http.Server | http2.Http2Server | undefined;
   if (port) {
     server = createServer(async (req, res) => {
@@ -897,7 +913,8 @@ export async function startServer(
         logger.debug(`[${statusCode}] ${method} ${url}`);
       });
       // Otherwise, pass requests directly to Snowpack's request handler.
-      handleRequest(req, res);
+      const snowpackResponse: SnowpackServerResponse = convertToSnowpackResponse(req, res);
+      handleRequest(req, snowpackResponse);
     })
       .on('upgrade', (req, socket, head) => {
         handleUpgrade(req, socket, head);
@@ -1004,9 +1021,30 @@ export async function startServer(
     hmrEngine,
     rawServer: server,
     loadUrl,
-    handleRequest,
-    sendResponseFile,
-    sendResponseError,
+    handleRequest: (
+      req: http.IncomingMessage,
+      res: http.ServerResponse,
+      options?: {handleError?: boolean},
+    ): Promise<void> => {
+      const snowpackResponse: SnowpackServerResponse = convertToSnowpackResponse(req, res);
+      return handleRequest(req, snowpackResponse, options);
+    },
+    sendResponseFile: (
+      req: http.IncomingMessage,
+      res: http.ServerResponse,
+      loadResult: LoadResult
+    ): void => {
+      const snowpackResponse: SnowpackServerResponse = convertToSnowpackResponse(req, res);
+      sendResponseFile(req, snowpackResponse, loadResult);
+    },
+    sendResponseError: (
+      req: http.IncomingMessage,
+      res: http.ServerResponse,
+      status: number
+    ): void => {
+      const snowpackResponse: SnowpackServerResponse = convertToSnowpackResponse(req, res);
+      sendResponseError(req, snowpackResponse, status);
+    },
     getUrlForPackage: (pkgSpec: string) => {
       return pkgSource.resolvePackageImport(pkgSpec);
     },
