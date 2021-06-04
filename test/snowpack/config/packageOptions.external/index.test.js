@@ -96,7 +96,7 @@ describe('packageOptions.external', () => {
             external: ['node-fetch']
           }
         }
-      `
+      `,
     });
 
     expect(result['index.js']).toContain(`import 'node-fetch';`);

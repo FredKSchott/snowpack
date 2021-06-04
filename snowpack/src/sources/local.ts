@@ -511,22 +511,23 @@ export class PackageSourceLocal implements PackageSource {
           .map((spec) => spec.substr(packageUID.length + 1));
         // TODO: external should be a function in esinstall
 
-        const filteredExternal = (external: string) => external !== _packageName && !NEVER_PEER_PACKAGES.has(external);
+        const filteredExternal = (external: string) =>
+          external !== _packageName && !NEVER_PEER_PACKAGES.has(external);
 
-        const dependenciesAndPeerDependencies = Object.keys(packageManifest.dependencies || {}).concat(
-          Object.keys(packageManifest.peerDependencies || {})
-        );
+        const dependenciesAndPeerDependencies = Object.keys(
+          packageManifest.dependencies || {},
+        ).concat(Object.keys(packageManifest.peerDependencies || {}));
         const devDependencies = Object.keys(packageManifest.devDependencies || {});
 
         // Packages that should be marked as externalized. Any dependency
         // or peerDependency that is not one of the packages we want to always bundle
         const externalPackages = config.packageOptions.external.concat(
-          dependenciesAndPeerDependencies.filter(filteredExternal)
+          dependenciesAndPeerDependencies.filter(filteredExternal),
         );
 
         // The same as above, but includes devDependencies.
         const externalPackagesFull = externalPackages.concat(
-          devDependencies.filter(filteredExternal)
+          devDependencies.filter(filteredExternal),
         );
 
         // To improve our ESM<>CJS conversion, we need to know the status of all dependencies.
