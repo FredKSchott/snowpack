@@ -4,6 +4,13 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.5.5 [2021-06-04]
+
+* d61fb0a8 - [ci] yarn format <matthewp>
+* aed6a8fd - Modules marked as `external` should always be treated as external (#3408) <Matthew Phillips>
+* cd6ec781 - [ci] yarn format <matthewp>
+* 64b377e3 - Correctly handle subpackage imports marked as external (#3407) <Matthew Phillips>
+
 ## snowpack@3.5.4 [2021-06-01]
 
 * 78d6ecf1 - Fix: remove external override (#3401) <Nate Moore>
