@@ -19,7 +19,7 @@ Tailwind’s [JIT mode][tailwind-jit] is the new, recommended way to use Tailwin
 From the root of your project, install tailwindcss, PostCSS, and the Snowpack PostCSS plugin.
 
 ```
-npm install --save-dev tailwindcss @snowpack/plugin-postcss postcss postcss-cli
+npm install --save-dev tailwindcss @snowpack/plugin-postcss postcss
 ```
 
 #### 2. Configure
