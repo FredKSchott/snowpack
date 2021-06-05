@@ -51,7 +51,6 @@ import {
 import {getPort, startDashboard, paintEvent} from './paint';
 import {cssModuleJSON} from '../build/import-css';
 import {runPipelineCleanupStep} from '../build/build-pipeline';
-import { parseObjectLiteralOrPattern } from 'meriyah/dist/src/parser';
 
 export class OneToManyMap {
   readonly keyToValue = new Map<string, string[]>();
