@@ -32,10 +32,13 @@ import {
   LoadResult,
   LoadUrlOptions,
   OnFileChangeCallback,
+  HttpRequestData,
   RouteConfigObject,
   ServerRuntime,
   SnowpackConfig,
   SnowpackDevServer,
+  Http1RequestData,
+  Http2RequestData
 } from '../types';
 import {
   createInstallTarget,
@@ -127,13 +130,22 @@ export class NotFoundError extends Error {
 const noOpHeadersTransformer: HeadersTransformer = (_req, proposed) => proposed;
 
 type WriteTransformedHeaders = (status: number, proposedHeaders: DevServerResponseHeaders) => void;
-interface SnowpackServerResponse extends http.ServerResponse {
+interface SnowpackServerResponseMixin {
   writeTransformedHeaders: WriteTransformedHeaders;
 }
+interface SnowpackHttp1ServerResponse extends http.ServerResponse, SnowpackServerResponseMixin {
+}
+interface SnowpackHttp2ServerResponse extends http2.Http2ServerResponse, SnowpackServerResponseMixin {
+}
+type SnowpackHttpServerResponse = SnowpackHttp1ServerResponse | SnowpackHttp2ServerResponse;
 
 function sendResponseFile(
-  req: http.IncomingMessage,
-  res: SnowpackServerResponse,
+  req: http.IncomingMessage | http2.Http2ServerRequest,
+  /**
+   * TODO: prefer {@link SnowpackHttpServerResponse}, to support HTTP/2.
+   * requires updating `res.write(body)` to pass a string or Uint8Array.
+   */
+  res: SnowpackHttp1ServerResponse,
   {contents, originalFileLoc, contentType}: LoadResult
 ) {
   const body = Buffer.from(contents);
@@ -206,7 +218,11 @@ function sendResponseFile(
   res.end();
 }
 
-function sendResponseError(req: http.IncomingMessage, res: SnowpackServerResponse, status: number) {
+function sendResponseError(
+  req: http.IncomingMessage | http2.Http2ServerRequest,
+  res: SnowpackHttpServerResponse,
+  status: number
+) {
   const contentType = mime.contentType(path.extname(req.url!) || '.html');
   const headers: DevServerResponseHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -218,7 +234,11 @@ function sendResponseError(req: http.IncomingMessage, res: SnowpackServerRespons
   res.end();
 }
 
-function handleResponseError(req: http.IncomingMessage, res: SnowpackServerResponse, err: Error | NotFoundError) {
+function handleResponseError(
+  req: http.IncomingMessage | http2.Http2ServerRequest,
+  res: SnowpackHttpServerResponse,
+  err: Error | NotFoundError
+) {
   if (err instanceof NotFoundError) {
     // Don't log favicon "Not Found" errors. Browsers automatically request a favicon.ico file
     // from the server, which creates annoying errors for new apps / first experiences.
@@ -794,8 +814,16 @@ export async function startServer(
    * JS API to handle most boilerplate around request handling.
    */
   async function handleRequest(
+    /**
+     * TODO: prefer union with {@link http2.Http2ServerRequest}, to support HTTP/2.
+     * requires updating {@link RouteConfigObject['dest']} to accept HTTP/2 types.
+     */
     req: http.IncomingMessage,
-    res: SnowpackServerResponse,
+    /**
+     * TODO: prefer {@link SnowpackHttpServerResponse}, to support HTTP/2.
+     * requires updating {@link RouteConfigObject['dest']} to accept HTTP/2 types.
+     */
+    res: SnowpackHttp1ServerResponse,
     {handleError}: {handleError?: boolean} = {},
   ) {
     let reqUrl = req.url!;
@@ -863,7 +891,15 @@ export async function startServer(
     }
   }
 
-  async function handleUpgrade(req: http.IncomingMessage, socket: Socket, head: Buffer) {
+  async function handleUpgrade(
+    /**
+     * TODO: prefer union with {@link http2.Http2ServerRequest}, to support HTTP/2.
+     * requires updating {@link RouteConfigObject['upgrade']} to accept HTTP/2 types.
+     */
+    req: http.IncomingMessage,
+    socket: Socket,
+    head: Buffer
+  ) {
     let reqUrl = req.url!;
     const matchedRouteHandler = matchRouteHandler(reqUrl, 'upgrade');
     if (matchedRouteHandler) {
@@ -878,7 +914,7 @@ export async function startServer(
     request: http2.Http2ServerRequest,
     response: http2.Http2ServerResponse,
   ) => void;
-  const createServer = (responseHandler: http.RequestListener | Http2RequestListener) => {
+  const createServer = (responseHandler: http.RequestListener | Http2RequestListener): http.Server | http2.Http2SecureServer => {
     if (credentials) {
       return http2.createSecureServer(
         {...credentials!, allowHTTP1: true},
@@ -889,32 +925,78 @@ export async function startServer(
     return http.createServer(responseHandler as http.RequestListener);
   };
 
-  function convertToSnowpackResponse(req: http.IncomingMessage, res: http.ServerResponse): SnowpackServerResponse {
-    const transformHeaders: HeadersTransformer = matchRouteHandler(req.url!, 'transformHeaders') ?? noOpHeadersTransformer;
-    return Object.assign(res, {
-      writeTransformedHeaders(
-        this: SnowpackServerResponse,
-        status: number,
-        proposedHeaders: DevServerResponseHeaders
-      ): SnowpackServerResponse {
-        const transformedHeaders: DevServerResponseHeaders = transformHeaders(req, proposedHeaders);
-        return this.writeHead(status, transformedHeaders);
-      }
+  function dataPropertiesOfRequest(req: http.IncomingMessage): Http1RequestData;
+  function dataPropertiesOfRequest(req: http2.Http2ServerRequest): Http2RequestData;
+  // publicize implementation signature; works around https://github.com/microsoft/TypeScript/issues/44452
+  function dataPropertiesOfRequest(req: http.IncomingMessage | http2.Http2ServerRequest): HttpRequestData;
+  function dataPropertiesOfRequest(req: http.IncomingMessage | http2.Http2ServerRequest): HttpRequestData {
+    // it's tempting to do a "destructure common props" to de-dupe some code here, but have avoided doing so because
+    // the two request types employ different optionality and readonly-ness across their properties.
+    if (isHttp2Request(req)) {
+      const {aborted, httpVersion, httpVersionMajor, httpVersionMinor, complete, headers, rawHeaders, trailers, rawTrailers, method, url, authority, scheme} = req;
+      const requestData: Http2RequestData = {aborted, httpVersion, httpVersionMajor, httpVersionMinor, complete, headers, rawHeaders, trailers, rawTrailers, method, url, authority, scheme};
+      return requestData;
+    }
+    const {aborted, httpVersion, httpVersionMajor, httpVersionMinor, complete, headers, rawHeaders, trailers, rawTrailers, method, url} = req;
+    const requestData: Http1RequestData = {aborted, httpVersion, httpVersionMajor, httpVersionMinor, complete, headers, rawHeaders, trailers, rawTrailers, method, url};
+    return requestData;
+  }
+
+  function convertToSnowpackResponse(
+    requestData: HttpRequestData,
+    res: http.ServerResponse
+  ): SnowpackHttp1ServerResponse;
+  function convertToSnowpackResponse(
+    requestData: HttpRequestData,
+    res: http2.Http2ServerResponse
+  ): SnowpackHttp2ServerResponse;
+  // publicize implementation signature; works around https://github.com/microsoft/TypeScript/issues/44452
+  function convertToSnowpackResponse(
+    requestData: HttpRequestData,
+    res: http.ServerResponse | http2.Http2ServerResponse
+  ): SnowpackHttpServerResponse;
+  function convertToSnowpackResponse(
+    requestData: HttpRequestData,
+    res: http.ServerResponse | http2.Http2ServerResponse
+  ): SnowpackHttpServerResponse {
+    const transformHeaders: HeadersTransformer = matchRouteHandler(requestData.url!, 'transformHeaders') ?? noOpHeadersTransformer;
+    const writeTransformedHeaders = function<T extends { writeHead: (this: T, status: number, headers: http.OutgoingHttpHeaders) => T }>(
+      this: T,
+      status: number,
+      proposedHeaders: DevServerResponseHeaders
+    ): T {
+      const transformedHeaders: DevServerResponseHeaders = transformHeaders(requestData, proposedHeaders);
+      return this.writeHead(status, transformedHeaders);
+    }
+    if (isHttp2Response(res)) {
+      const response: SnowpackHttp2ServerResponse = Object.assign<http2.Http2ServerResponse, SnowpackServerResponseMixin>(res, {
+        writeTransformedHeaders: writeTransformedHeaders.bind(res)
+      });
+      return response;
+    }
+    const response: SnowpackHttp1ServerResponse = Object.assign<http.ServerResponse, SnowpackServerResponseMixin>(res, {
+      writeTransformedHeaders: writeTransformedHeaders.bind(res)
     });
+    return response;
   }
 
   let server: http.Server | http2.Http2Server | undefined;
   if (port) {
-    server = createServer(async (req, res) => {
+    server = createServer(async (
+      req: http.IncomingMessage | http2.Http2ServerRequest,
+      res: http.ServerResponse | http2.Http2ServerResponse
+    ) => {
       // Attach a request logger.
       res.on('finish', () => {
         const {method, url} = req;
         const {statusCode} = res;
         logger.debug(`[${statusCode}] ${method} ${url}`);
       });
-      // Otherwise, pass requests directly to Snowpack's request handler.
-      const snowpackResponse: SnowpackServerResponse = convertToSnowpackResponse(req, res);
-      handleRequest(req, snowpackResponse);
+      const requestData: HttpRequestData = dataPropertiesOfRequest(req);
+      const snowpackResponse: SnowpackHttpServerResponse = convertToSnowpackResponse(requestData, res);
+      // req and res were formerly typed as `any`, which led to a lot of downstream code's accommodating
+      // HTTP/1 types only. these casts are not desirable, but document the code's current assumptions.
+      handleRequest(req as http.IncomingMessage, snowpackResponse as SnowpackHttp1ServerResponse);
     })
       .on('upgrade', (req, socket, head) => {
         handleUpgrade(req, socket, head);
@@ -1021,28 +1103,34 @@ export async function startServer(
     hmrEngine,
     rawServer: server,
     loadUrl,
+    // TODO: update method signature to support HTTP/2 types (entails external API change)
     handleRequest: (
       req: http.IncomingMessage,
       res: http.ServerResponse,
       options?: {handleError?: boolean},
     ): Promise<void> => {
-      const snowpackResponse: SnowpackServerResponse = convertToSnowpackResponse(req, res);
+      const requestData: HttpRequestData = dataPropertiesOfRequest(req);
+      const snowpackResponse: SnowpackHttpServerResponse = convertToSnowpackResponse(requestData, res);
       return handleRequest(req, snowpackResponse, options);
     },
+    // TODO: update method signature to support HTTP/2 types (entails external API change)
     sendResponseFile: (
       req: http.IncomingMessage,
       res: http.ServerResponse,
       loadResult: LoadResult
     ): void => {
-      const snowpackResponse: SnowpackServerResponse = convertToSnowpackResponse(req, res);
+      const requestData: HttpRequestData = dataPropertiesOfRequest(req);
+      const snowpackResponse: SnowpackHttpServerResponse = convertToSnowpackResponse(requestData, res);
       sendResponseFile(req, snowpackResponse, loadResult);
     },
+    // TODO: update method signature to support HTTP/2 types (entails external API change)
     sendResponseError: (
       req: http.IncomingMessage,
       res: http.ServerResponse,
       status: number
     ): void => {
-      const snowpackResponse: SnowpackServerResponse = convertToSnowpackResponse(req, res);
+      const requestData: HttpRequestData = dataPropertiesOfRequest(req);
+      const snowpackResponse: SnowpackHttpServerResponse = convertToSnowpackResponse(requestData, res);
       sendResponseError(req, snowpackResponse, status);
     },
     getUrlForPackage: (pkgSpec: string) => {
@@ -1061,6 +1149,31 @@ export async function startServer(
     },
   };
   return sp;
+}
+
+/**
+ * Narrows the type of HTTP request data (to HTTP/2 or HTTP/1).
+ */
+export function isHttp2RequestData(req: HttpRequestData): req is Http2RequestData {
+  return req.httpVersionMajor === 2;
+}
+
+/**
+ * Narrows the type of an HTTP request (to HTTP/2 or HTTP/1).
+ * TODO: if ever {@link SnowpackDevServer}, {@link RouteConfigObject['dest']} or {@link RouteConfigObject['upgrade']}
+ * are updated to expose a union `HTTP/2 | HTTP/1` request type: we should export this helper as part of stable public API.
+ */
+function isHttp2Request(req: http.IncomingMessage | http2.Http2ServerRequest): req is http2.Http2ServerRequest {
+  return req.httpVersionMajor === 2;
+}
+
+/**
+ * Narrows the type of an HTTP response (to HTTP/2 or HTTP/1).
+ * TODO: if ever {@link SnowpackDevServer}, {@link RouteConfigObject['dest']} or {@link RouteConfigObject['upgrade']}
+ * are updated to expose a union `HTTP/2 | HTTP/1` response type: we should export this helper as part of stable public API.
+ */
+function isHttp2Response(res: http.ServerResponse | http2.Http2ServerResponse): res is http2.Http2ServerResponse {
+  return 'stream' in res;
 }
 
 export async function command(commandOptions: CommandOptions) {
