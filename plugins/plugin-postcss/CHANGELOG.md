@@ -4,6 +4,10 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## @snowpack/plugin-postcss@1.4.1 [2021-06-07]
+
+* bc56243c - [PostCSS] Support `glob` property in `dir-dependency` messages (#3404) <Brad Cornes>
+
 ## @snowpack/plugin-postcss@1.4.0 [2021-05-21]
 
 * 4f9da737 - Feat: Allow dynamic config in @snowpack/plugin-postcss (#3344) <Drew Powers>
