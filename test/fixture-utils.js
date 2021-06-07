@@ -22,11 +22,7 @@ const UTF8_FRIENDLY_EXTS = [
 const writeFile = (file, data) =>
   fs.mkdir(path.dirname(file), {recursive: true}).then(() => fs.writeFile(file, data));
 
-async function runInFixture(
-  testFiles,
-  {absolute = false, overrides = {}} = {},
-  callback
-) {
+async function runInFixture(testFiles, {absolute = false, overrides = {}} = {}, callback) {
   const inDir = await fs.mkdtemp(path.join(__dirname, '__temp__', 'snowpack-fixture-'));
 
   if (typeof testFiles === 'string') {
@@ -86,11 +82,8 @@ async function runInFixture(
   return result;
 }
 
-exports.testFixture = async function testFixture(
-  testFiles,
-  options = {},
-) {
-  return runInFixture(testFiles, options, config => {
+exports.testFixture = async function testFixture(testFiles, options = {}) {
+  return runInFixture(testFiles, options, (config) => {
     return snowpack.build({
       config,
       lockfile: null,
@@ -98,11 +91,8 @@ exports.testFixture = async function testFixture(
   });
 };
 
-exports.testPrepareFixture = async function testPrepareFixture(
-  testFiles,
-  options = {},
-) {
-  return runInFixture(testFiles, options, config => {
-    return snowpack.preparePackages({ config });
+exports.testPrepareFixture = async function testPrepareFixture(testFiles, options = {}) {
+  return runInFixture(testFiles, options, (config) => {
+    return snowpack.preparePackages({config});
   });
-}
+};

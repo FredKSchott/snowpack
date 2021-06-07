@@ -192,7 +192,7 @@ describe('moduleResolution', () => {
            cacheDirPath: __dirname + '/.snowpack'
           }
         };
-      `
+      `,
     });
 
     // Imports of JS and CSS packages are scanned

@@ -199,7 +199,7 @@ function parseFileForInstallTargets({
         logger.debug(`Scanning ${relativeLoc} for imports as Astro`);
         return [
           ...parseCssForInstallTargets(extractCssFromHtml(contents)),
-          ...parseJsForInstallTargets(extractJsFromAstro(contents))
+          ...parseJsForInstallTargets(extractJsFromAstro(contents)),
         ];
       }
       case '.js':
@@ -265,7 +265,7 @@ function extractJsFromAstro(contents: string): string {
   let match;
   let regex = new RegExp(ASTRO_REGEX);
   // No while loop because we only care about the top frontmatter
-  if(match = regex.exec(contents)) {
+  if ((match = regex.exec(contents))) {
     allMatches.push(match);
   }
   return allMatches
