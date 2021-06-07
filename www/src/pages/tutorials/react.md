@@ -1,5 +1,5 @@
 ---
-layout: layouts/content-with-cover.njk
+layout: ../../layouts/content-with-cover.astro
 title: 'Getting Started with React'
 description: 'Get started with this in-depth tutorial on how to build React applications and websites with Snowpack and developer tools like React Fast Refresh'
 date: 2020-12-01
@@ -113,17 +113,15 @@ mv index.css public/index.css
 
 This means if you are running Snowpack right now, the site is now broken as the files are all in different places. Lets add a "mount" configuration to update your site to your new project layout.
 
-The `mount` configuration changes where Snowpack looks for and builds files. Every Snowpack project comes with a `snowpack.config.mjs` file for any configuration that you might need. Right now, you should see a configuration file with empty options. Add this to the empty `mount` object:
+The `mount` configuration changes where Snowpack looks for and builds files. Every Snowpack project comes with a `snowpack.config.js` file for any configuration that you might need. Right now, you should see a configuration file with empty options. Add this to the empty `mount` object:
 
 ```diff
-  export default {
-    mount: {
--     /* ... */
-+     // directory name: 'build directory'
-+     public: '/',
-+     src: '/dist',
-    },
-  };
+  mount: {
+-   /* ... */
++   // directory name: 'build directory'
++   public: '/',
++   src: '/dist',
+  },
 ```
 
 <img src="/img/guides/react/folderstructure.png" alt="The original file configuration had Snowpack building the directory structure the same as the directories in the project, including root. Now the config builds only src and public. Src to the dist folder and public to root." />
@@ -144,7 +142,7 @@ You'll need to restart Snowpack for configuration file changes. When you start u
 Create a new file at `src/App.jsx` and paste the following code into this new file to create an `App` component:
 
 ```jsx
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 
 function App() {
   // Create the count state.

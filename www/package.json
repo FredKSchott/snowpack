@@ -1,36 +1,14 @@
 {
   "name": "snowpack-www",
+  "private": true,
   "version": "3.0.0",
   "scripts": {
-    "start": "yarn copy && snowpack dev",
-    "build": "yarn copy && ELEVENTY_ENV=prod snowpack build",
-    "copy": "node scripts/copy.js",
-    "test": "jest /__test__/",
-    "format": "prettier --write \"src/**/*.js\" && yarn format:css",
-    "format:css": "stylelint 'src/**/*.scss' --fix",
-    "lint": "prettier --check \"src/**/*.js\""
-  },
-  "devDependencies": {
-    "@11ty/eleventy": "^0.11.0",
-    "@11ty/eleventy-plugin-rss": "^1.0.9",
-    "@11ty/eleventy-plugin-syntaxhighlight": "^3.0.4",
-    "@snowpack/plugin-postcss": "^1.0.7",
-    "@snowpack/plugin-run-script": "^2.3.0",
-    "@snowpack/plugin-sass": "^1.1.1",
-    "eleventy-plugin-nesting-toc": "^1.2.0",
-    "luxon": "^1.25.0",
-    "markdown-it": "^12.0.2",
-    "markdown-it-anchor": "^6.0.0",
-    "postcss-cli": "^8.3.0",
-    "postcss-preset-env": "^6.7.0",
-    "prettier": "^2.2.1",
-    "snowpack": "^3.0.0",
-    "stylelint": "^13.8.0",
-    "stylelint-config-prettier": "^8.0.2",
-    "stylelint-config-rational-order": "^0.1.2",
-    "stylelint-config-standard": "^20.0.0"
+    "start": "astro dev",
+    "build": "astro build"
   },
   "dependencies": {
+    "astro": "^0.12.3",
+    "date-fns": "^2.19.0",
     "docsearch.js": "^2.6.3",
     "htm": "^3.0.4"
   }
