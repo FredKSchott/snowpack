@@ -48,6 +48,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
     const {optionsApi = true, prodDevtools = false} = pluginOptions;
     packageOptions.rollup.plugins.push(
       replace({
+        preventAssignment: false,
         values: {
           __VUE_OPTIONS_API__: JSON.stringify(optionsApi),
           __VUE_PROD_DEVTOOLS__: JSON.stringify(prodDevtools),
