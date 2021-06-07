@@ -4,6 +4,10 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## @snowpack/plugin-vue@2.6.1 [2021-06-07]
+
+* 52a09b7d - Set the `preventAssignment` option in the vue plugin (#3422) <Matthew Phillips>
+
 ## @snowpack/plugin-vue@2.6.0 [2021-05-27]
 
 * 12410984 - Enable proper tree-shaking of Vue's ESM bundler (#3382) <Nate Moore>
