@@ -4,6 +4,11 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.5.6 [2021-06-07]
+
+* f0534bb7 - [ci] yarn format <matthewp>
+* 6ef3695d - Allow Snowpack to scan .astro files for imports (#3423) <Matthew Phillips>
+
 ## snowpack@3.5.5 [2021-06-04]
 
 * d61fb0a8 - [ci] yarn format <matthewp>
