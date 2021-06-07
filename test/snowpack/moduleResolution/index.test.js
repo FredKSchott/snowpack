@@ -1,4 +1,4 @@
-const {testFixture} = require('../../fixture-utils');
+const {testFixture, testPrepareFixture} = require('../../fixture-utils');
 const dedent = require('dedent');
 
 describe('moduleResolution', () => {
@@ -145,5 +145,58 @@ describe('moduleResolution', () => {
     expect(result['a/a.js']).toContain(`import '../index.js';`);
     // We don't mistakenly import an index file from a directory with the same name
     expect(result['index.js']).toContain(`import b from './b.js';`);
+  });
+
+  it('Resolves CSS and JS modules from Astro files', async () => {
+    const result = await testPrepareFixture({
+      'packages/css-package/package.json': dedent`
+        {
+          "name": "css-package",
+          "version": "1.2.3"
+        }
+      `,
+      'packages/css-package/style.css': dedent`
+        body {
+          color: red;
+        }
+      `,
+      'page.astro': dedent`
+        ---
+        import {flatten} from 'array-flatten';
+        ---
+
+        <!doctype html>
+        <html lang="en">
+          <head>
+            <title>Test</title>
+            <style>
+              @import 'css-package/style.css';
+            </style>
+          </head>
+          <body></body>
+        </html>
+      `,
+      'package.json': dedent`
+        {
+          "version": "1.0.1",
+          "name": "@snowpack/test-build-scan-imports-astro",
+          "dependencies": {
+            "array-flatten": "^3.0.0",
+            "css-package": "file:./packages/css-package"
+          }
+        }
+      `,
+      'snowpack.config.js': dedent`
+        module.exports = {
+          buildOptions: {
+           cacheDirPath: __dirname + '/.snowpack'
+          }
+        };
+      `
+    });
+
+    // Imports of JS and CSS packages are scanned
+    expect(result['../.snowpack/build/array-flatten@3.0.0/array-flatten.js']).toBeDefined();
+    expect(result['../.snowpack/build/css-package@1.2.3/css-package/style.css']).toBeDefined();
   });
 });

@@ -47,6 +47,7 @@ export const HTML_JS_REGEX = /(<script[^>]*?type="module".*?>)(.*?)<\/script>/gi
 export const HTML_STYLE_REGEX = /(<style.*?>)(.*?)<\/style>/gims;
 export const CSS_REGEX = /@import\s*['"](.*?)['"];/gs;
 export const SVELTE_VUE_REGEX = /(<script[^>]*>)(.*?)<\/script>/gims;
+export const ASTRO_REGEX = /---(.*?)---/gims;
 
 export function getCacheKey(fileLoc: string, {isSSR, mode}) {
   return `${fileLoc}?mode=${mode}&isSSR=${isSSR ? '1' : '0'}`;
