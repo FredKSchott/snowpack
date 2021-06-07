@@ -18,6 +18,7 @@ import {
   isTruthy,
   readFile,
   SVELTE_VUE_REGEX,
+  ASTRO_REGEX,
 } from './util';
 
 // [@\w] - Match a word-character or @ (valid package name)
@@ -194,6 +195,13 @@ function parseFileForInstallTargets({
           ...parseJsForInstallTargets(extractJsFromHtml({contents, baseExt})),
         ];
       }
+      case '.astro': {
+        logger.debug(`Scanning ${relativeLoc} for imports as Astro`);
+        return [
+          ...parseCssForInstallTargets(extractCssFromHtml(contents)),
+          ...parseJsForInstallTargets(extractJsFromAstro(contents))
+        ];
+      }
       case '.js':
       case '.jsx':
       case '.mjs':
@@ -248,6 +256,19 @@ function extractCssFromHtml(contents: string): string {
   }
   return allMatches
     .map((match) => match[2]) // match[2] is the code inside the <style></style> element
+    .filter((s) => s.trim())
+    .join('\n');
+}
+
+function extractJsFromAstro(contents: string): string {
+  const allMatches: string[][] = [];
+  let match;
+  let regex = new RegExp(ASTRO_REGEX);
+  while ((match = regex.exec(contents))) {
+    allMatches.push(match);
+  }
+  return allMatches
+    .map((match) => match[1]) // match[1] is the code inside the frontmatter
     .filter((s) => s.trim())
     .join('\n');
 }

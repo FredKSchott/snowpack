@@ -22,9 +22,10 @@ const UTF8_FRIENDLY_EXTS = [
 const writeFile = (file, data) =>
   fs.mkdir(path.dirname(file), {recursive: true}).then(() => fs.writeFile(file, data));
 
-exports.testFixture = async function testFixture(
+async function runInFixture(
   testFiles,
   {absolute = false, overrides = {}} = {},
+  callback
 ) {
   const inDir = await fs.mkdtemp(path.join(__dirname, '__temp__', 'snowpack-fixture-'));
 
@@ -49,10 +50,7 @@ exports.testFixture = async function testFixture(
   const config = await snowpack.loadConfiguration({root: inDir, ...overrides});
   const outDir = config.buildOptions.out;
 
-  await snowpack.build({
-    config,
-    lockfile: null,
-  });
+  await callback(config);
 
   const result = {};
   assert(path.isAbsolute(outDir));
@@ -86,4 +84,25 @@ exports.testFixture = async function testFixture(
   await rimraf.sync(inDir);
   // Return the result.
   return result;
+}
+
+exports.testFixture = async function testFixture(
+  testFiles,
+  options = {},
+) {
+  return runInFixture(testFiles, options, config => {
+    return snowpack.build({
+      config,
+      lockfile: null,
+    });
+  });
 };
+
+exports.testPrepareFixture = async function testPrepareFixture(
+  testFiles,
+  options = {},
+) {
+  return runInFixture(testFiles, options, config => {
+    return snowpack.preparePackages({ config });
+  });
+}
