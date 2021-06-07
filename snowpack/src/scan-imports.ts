@@ -264,7 +264,8 @@ function extractJsFromAstro(contents: string): string {
   const allMatches: string[][] = [];
   let match;
   let regex = new RegExp(ASTRO_REGEX);
-  while ((match = regex.exec(contents))) {
+  // No while loop because we only care about the top frontmatter
+  if(match = regex.exec(contents)) {
     allMatches.push(match);
   }
   return allMatches
