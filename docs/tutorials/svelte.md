@@ -1,5 +1,5 @@
 ---
-layout: ../../content-with-cover.njk
+layout: ../../layouts/content-with-cover.astro
 title: 'Getting Started with Svelte'
 description: 'Get started with this in-depth tutorial on how to build Svelte applications and websites with Snowpack'
 date: 2020-12-01

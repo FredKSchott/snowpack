@@ -1,5 +1,5 @@
 ---
-layout: ../../layouts/content.njk
+layout: ../../layouts/content.astro
 title: The Build Pipeline
 description: Snowpack Build creates a production-ready website with or without a bundler
 ---

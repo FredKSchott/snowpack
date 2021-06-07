@@ -1,5 +1,5 @@
 ---
-layout: ../../layouts/content.njk
+layout: ../../layouts/content.astro
 title: Plugin API
 description: The Snowpack Plugin API and how to use it.
 ---
