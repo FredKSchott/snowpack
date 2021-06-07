@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.njk
+layout: ../../layouts/content.njk
 title: HMR + Fast Refresh
 description: Snowpack's ESM-powered unbundled development means near-instant single file builds that only take 10-25ms to load and update in the browser.
 ---

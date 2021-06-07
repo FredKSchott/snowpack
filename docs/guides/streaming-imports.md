@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.njk
+layout: ../../layouts/content.njk
 title: Streaming Imports
 published: true
 stream: Fetch your npm dependencies on-demand from a remote ESM CDN.

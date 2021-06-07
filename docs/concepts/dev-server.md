@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.njk
+layout: ../../layouts/content.njk
 title: The Dev Server
 description: Snowpack's dev server is fast because it only rebuilds the files you change. Powered by ESM (ES modules).
 ---

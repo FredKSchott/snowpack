@@ -3,8 +3,9 @@
   "private": true,
   "version": "3.0.0",
   "scripts": {
-    "start": "astro dev",
-    "build": "astro build"
+    "start": "yarn copy && astro dev",
+    "build": "yarn copy && astro build",
+    "copy": "node scripts/copy.js"
   },
   "dependencies": {
     "astro": "^0.12.3",

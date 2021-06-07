@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.njk
+layout: ../../layouts/content.njk
 title: '@web/test-runner'
 tags: communityGuide
 img: '/img/logos/modern-web.svg'

@@ -1,5 +1,5 @@
 ---
-layout: layouts/main.njk
+layout: ../../main.njk
 title: Tailwind
 ---
 

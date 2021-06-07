@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.njk
+layout: ../../layouts/content.njk
 title: Optimize & Bundle for Production
 published: true
 description: How to optimize your Snowpack build for production, with or without a bundler.

@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.njk
+layout: ../../layouts/content.njk
 title: Workbox
 tags: communityGuide
 description: The Workbox CLI integrates well with Snowpack.

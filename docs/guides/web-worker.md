@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.njk
+layout: ../../layouts/content.njk
 title: 'Web Workers'
 tags: communityGuide
 published: true

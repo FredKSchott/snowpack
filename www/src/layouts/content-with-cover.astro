@@ -11,7 +11,9 @@ export let content: any;
 <html>
 
 <head>
-  <style>
+  <style lang="scss">
+    @use "../../public/styles/var" as *;
+
     .cover-wrapper {
       width: 100%;
       height: 44vh;
@@ -48,6 +50,82 @@ export let content: any;
         object-fit: cover;
       }
     }
+
+
+
+    $nav-height: 3.5rem; // height of top nav bar
+
+    $height: calc(100vh - #{$nav-height});
+
+    .layout {
+      display: grid;
+      grid-template-areas: "contents" "main";
+      grid-gap: 2rem;
+
+      @media (min-width: $breakpoint-m) {
+        grid-template-areas: "nav contents" "nav main";
+      }
+
+      @media (min-width: $breakpoint-l) {
+        grid-template-areas: "nav main contents";
+        grid-template-columns: 16rem auto 20rem;
+      }
+
+      // components
+      &-nav {
+        grid-area: nav;
+
+        @media (min-width: $breakpoint-m) {
+          position: sticky;
+          min-height: $height;
+          height: $height;
+          top: $nav-height;
+        }
+      }
+
+      &-main {
+        grid-area: main;
+        min-width: 0;
+        padding: 24px 0 24px 0;
+      }
+
+      &-contents {
+        @media (min-width: $breakpoint-l) {
+          position: sticky;
+          min-height: $height;
+          height: $height;
+          top: $nav-height;
+        }
+      }
+    }
+
+    :global(h3) {
+      position: relative;
+    }
+
+    :global(.header-link) {
+      position: absolute;
+      top: 0;
+      right: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      font-weight: 400;
+      font-size: 0.75em;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+      color: $light-grey;
+      opacity: 0;
+      transition: opacity 100ms linear, color 100ms linear;
+    }
+
+    :global(.header-link:hover) {
+      color: $rainbow-blue;
+    }
+
+    :global(h3:hover .header-link) {
+      opacity: 1;
+    }
   </style>
   <BaseHead title={content.title} description={content.description} permalink="TODO" />
 </head>
@@ -61,13 +139,16 @@ export let content: any;
     </div>
 
     <div class="wrapper">
-      <section class="snow-view__docs has-subnav">
-
-        <aside id="nav-primary" class="snow-view-nav">
+      <section class="layout">
+        <aside id="nav-primary" class="layout-nav">
           <Menu />
         </aside>
 
-        <article class="snow-view-main">
+        <div>
+          <Subnav title={content.title} headers={content.astro.headers} />
+        </div>
+
+        <article class="layout-main">
           <div class="content">
             <h2 class="content-title">
               {content.title}
@@ -80,7 +161,6 @@ export let content: any;
           </div>
         </article>
 
-        <Subnav title={content.title} headers={content.astro.headers} />
       </section>
     </div>
   </BaseLayout>

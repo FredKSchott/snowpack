@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.njk
+layout: ../../layouts/content.njk
 title: Hot Module Replacement (HMR)
 description: Enable Snowpack's Hot Module Replacement (HMR) on your development server.
 published: false

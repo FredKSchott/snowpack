@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.njk
+layout: ../../layouts/content.njk
 title: Preact
 tags: communityGuide
 img: '/img/logos/preact.svg'

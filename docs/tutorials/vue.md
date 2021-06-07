@@ -1,5 +1,5 @@
 ---
-layout: layouts/content-with-cover.njk
+layout: ../../content-with-cover.njk
 title: 'Getting Started with Vue'
 description: 'Get started with this in-depth tutorial on how to build Vue applications and websites with Snowpack'
 date: 2020-12-01
