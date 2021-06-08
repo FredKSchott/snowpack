@@ -5,7 +5,6 @@ description: 'Get started with this in-depth tutorial on how to build Vue applic
 date: 2020-12-01
 sidebarTitle: Vue
 tags: communityGuide
-img: '/img/VueGuide.jpg'
 ---
 
 Snowpack is a great fit for [Vue](https://vuejs.org) projects of any size. It's easy to get started and can scale to projects containing thousands of components and pages without any impact on development speed. Unlike traditional Vue application tooling, Snowpack saves you from getting bogged down with complex bundler setups and configuration files.
