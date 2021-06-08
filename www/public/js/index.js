@@ -23,7 +23,7 @@ function debounce(fn) {
 }
 
 function isScrolledIntoView(el) {
-  const { top } = el.getBoundingClientRect();
+  const {top} = el.getBoundingClientRect();
   const halfHeight = window.innerHeight / 2;
   const isVisible = top <= halfHeight;
   return isVisible;

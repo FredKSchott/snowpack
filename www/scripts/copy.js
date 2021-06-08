@@ -1,14 +1,12 @@
-const { promises: fs } = require('fs');
+const {promises: fs} = require('fs');
 const path = require('path');
 
 const getAllFiles = async (dir) => {
-  const all = await fs.readdir(dir, { withFileTypes: true });
+  const all = await fs.readdir(dir, {withFileTypes: true});
   return [].concat(
     ...(await Promise.all(
       all.map((ent) =>
-        ent.isFile()
-          ? path.join(dir, ent.name)
-          : getAllFiles(path.join(dir, ent.name)),
+        ent.isFile() ? path.join(dir, ent.name) : getAllFiles(path.join(dir, ent.name)),
       ),
     )),
   );
@@ -22,16 +20,8 @@ async function copy() {
     docs.map((src) => {
       if (['README.md', '.DS_Store'].includes(path.basename(src))) return;
 
-      const dest = path.join(
-        __dirname,
-        '..',
-        'src',
-        'pages',
-        src.replace(docsDir, ''),
-      );
-      return fs
-        .mkdir(path.dirname(dest), { recursive: true })
-        .then(() => fs.copyFile(src, dest));
+      const dest = path.join(__dirname, '..', 'src', 'pages', src.replace(docsDir, ''));
+      return fs.mkdir(path.dirname(dest), {recursive: true}).then(() => fs.copyFile(src, dest));
     }),
   );
 
