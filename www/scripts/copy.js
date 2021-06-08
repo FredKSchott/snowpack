@@ -25,7 +25,8 @@ async function copy() {
       const dest = path.join(
         __dirname,
         '..',
-        '_template',
+        'src',
+        'pages',
         src.replace(docsDir, ''),
       );
       return fs

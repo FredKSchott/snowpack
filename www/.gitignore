@@ -1,7 +1,3 @@
-.build
-build
-assets/app.min.css
 node_modules
-_site
-eleventy/**/*
-!eleventy/.placeholder
+dist
+src/pages/**/*.md

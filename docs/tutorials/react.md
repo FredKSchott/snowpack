@@ -1,5 +1,5 @@
 ---
-layout: layouts/content-with-cover.njk
+layout: ../../layouts/content-with-cover.astro
 title: 'Getting Started with React'
 description: 'Get started with this in-depth tutorial on how to build React applications and websites with Snowpack and developer tools like React Fast Refresh'
 date: 2020-12-01
@@ -334,11 +334,9 @@ Great job! You're now ready to build the React project of your dreams with Snowp
 
 At this point you have the basics and have a great starter for any React project. But if you compare with the official [Snowpack React template](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-react) you'll notice it has some other developer tools you might find useful:
 
-- [Prettier](https://prettier.io/)—a popular code formatter
-
-- [Tests](/guides/testing)—Snowpack supports any popular JavaScript testing framework
-
-- [`@snowpack/plugin-dotenv`](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-dotenv)—Use `dotenv` in your Snowpack. This is useful for environment specific variables
+- [Prettier](https://prettier.io/) — a popular code formatter
+- [Tests](/guides/testing) — Snowpack supports any popular JavaScript testing framework
+- [`@snowpack/plugin-dotenv`](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-dotenv) — Use `dotenv` in your Snowpack. This is useful for environment specific variables
 
 If you'd like to use Typescript with Snowpack and React, check out the [Snowpack React Typescript](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-react-typescript) starter.
 

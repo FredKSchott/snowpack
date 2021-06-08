@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.njk
+layout: ../../layouts/content.astro
 title: 'Tailwind CSS'
 tags: communityGuide
 published: true

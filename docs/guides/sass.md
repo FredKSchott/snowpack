@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.njk
+layout: ../../layouts/content.astro
 title: 'Sass'
 tags: communityGuide
 published: true

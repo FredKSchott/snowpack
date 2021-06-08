@@ -1,0 +1,190 @@
+---
+import {Markdown} from 'astro/components';
+import Card from '../components/Card.jsx';
+import BaseHead from '../components/BaseHead.astro';
+import MainLayout from '../components/MainLayout.astro';
+
+// mocked for now, to be added later
+// 1. import {paginate} from 'magicthing';
+// 2. export default function ({paginate}) {
+function paginate(options) {
+  if (options.tag === 'guide') {
+    return [
+      { title: 'Test guide 1', href: "#" },
+      { title: 'Test guide 2', href: "#" },
+    ];
+  }
+  if (options.tag === 'communityGuides') {
+    return [{ title: 'Test communityGuides', href: "#" }];
+  }
+  return [];
+}
+
+let title = 'Guides';
+let description = 'Snowpack\'s usage and integration guides.';
+let guides;
+let communityGuides;
+
+
+  guides = paginate({
+    files: '/posts/guides/*.md',
+    // sort: ((a, b) => new Date(b) - new Date(a)),
+    tag: 'guide',
+    limit: 10,
+    // page: query.page,
+  });
+  communityGuides = paginate({
+    files: '/posts/guides/*.md',
+    // sort: ((a, b) => new Date(b) - new Date(a)),
+    tag: 'communityGuides',
+    limit: 10,
+  });
+---
+
+<!doctype html>
+<html>
+
+<head>
+  <BaseHead title={title} description={description} permalink="TODO" />
+</head>
+
+<body>
+  <MainLayout>
+    <h2 class="content-title">
+      {title}
+    </h2>
+
+    <h3 class="content-title">
+      Using Snowpack
+    </h3>
+
+    <div class="content">
+      <Markdown>
+        - [Routing](/guides/routing)
+        - [Server-Side Rendering](/guides/server-side-render)
+        - [SSL, HTTPS, and HTTP/2 in Development](/guides/https-ssl-certificates)
+        - [Connecting Third-Party Tools](/guides/connecting-tools)
+        - [Optimize & Bundle for Production](/guides/optimize-and-bundle)
+        - [Streaming Imports](/guides/streaming-imports)
+        - [Testing](/guides/testing)
+        - [Creating Your Own Plugin](/guides/plugins)
+        - [Snowpack Upgrade Guide (from v1, v2)](/guides/upgrade-guide)
+      </Markdown>
+    </div>
+
+    <br />
+    <br />
+
+    <h3 class="content-title">
+      Popular Integration Guides
+    </h3>
+    <div class="card-grid card-grid-4">
+      <article class="card">
+        <a href="/tutorials/react/" style="text-decoration: none; color: initial; flex-grow: 1;">
+      <img class="card-image card-image-small" src="/img/ReactGuide.jpg" alt="">
+        <div class="card-text">
+          <h3 class="card-title">Getting Started with React</h3>
+        </div>
+        </a>
+      </article>
+      <article class="card">
+        <a href="/tutorials/svelte/" style="text-decoration: none; color: initial; flex-grow: 1;">
+      <img class="card-image card-image-small" src="/img/SvelteGuide.jpg" alt="">
+        <div class="card-text">
+          <h3 class="card-title">Getting Started with Svelte</h3>
+        </div>
+        </a>
+      </article>
+      <article class="card">
+        <a href="/tutorials/vue/" style="text-decoration: none; color: initial; flex-grow: 1;">
+      <img class="card-image card-image-small" src="" alt="">
+        <div class="card-text">
+          <h3 class="card-title">Getting Started with Vue</h3>
+        </div>
+        </a>
+      </article>
+      <article class="card">
+        <a href="/guides/babel/" style="text-decoration: none; color: initial; flex-grow: 1;">
+      <img class="card-image card-image-small" src="/img/logos/babel.svg" alt="" style="background: #323330">
+        <div class="card-text">
+          <h3 class="card-title">Babel</h3>
+        </div>
+        </a>
+      </article>
+      <article class="card">
+        <a href="/guides/jest/" style="text-decoration: none; color: initial; flex-grow: 1;">
+      <img class="card-image card-image-small" src="/img/logos/jest.svg" alt="" style="background: #d14c53">
+        <div class="card-text">
+          <h3 class="card-title">Jest</h3>
+        </div>
+        </a>
+      </article>
+      <article class="card">
+        <a href="/guides/postcss/" style="text-decoration: none; color: initial; flex-grow: 1;">
+      <img class="card-image card-image-small" src="/img/logos/postcss.svg" alt="" style="background: #f8f8f2">
+        <div class="card-text">
+          <h3 class="card-title">PostCSS</h3>
+        </div>
+        </a>
+      </article>
+      <article class="card">
+        <a href="/guides/preact/" style="text-decoration: none; color: initial; flex-grow: 1;">
+      <img class="card-image card-image-small" src="/img/logos/preact.svg" alt="" style="background: #333333">
+        <div class="card-text">
+          <h3 class="card-title">Preact</h3>
+        </div>
+        </a>
+      </article>
+      <article class="card">
+        <a href="/guides/sass/" style="text-decoration: none; color: initial; flex-grow: 1;">
+      <img class="card-image card-image-small" src="/img/logos/sass.svg" alt="" style="background: #bf4080">
+        <div class="card-text">
+          <h3 class="card-title">Sass</h3>
+        </div>
+        </a>
+      </article>
+      <article class="card">
+        <a href="/guides/tailwind-css/" style="text-decoration: none; color: initial; flex-grow: 1;">
+      <img class="card-image card-image-small" src="/img/logos/tailwind.svg" alt="" style="background: #f2f8f8">
+        <div class="card-text">
+          <h3 class="card-title">Tailwind CSS</h3>
+        </div>
+        </a>
+      </article>
+      <article class="card">
+        <a href="/guides/wasm/" style="text-decoration: none; color: initial; flex-grow: 1;">
+      <img class="card-image card-image-small" src="/img/logos/wasm.svg" alt="" style="background: #f2f2f8">
+        <div class="card-text">
+          <h3 class="card-title">WASM</h3>
+        </div>
+        </a>
+      </article>
+      <article class="card">
+        <a href="/guides/web-test-runner/" style="text-decoration: none; color: initial; flex-grow: 1;">
+      <img class="card-image card-image-small" src="/img/logos/modern-web.svg" alt="" style="background: #f2f2f8">
+        <div class="card-text">
+          <h3 class="card-title">@web/test-runner</h3>
+        </div>
+        </a>
+      </article>
+      <article class="card">
+        <a href="/guides/web-worker/" style="text-decoration: none; color: initial; flex-grow: 1;">
+      <div class="card-image card-image-small"></div>
+        <div class="card-text">
+          <h3 class="card-title">Web Workers</h3>
+        </div>
+        </a>
+      </article>
+      <article class="card">
+        <a href="/guides/workbox/" style="text-decoration: none; color: initial; flex-grow: 1;">
+      <div class="card-image card-image-small"></div>
+        <div class="card-text">
+          <h3 class="card-title">Workbox</h3>
+        </div>
+        </a>
+      </article>
+    </div>
+  </MainLayout>
+</body>
+
+</html>

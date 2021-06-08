@@ -1,11 +1,10 @@
 ---
-layout: layouts/content-with-cover.njk
+layout: ../../layouts/content-with-cover.astro
 title: 'Getting Started with Vue'
 description: 'Get started with this in-depth tutorial on how to build Vue applications and websites with Snowpack'
 date: 2020-12-01
 sidebarTitle: Vue
 tags: communityGuide
-img: '/img/VueGuide.jpg'
 ---
 
 Snowpack is a great fit for [Vue](https://vuejs.org) projects of any size. It's easy to get started and can scale to projects containing thousands of components and pages without any impact on development speed. Unlike traditional Vue application tooling, Snowpack saves you from getting bogged down with complex bundler setups and configuration files.
@@ -292,10 +291,8 @@ Great job! You're now ready to build the Vue project of your dreams with Snowpac
 
 At this point you have the basics and have a great starter for any Vue project. The official [Snowpack Vue](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-vue) example has a few other tools you might find useful:
 
-- [Prettier](https://prettier.io/)—a popular code formatter
-
-- [Tests](/guides/testing)—Snowpack supports any popular JavaScript testing framework
-
-- [`@snowpack/plugin-dotenv`](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-dotenv)—Use `dotenv` in your Snowpack. This is useful for environment specific variables
+- [Prettier](https://prettier.io/) — a popular code formatter
+- [Tests](/guides/testing) — Snowpack supports any popular JavaScript testing framework
+- [`@snowpack/plugin-dotenv`](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-dotenv) — Use `dotenv` in your Snowpack. This is useful for environment specific variables
 
 If you have any questions, comments, or corrections, we'd love to hear from you in the Snowpack [discussion](https://github.com/snowpackjs/snowpack/discussions) forum or our [Snowpack Discord community](https://discord.gg/rS8SnRk).

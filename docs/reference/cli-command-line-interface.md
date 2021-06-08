@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.njk
+layout: ../../layouts/content.astro
 title: Command Line API
 description: The Snowpack Command Line tool's API, commands, and flags.
 ---

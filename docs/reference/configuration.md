@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.njk
+layout: ../../layouts/content.astro
 title: snowpack.config.js
 description: The Snowpack configuration API reference.
 ---

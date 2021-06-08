@@ -1,5 +1,5 @@
 ---
-layout: layouts/content-with-cover.njk
+layout: ../../layouts/content-with-cover.astro
 title: 'Getting Started with Svelte'
 description: 'Get started with this in-depth tutorial on how to build Svelte applications and websites with Snowpack'
 date: 2020-12-01
@@ -313,11 +313,9 @@ Great job! You're now ready to build the Svelte project of your dreams with Snow
 
 At this point you have the basics and have a great starter for any Svelte project. The official [Snowpack Svelte](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-svelte) example has a few other tools you might find useful:
 
-- [Prettier](https://prettier.io/)—a popular code formatter
-
-- [Tests](/guides/testing)—Snowpack supports any popular JavaScript testing framework
-
-- [`@snowpack/plugin-dotenv`](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-dotenv)—Use `dotenv` in your Snowpack. This is useful for environment specific variables
+- [Prettier](https://prettier.io/) — a popular code formatter
+- [Tests](/guides/testing) — Snowpack supports any popular JavaScript testing framework
+- [`@snowpack/plugin-dotenv`](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-dotenv) — Use `dotenv` in your Snowpack. This is useful for environment specific variables
 
 We also recommend the official [Svelte](https://svelte.dev/tutorial/basics) tutorial, which teaches more about how Svelte works and how to build Svelte components.
 
