@@ -573,7 +573,15 @@ export class PackageSourceLocal implements PackageSource {
           externalEsm: (imp) => {
             const [packageName] = parsePackageImportSpecifier(imp);
             const result = resolveDependencyManifest(packageName);
-            return !result || !isPackageCJS(result);
+            if (!result) {
+              return true;
+            } else if (config.packageOptions.source === 'local') {
+              const id = `${result.name}@${result.version}`;
+              if (config.packageOptions.externalCjs.includes(id)) {
+                return false;
+              }
+            }
+            return !isPackageCJS(result);
           },
         };
         if (config.packageOptions.source === 'local') {

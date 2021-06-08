@@ -82,6 +82,7 @@ export const DEFAULT_PACKAGES_LOCAL_CONFIG: PackageOptionsLocal = {
   external: [],
   packageLookupFields: [],
   knownEntrypoints: [],
+  externalCjs: [],
 };
 
 const REMOTE_PACKAGE_ORIGIN = 'https://pkg.snowpack.dev';
