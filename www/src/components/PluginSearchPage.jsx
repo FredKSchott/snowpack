@@ -25,7 +25,7 @@ function Card({ result }) {
       <img class={Styles.Icon__Plugin} src="/img/plug-light.svg" />
       <header class={Styles.CardHeader}>
         <h3 class={Styles.CardName}>
-          <a href="https://www.npmjs.com/package/{result.name}" target="_blank">
+          <a href={`https://www.npmjs.com/package/${result.name}`} target="_blank">
             <span itemprop="name">{result.name}</span>
           </a>
         </h3>
