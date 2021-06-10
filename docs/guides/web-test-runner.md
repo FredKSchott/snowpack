@@ -13,13 +13,14 @@ description: How to use @web/test-runner in your Snowpack project.
 This guide shows how to set up @web/test-runner and [@snowpack/web-test-runner-plugin](https://www.npmjs.com/package/@snowpack/web-test-runner-plugin) for a React project. The end result recreates the test configuration in [app-template-react](https://github.com/snowpackjs/snowpack/blob/main/create-snowpack-app/app-template-react), one of our Create Snowpack App starter templates. If you're using a different framework, tweak React specific steps appropriately.
 
 #### 1. Install dependencies
+The base testing dependencies (don't hit Enter just yet!):
 ```
-npm i -D @web/test-runner @snowpack/web-test-runner-plugin chai @testing-library/react
+npm i -D @web/test-runner @snowpack/web-test-runner-plugin chai
 ```
 
-If using TypeScript, install `@types/mocha` and `@types/chai` as well.
+If using React, Vue, Svelte, or Preact, add the corresponding [Testing Library](https://testing-library.com/) (in this case `@testing-libary/react`).
 
-In addition to React, [Testing Library](https://testing-library.com/) also has libraries for Vue, Svelte, Preact, and more.
+If using TypeScript, add `@types/mocha` and `@types/chai`.
 
 #### 2. Configure
 
@@ -45,8 +46,9 @@ Add a `test` script to your project `package.json`:
 +  "test": "web-test-runner \"src/**/*.test.jsx\"",
   ...
 },
-
 ```
+
+If needed, swap `.jsx` with the file type(s) containing your tests.
 
 To specify multiple test file types, enclose with curly brackets and separate with commas. For example, to match `.jsx`, `.js`, and `.ts` files, the script would be:
 
