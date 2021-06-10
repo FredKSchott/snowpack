@@ -34,7 +34,7 @@ function Card({ result }) {
         {result.description.split('. ')[0]}
       </p>
       <p class={Styles.CardSubtitle}>
-        Updated
+        Updated&nbsp;
         <time class="" datetime={result.updatedAt}>
           {updatedAtFormatted}
         </time>
