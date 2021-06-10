@@ -4,6 +4,11 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.5.7 [2021-06-10]
+
+* 6e7f137b - [ci] yarn format <matthewp>
+* dc44eb75 - Disconnect the HMR server when snowpack is shutdown (#3439) <Matthew Phillips>
+
 ## snowpack@3.5.6 [2021-06-07]
 
 * f0534bb7 - [ci] yarn format <matthewp>
