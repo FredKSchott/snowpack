@@ -1020,6 +1020,7 @@ export async function startServer(
       watcher && (await watcher.close());
       await runPipelineCleanupStep(config);
       server && server.close();
+      hmrEngine && (await hmrEngine.stop());
     },
   };
   return sp;

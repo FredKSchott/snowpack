@@ -41,10 +41,11 @@ export class EsmHmrEngine {
   private currentBatchTimeout: NodeJS.Timer | null = null;
   private cachedConnectErrors: Set<HMRMessage> = new Set();
   readonly port: number = 0;
+  private wss: WebSocket.Server;
 
   constructor(options: EsmHmrEngineOptions) {
     this.port = options.port || DEFAULT_PORT;
-    const wss = options.server
+    const wss = this.wss = options.server
       ? new WebSocket.Server({noServer: true})
       : new WebSocket.Server({port: this.port});
     if (options.delay) {
@@ -69,8 +70,10 @@ export class EsmHmrEngine {
         this.dispatchMessage(Array.from(this.cachedConnectErrors), client);
       }
     });
-    wss.on('close', (client) => {
-      this.disconnectClient(client);
+    wss.on('close', (client: WebSocket | undefined) => {
+      if(client) {
+        this.disconnectClient(client);
+      }
     });
   }
 
@@ -232,5 +235,18 @@ export class EsmHmrEngine {
     for (const client of this.clients) {
       this.disconnectClient(client);
     }
+  }
+
+  stop(): Promise<void> {
+    // This will disconnect clients so no need to do that ourselves.
+    return new Promise((resolve, reject) => {
+      this.wss.close(err => {
+        if(err) {
+          reject(err);
+        } else {
+          resolve(void 0);
+        }
+      });
+    });
   }
 }
