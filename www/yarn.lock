@@ -564,10 +564,10 @@ astring@^1.7.4:
   resolved "https://registry.yarnpkg.com/astring/-/astring-1.7.5.tgz#a7d47fceaf32b052d33a3d07c511efeec67447ca"
   integrity sha512-lobf6RWXb8c4uZ7Mdq0U12efYmpD1UFnyOWVJPTa3ukqZrMopav+2hdNu0hgBF0JIBFK9QgrBDfwYvh3DFJDAA==
 
-astro@^0.12.5:
-  version "0.12.6"
-  resolved "https://registry.yarnpkg.com/astro/-/astro-0.12.6.tgz#a43b2dca01d40a3080780f6e255c0ffed3baf009"
-  integrity sha512-m7T6ejldzg+3Dtb4es7lUcbTxx7uluBgMOvvmon4wUT6+KuC9krsjINb/+ksPon5TZD7KYdynf1+HNhePmygVQ==
+astro@^0.13.0:
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/astro/-/astro-0.13.0.tgz#b7eb931875660e450f60aea4443ad6283061d038"
+  integrity sha512-8QEzivVZ4zhJeSqD3XdETyMSyvo9k3hfFA1xLVjdBM3brCRrwYqpP42QaAXm0MVIhQuEQEdG9UEI0pbYNfg3VA==
   dependencies:
     "@astrojs/markdown-support" "0.1.1"
     "@astrojs/parser" "0.12.1"
@@ -620,7 +620,7 @@ astro@^0.12.5:
     sass "^1.32.13"
     shorthash "^0.0.2"
     slash "^4.0.0"
-    snowpack "^3.5.6"
+    snowpack "^3.5.7"
     source-map-support "^0.5.19"
     string-width "^5.0.0"
     tiny-glob "^0.2.8"
@@ -3354,10 +3354,10 @@ smart-buffer@^4.1.0:
   resolved "https://registry.yarnpkg.com/smart-buffer/-/smart-buffer-4.1.0.tgz#91605c25d91652f4661ea69ccf45f1b331ca21ba"
   integrity sha512-iVICrxOzCynf/SNaBQCw34eM9jROU/s5rzIhpOvzhzuYHfJR/DhZfDkXiZSgKXfgv26HT3Yni3AV/DGw0cGnnw==
 
-snowpack@^3.5.6:
-  version "3.5.6"
-  resolved "https://registry.yarnpkg.com/snowpack/-/snowpack-3.5.6.tgz#79f8699e4248e19f67ec50433e50072bb2e69e89"
-  integrity sha512-R9uqattPhS2j1zaOFgwl7i54rFTtxxk4kmKmqJBRwD+9YggUulGm7O7YRXaMMjtmi69czK7jxbtZs1Up/xA+1A==
+snowpack@^3.5.7:
+  version "3.5.7"
+  resolved "https://registry.yarnpkg.com/snowpack/-/snowpack-3.5.7.tgz#1d56a273c97e6f8fe23800f4d3c641eefb65f356"
+  integrity sha512-mMdbG9vSs7JL69/Zk2VtpduBnbfzCCCXvhJeX4GzPg4aYyKtfs0s6MA5VoQbN9HL6lZpKRy/knaigKcC4E29GA==
   dependencies:
     cli-spinners "^2.5.0"
     default-browser-id "^2.0.0"
