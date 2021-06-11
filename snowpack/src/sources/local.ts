@@ -53,6 +53,7 @@ const NEVER_PEER_PACKAGES: Set<string> = new Set([
   'whatwg-fetch',
   'tslib',
   '@ant-design/icons-svg',
+  '@ant-design/icons',
 ]);
 
 function isPackageCJS(manifest: any): boolean {
