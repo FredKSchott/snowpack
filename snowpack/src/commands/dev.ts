@@ -241,6 +241,7 @@ function getServerRuntime(
       return result;
     },
   });
+
   if (options.invalidateOnChange !== false) {
     sp.onFileChange(({filePath}) => {
       const url = sp.getUrlForFile(filePath);
@@ -1022,6 +1023,10 @@ export async function startServer(
       server && server.close();
       hmrEngine && (await hmrEngine.stop());
     },
+    markChanged(fileLoc) {
+      knownETags.clear();
+      onWatchEvent(fileLoc);
+    }
   };
   return sp;
 }
