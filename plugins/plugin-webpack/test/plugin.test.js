@@ -60,6 +60,27 @@ describe('@snowpack/plugin-webpack', () => {
     expect(readFilesSync(IGNORED_STUBS_DIR)).toMatchSnapshot('files');
   });
 
+  it('respect extendedConfig.output.path', async () => {
+    const pluginInstance = plugin({
+      buildOptions: {},
+    }, {
+      extendConfig: (config) => {
+        config.output.path = path.resolve(IGNORED_STUBS_DIR, 'dist');
+
+        return config;
+      },
+    });
+
+    await pluginInstance.optimize({
+      buildDirectory: IGNORED_STUBS_DIR,
+    });
+
+    expect(readFilesSync(path.join(IGNORED_STUBS_DIR, 'dist'))).toMatchSnapshot('files');
+    expect(fs.existsSync(path.join(IGNORED_STUBS_DIR, 'js'))).toBe(false);
+    expect(fs.existsSync(path.join(IGNORED_STUBS_DIR, 'css'))).toBe(false);
+    expect(fs.existsSync(path.join(IGNORED_STUBS_DIR, 'assets'))).toBe(false);
+  });
+
   it('multiple entrypoints w/ same filename', async () => {
     const pluginInstance = plugin({
       buildOptions: {},
