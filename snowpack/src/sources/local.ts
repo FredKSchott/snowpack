@@ -493,9 +493,15 @@ export class PackageSourceLocal implements PackageSource {
       const lineBullet = colors.dim(depth === 0 ? '+' : '└──'.padStart(depth * 2 + 1, ' '));
       let packageFormatted = spec + colors.dim('@' + packageVersion);
       const existingImportMapLoc = path.join(installDest, 'import-map.json');
-      const existingImportMap: ImportMap | null =
-        (await fs.stat(existingImportMapLoc).catch(() => null)) &&
-        JSON.parse(await fs.readFile(existingImportMapLoc, 'utf8'));
+      const importMapHandle = await fs.open(existingImportMapLoc, 'r+').catch(() => null);
+
+      let existingImportMap: ImportMap | null = null;
+      if(importMapHandle) {
+        const importMapData = await importMapHandle.readFile('utf-8');
+        existingImportMap = importMapData ? JSON.parse(importMapData) : null;
+        await importMapHandle.close();
+      }
+
       // Kick off a build, if needed.
       let importMap = existingImportMap;
       let needsBuild = !existingImportMap?.imports[spec];
