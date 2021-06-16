@@ -4,6 +4,11 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.5.9 [2021-06-16]
+
+* 343274e2 - [ci] yarn format <matthewp>
+* d93d01ec - Fix race condition reading existing import-map.json files (#3453) <Matthew Phillips>
+
 ## snowpack@3.5.8 [2021-06-16]
 
 * 611dac9a - [ci] yarn format <matthewp>
