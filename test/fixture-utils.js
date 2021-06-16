@@ -97,7 +97,10 @@ exports.testPrepareFixture = async function testPrepareFixture(testFiles, option
   });
 };
 
-exports.testRuntimeFixture = async function testRuntimeFixture(testFiles, {absolute = false, overrides = {}} = {}) {
+exports.testRuntimeFixture = async function testRuntimeFixture(
+  testFiles,
+  {absolute = false, overrides = {}} = {},
+) {
   const inDir = await fs.mkdtemp(path.join(__dirname, '__temp__', 'snowpack-fixture-'));
 
   if (typeof testFiles === 'string') {
@@ -121,13 +124,15 @@ exports.testRuntimeFixture = async function testRuntimeFixture(testFiles, {absol
   const config = await snowpack.loadConfiguration({root: inDir, ...overrides});
   const outDir = config.buildOptions.out;
 
-  const server = await snowpack.startServer({
-    config: config,
-    lockfile: null,
-  },
-  {
-    isWatch: false
-  });
+  const server = await snowpack.startServer(
+    {
+      config: config,
+      lockfile: null,
+    },
+    {
+      isWatch: false,
+    },
+  );
 
   const runtime = server.getServerRuntime();
 
@@ -174,6 +179,6 @@ exports.testRuntimeFixture = async function testRuntimeFixture(testFiles, {absol
       // TODO: Make it easier to turn this off when debugging.
       await rimraf.sync(inDir);
       await server.shutdown();
-    }
+    },
   };
-}
+};

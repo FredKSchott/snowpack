@@ -32,9 +32,12 @@ describe('runtime', () => {
     expect(mod.exports.getData()).toStrictEqual([1, 2]);
 
     // Change the file
-    await fixture.writeFile('data.json', dedent`
+    await fixture.writeFile(
+      'data.json',
+      dedent`
       [ 1, 2, 3 ]
-    `);
+    `,
+    );
 
     try {
       fixture.runtime.invalidateModule('/data.json');

@@ -1026,7 +1026,7 @@ export async function startServer(
     markChanged(fileLoc) {
       knownETags.clear();
       onWatchEvent(fileLoc);
-    }
+    },
   };
   return sp;
 }

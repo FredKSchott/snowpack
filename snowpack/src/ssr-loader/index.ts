@@ -29,7 +29,7 @@ export function createLoader({config, load}: ServerRuntimeConfig): ServerRuntime
 
   function invalidateModule(path) {
     // If the cache doesn't have this path, check if it's a proxy file.
-    if(!cache.has(path) && cache.has(path + '.proxy.js')) {
+    if (!cache.has(path) && cache.has(path + '.proxy.js')) {
       path = path + '.proxy.js';
     }
 
