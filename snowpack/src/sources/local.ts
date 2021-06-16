@@ -496,7 +496,7 @@ export class PackageSourceLocal implements PackageSource {
       const importMapHandle = await fs.open(existingImportMapLoc, 'r+').catch(() => null);
 
       let existingImportMap: ImportMap | null = null;
-      if(importMapHandle) {
+      if (importMapHandle) {
         const importMapData = await importMapHandle.readFile('utf-8');
         existingImportMap = importMapData ? JSON.parse(importMapData) : null;
         await importMapHandle.close();
