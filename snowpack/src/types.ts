@@ -87,6 +87,7 @@ export interface SnowpackDevServer {
   getUrlForPackage: (packageSpec: string) => Promise<string>;
   onFileChange: (callback: OnFileChangeCallback) => void;
   shutdown(): Promise<void>;
+  markChanged: (fileLoc: string) => void;
 }
 
 export type SnowpackBuildResultFileManifest = Record<
