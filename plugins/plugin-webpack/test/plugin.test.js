@@ -61,15 +61,18 @@ describe('@snowpack/plugin-webpack', () => {
   });
 
   it('respect extendedConfig.output.path', async () => {
-    const pluginInstance = plugin({
-      buildOptions: {},
-    }, {
-      extendConfig: (config) => {
-        config.output.path = path.resolve(IGNORED_STUBS_DIR, 'dist');
-
-        return config;
+    const pluginInstance = plugin(
+      {
+        buildOptions: {},
       },
-    });
+      {
+        extendConfig: (config) => {
+          config.output.path = path.resolve(IGNORED_STUBS_DIR, 'dist');
+
+          return config;
+        },
+      },
+    );
 
     await pluginInstance.optimize({
       buildDirectory: IGNORED_STUBS_DIR,

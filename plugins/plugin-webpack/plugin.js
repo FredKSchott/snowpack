@@ -18,9 +18,9 @@ function insertBefore(newNode, existingNode) {
 
 function ensureDirectoryExists(dir) {
   if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+    fs.mkdirSync(dir, {recursive: true});
   }
-};
+}
 
 function parseHTMLFiles({buildDirectory}) {
   // Get all html files from the output folder
@@ -110,7 +110,7 @@ function emitHTMLFiles({doms, jsEntries, stats, baseUrl, outputDirectory, htmlMi
 
     const outputFile = path.join(outputDirectory, htmlFile);
     // If the user specified a different output, we may not have an existing folder structure
-    ensureDirectoryExists(path.dirname(outputFile))
+    ensureDirectoryExists(path.dirname(outputFile));
     fs.writeFileSync(outputFile, html);
   }
 }
