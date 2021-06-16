@@ -4,6 +4,11 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.5.8 [2021-06-16]
+
+* 611dac9a - [ci] yarn format <matthewp>
+* 7a1ae463 - Handle runtime invalidation for proxy files (#3449) <Matthew Phillips>
+
 ## snowpack@3.5.7 [2021-06-10]
 
 * 6e7f137b - [ci] yarn format <matthewp>
