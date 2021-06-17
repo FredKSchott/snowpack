@@ -116,6 +116,7 @@ Add an ID of `#root` to the `body` tag in your `index.html`
     <script type="module" src="/index.js"></script>
   </body>
 ```
+
 Now you can use the new `App.vue` file in your `index.js`:
 
 ```diff
@@ -125,6 +126,7 @@ Now you can use the new `App.vue` file in your `index.js`:
 + import App from './App.vue';
 + createApp(App).mount('#root');
 ```
+
 The page should now say "Welcome to my Vue app!". Congratulations! You now have your first Vue component!
 
 ## Customize your project layout

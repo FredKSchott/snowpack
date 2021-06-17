@@ -1,4 +1,4 @@
-const counter = document.querySelector("#counter")
+const counter = document.querySelector('#counter');
 let seconds = 0;
 
 setInterval(() => {

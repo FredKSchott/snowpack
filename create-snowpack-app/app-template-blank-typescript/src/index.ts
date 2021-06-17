@@ -1,4 +1,4 @@
-const counter = document.querySelector("#counter") as HTMLSpanElement;
+const counter = document.querySelector('#counter') as HTMLSpanElement;
 let seconds = 0;
 
 setInterval(() => {
