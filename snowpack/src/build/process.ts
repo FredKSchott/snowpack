@@ -20,7 +20,7 @@ import {runBuiltInOptimize} from './optimize';
 import {startServer} from '../commands/dev';
 import {getPackageSource} from '../sources/util';
 import {installPackages} from '../sources/local-install';
-import {deleteFromBuildSafe, isPathImport, isRemoteUrl} from '../util';
+import {deleteFromBuildSafe, isPathImport, isRemoteUrl, IS_DOTFILE_REGEX} from '../util';
 import {logger} from '../logger';
 
 interface BuildState {
@@ -147,8 +147,6 @@ export function maybeCleanBuildDirectory(state: BuildState) {
 
 export async function addBuildFiles(state: BuildState, files: string[]) {
   const {config} = state;
-
-  const excludePrivate = new RegExp(`\\${path.sep}\\..+(?!\\${path.sep})`);
   const excludeGlobs = [...config.exclude, ...config.testOptions.files];
   const foundExcludeMatch = picomatch(excludeGlobs);
   const mountedNodeModules = Object.keys(config.mount).filter((v) => v.includes('node_modules'));
@@ -156,9 +154,6 @@ export async function addBuildFiles(state: BuildState, files: string[]) {
   const allFileUrls: string[] = [];
 
   for (const f of files) {
-    if (excludePrivate.test(f)) {
-      continue;
-    }
     if (foundExcludeMatch(f)) {
       const isMounted = mountedNodeModules.find((mountKey) => f.startsWith(mountKey));
       if (!isMounted || (isMounted && foundExcludeMatch(f.slice(isMounted.length)))) {
@@ -181,9 +176,15 @@ export async function addBuildFilesFromMountpoints(state: BuildState): Promise<v
 
   for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
     logger.debug(`Mounting directory: '${mountKey}' as URL '${mountEntry.url}'`);
-    const files = (await new fdir().withFullPaths().crawl(mountKey).withPromise()) as string[];
-
-    possibleFiles.push(...files);
+    const allMatchedFiles = (await new fdir()
+      .withFullPaths()
+      .crawl(mountKey)
+      .withPromise()) as string[];
+    if (mountEntry.dot) {
+      possibleFiles.push(...allMatchedFiles);
+    } else {
+      possibleFiles.push(...allMatchedFiles.filter((f) => !IS_DOTFILE_REGEX.test(f)));
+    }
   }
 
   addBuildFiles(state, possibleFiles);

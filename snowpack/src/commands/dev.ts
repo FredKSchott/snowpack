@@ -41,6 +41,7 @@ import {
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
   isFsEventsEnabled,
+  IS_DOTFILE_REGEX,
   openInBrowser,
 } from '../util';
 import {getPort, startDashboard, paintEvent} from './paint';
@@ -538,7 +539,7 @@ export async function startServer(
     // directory, so we can't strip that info just yet. Try the exact match first, and then strip
     // it later on if there is no match.
     let resourcePath = reqPath;
-    let resourceType = matchOutputExt(reqPath) || '.html';
+    let resourceType = matchOutputExt(reqPath) || (IS_DOTFILE_REGEX.test(reqPath) ? '' : '.html');
     let foundFile: FoundFile;
 
     // * Workspaces & Linked Packages:
