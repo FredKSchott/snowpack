@@ -1,7 +1,7 @@
 {
   "name": "@snowpack/app-template-blank",
   "description": "A preconfigured template for Snowpack with Prettier",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "license": "MIT",
   "homepage": "https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-blank#readme",
   "repository": {
@@ -22,9 +22,7 @@
     "lint": "prettier --check \"src/**/*.js\"",
     "test": "echo \"This template does not include a test runner by default.\" && exit 1"
   },
-  "dependencies": {
-    "canvas-confetti": "^1.2.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "prettier": "^2.2.1",
     "snowpack": "^3.3.7"

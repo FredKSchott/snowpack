@@ -1,0 +1,29 @@
+body {
+  font-size: calc(10px + 2vmin);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+#img {
+  display: block;
+  margin: auto;
+  height: 128px;
+  width: 128px;
+  padding: 2rem;
+}
+
+p {
+  display: block;
+  margin: 1rem auto;
+  text-align: center;
+}
+
+#counter {
+  background-color: rgb(46, 94, 130);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+a {
+  color: rgb(46, 94, 130);
+}

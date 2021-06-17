@@ -1,11 +1,7 @@
-/**
- * This file is just a silly example to show everything working in the browser.
- * When you're ready to start on your site, clear the file. Happy hacking!
- **/
+const counter = document.querySelector("#counter")
+let seconds = 0;
 
-import confetti from 'canvas-confetti';
-
-confetti.create(document.getElementById('canvas'), {
-  resize: true,
-  useWorker: true,
-})({ particleCount: 200, spread: 200 });
+setInterval(() => {
+  seconds += 1;
+  counter.textContent = seconds;
+}, 1000);
