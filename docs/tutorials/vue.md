@@ -106,6 +106,16 @@ Create a file named `App.vue` in your project directory with the following code:
 </template>
 ```
 
+Add an ID of `#root` to the `body` tag in your `index.html`
+
+```diff
+// index.html
+- <body>
++ <body id="root">
+    <h1>Welcome to Snowpack!</h1>
+    <script type="module" src="/index.js"></script>
+  </body>
+```
 Now you can use the new `App.vue` file in your `index.js`:
 
 ```diff
@@ -113,11 +123,9 @@ Now you can use the new `App.vue` file in your `index.js`:
 - console.log('Hello World! You did it! Welcome to Snowpack :D');
 + import { createApp } from 'vue';
 + import App from './App.vue';
-
 + createApp(App).mount('#root');
 ```
-
-The page should now say "Learn Vue". Congratulations! You now have your first Vue component!
+The page should now say "Welcome to my Vue app!". Congratulations! You now have your first Vue component!
 
 ## Customize your project layout
 
