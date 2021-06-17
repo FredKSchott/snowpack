@@ -591,522 +591,52 @@ a {
 }"
 `;
 
-exports[`create-snowpack-app app-template-blank > build: _snowpack/pkg/canvas-confetti.js 1`] = `
-"var module = {};
-(function main(global, module2, isWorker, workerSize) {
-  var canUseWorker = !!(global.Worker && global.Blob && global.Promise && global.OffscreenCanvas && global.OffscreenCanvasRenderingContext2D && global.HTMLCanvasElement && global.HTMLCanvasElement.prototype.transferControlToOffscreen && global.URL && global.URL.createObjectURL);
-  function noop() {
-  }
-  function promise(func) {
-    var ModulePromise = module2.exports.Promise;
-    var Prom = ModulePromise !== void 0 ? ModulePromise : global.Promise;
-    if (typeof Prom === \\"function\\") {
-      return new Prom(func);
-    }
-    func(noop, noop);
-    return null;
-  }
-  var raf = function() {
-    var TIME = Math.floor(1e3 / 60);
-    var frame, cancel;
-    var frames = {};
-    var lastFrameTime = 0;
-    if (typeof requestAnimationFrame === \\"function\\" && typeof cancelAnimationFrame === \\"function\\") {
-      frame = function(cb) {
-        var id = Math.random();
-        frames[id] = requestAnimationFrame(function onFrame(time) {
-          if (lastFrameTime === time || lastFrameTime + TIME - 1 < time) {
-            lastFrameTime = time;
-            delete frames[id];
-            cb();
-          } else {
-            frames[id] = requestAnimationFrame(onFrame);
-          }
-        });
-        return id;
-      };
-      cancel = function(id) {
-        if (frames[id]) {
-          cancelAnimationFrame(frames[id]);
-        }
-      };
-    } else {
-      frame = function(cb) {
-        return setTimeout(cb, TIME);
-      };
-      cancel = function(timer) {
-        return clearTimeout(timer);
-      };
-    }
-    return {frame, cancel};
-  }();
-  var getWorker = function() {
-    var worker;
-    var prom;
-    var resolves = {};
-    function decorate(worker2) {
-      function execute(options, callback) {
-        worker2.postMessage({options: options || {}, callback});
-      }
-      worker2.init = function initWorker(canvas) {
-        var offscreen = canvas.transferControlToOffscreen();
-        worker2.postMessage({canvas: offscreen}, [offscreen]);
-      };
-      worker2.fire = function fireWorker(options, size, done) {
-        if (prom) {
-          execute(options, null);
-          return prom;
-        }
-        var id = Math.random().toString(36).slice(2);
-        prom = promise(function(resolve) {
-          function workerDone(msg) {
-            if (msg.data.callback !== id) {
-              return;
-            }
-            delete resolves[id];
-            worker2.removeEventListener(\\"message\\", workerDone);
-            prom = null;
-            done();
-            resolve();
-          }
-          worker2.addEventListener(\\"message\\", workerDone);
-          execute(options, id);
-          resolves[id] = workerDone.bind(null, {data: {callback: id}});
-        });
-        return prom;
-      };
-      worker2.reset = function resetWorker() {
-        worker2.postMessage({reset: true});
-        for (var id in resolves) {
-          resolves[id]();
-          delete resolves[id];
-        }
-      };
-    }
-    return function() {
-      if (worker) {
-        return worker;
-      }
-      if (!isWorker && canUseWorker) {
-        var code = [
-          \\"var CONFETTI, SIZE = {}, module = {};\\",
-          \\"(\\" + main.toString() + \\")(this, module, true, SIZE);\\",
-          \\"onmessage = function(msg) {\\",
-          \\"  if (msg.data.options) {\\",
-          \\"    CONFETTI(msg.data.options).then(function () {\\",
-          \\"      if (msg.data.callback) {\\",
-          \\"        postMessage({ callback: msg.data.callback });\\",
-          \\"      }\\",
-          \\"    });\\",
-          \\"  } else if (msg.data.reset) {\\",
-          \\"    CONFETTI.reset();\\",
-          \\"  } else if (msg.data.resize) {\\",
-          \\"    SIZE.width = msg.data.resize.width;\\",
-          \\"    SIZE.height = msg.data.resize.height;\\",
-          \\"  } else if (msg.data.canvas) {\\",
-          \\"    SIZE.width = msg.data.canvas.width;\\",
-          \\"    SIZE.height = msg.data.canvas.height;\\",
-          \\"    CONFETTI = module.exports.create(msg.data.canvas);\\",
-          \\"  }\\",
-          \\"}\\"
-        ].join(\\"\\");
-        try {
-          worker = new Worker(URL.createObjectURL(new Blob([code])));
-        } catch (e) {
-          typeof console !== void 0 && typeof console.warn === \\"function\\" ? console.warn(\\"🎊 Could not load worker\\", e) : null;
-          return null;
-        }
-        decorate(worker);
-      }
-      return worker;
-    };
-  }();
-  var defaults = {
-    particleCount: 50,
-    angle: 90,
-    spread: 45,
-    startVelocity: 45,
-    decay: 0.9,
-    gravity: 1,
-    drift: 0,
-    ticks: 200,
-    x: 0.5,
-    y: 0.5,
-    shapes: [\\"square\\", \\"circle\\"],
-    zIndex: 100,
-    colors: [
-      \\"#26ccff\\",
-      \\"#a25afd\\",
-      \\"#ff5e7e\\",
-      \\"#88ff5a\\",
-      \\"#fcff42\\",
-      \\"#ffa62d\\",
-      \\"#ff36ff\\"
-    ],
-    disableForReducedMotion: false,
-    scalar: 1
-  };
-  function convert(val, transform) {
-    return transform ? transform(val) : val;
-  }
-  function isOk(val) {
-    return !(val === null || val === void 0);
-  }
-  function prop(options, name, transform) {
-    return convert(options && isOk(options[name]) ? options[name] : defaults[name], transform);
-  }
-  function onlyPositiveInt(number) {
-    return number < 0 ? 0 : Math.floor(number);
-  }
-  function randomInt(min, max) {
-    return Math.floor(Math.random() * (max - min)) + min;
-  }
-  function toDecimal(str) {
-    return parseInt(str, 16);
-  }
-  function colorsToRgb(colors) {
-    return colors.map(hexToRgb);
-  }
-  function hexToRgb(str) {
-    var val = String(str).replace(/[^0-9a-f]/gi, \\"\\");
-    if (val.length < 6) {
-      val = val[0] + val[0] + val[1] + val[1] + val[2] + val[2];
-    }
-    return {
-      r: toDecimal(val.substring(0, 2)),
-      g: toDecimal(val.substring(2, 4)),
-      b: toDecimal(val.substring(4, 6))
-    };
-  }
-  function getOrigin(options) {
-    var origin = prop(options, \\"origin\\", Object);
-    origin.x = prop(origin, \\"x\\", Number);
-    origin.y = prop(origin, \\"y\\", Number);
-    return origin;
-  }
-  function setCanvasWindowSize(canvas) {
-    canvas.width = document.documentElement.clientWidth;
-    canvas.height = document.documentElement.clientHeight;
-  }
-  function setCanvasRectSize(canvas) {
-    var rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-  }
-  function getCanvas(zIndex) {
-    var canvas = document.createElement(\\"canvas\\");
-    canvas.style.position = \\"fixed\\";
-    canvas.style.top = \\"0px\\";
-    canvas.style.left = \\"0px\\";
-    canvas.style.pointerEvents = \\"none\\";
-    canvas.style.zIndex = zIndex;
-    return canvas;
-  }
-  function ellipse(context, x, y, radiusX, radiusY, rotation, startAngle, endAngle, antiClockwise) {
-    context.save();
-    context.translate(x, y);
-    context.rotate(rotation);
-    context.scale(radiusX, radiusY);
-    context.arc(0, 0, 1, startAngle, endAngle, antiClockwise);
-    context.restore();
-  }
-  function randomPhysics(opts) {
-    var radAngle = opts.angle * (Math.PI / 180);
-    var radSpread = opts.spread * (Math.PI / 180);
-    return {
-      x: opts.x,
-      y: opts.y,
-      wobble: Math.random() * 10,
-      velocity: opts.startVelocity * 0.5 + Math.random() * opts.startVelocity,
-      angle2D: -radAngle + (0.5 * radSpread - Math.random() * radSpread),
-      tiltAngle: Math.random() * Math.PI,
-      color: opts.color,
-      shape: opts.shape,
-      tick: 0,
-      totalTicks: opts.ticks,
-      decay: opts.decay,
-      drift: opts.drift,
-      random: Math.random() + 5,
-      tiltSin: 0,
-      tiltCos: 0,
-      wobbleX: 0,
-      wobbleY: 0,
-      gravity: opts.gravity * 3,
-      ovalScalar: 0.6,
-      scalar: opts.scalar
-    };
-  }
-  function updateFetti(context, fetti) {
-    fetti.x += Math.cos(fetti.angle2D) * fetti.velocity + fetti.drift;
-    fetti.y += Math.sin(fetti.angle2D) * fetti.velocity + fetti.gravity;
-    fetti.wobble += 0.1;
-    fetti.velocity *= fetti.decay;
-    fetti.tiltAngle += 0.1;
-    fetti.tiltSin = Math.sin(fetti.tiltAngle);
-    fetti.tiltCos = Math.cos(fetti.tiltAngle);
-    fetti.random = Math.random() + 5;
-    fetti.wobbleX = fetti.x + 10 * fetti.scalar * Math.cos(fetti.wobble);
-    fetti.wobbleY = fetti.y + 10 * fetti.scalar * Math.sin(fetti.wobble);
-    var progress = fetti.tick++ / fetti.totalTicks;
-    var x1 = fetti.x + fetti.random * fetti.tiltCos;
-    var y1 = fetti.y + fetti.random * fetti.tiltSin;
-    var x2 = fetti.wobbleX + fetti.random * fetti.tiltCos;
-    var y2 = fetti.wobbleY + fetti.random * fetti.tiltSin;
-    context.fillStyle = \\"rgba(\\" + fetti.color.r + \\", \\" + fetti.color.g + \\", \\" + fetti.color.b + \\", \\" + (1 - progress) + \\")\\";
-    context.beginPath();
-    if (fetti.shape === \\"circle\\") {
-      context.ellipse ? context.ellipse(fetti.x, fetti.y, Math.abs(x2 - x1) * fetti.ovalScalar, Math.abs(y2 - y1) * fetti.ovalScalar, Math.PI / 10 * fetti.wobble, 0, 2 * Math.PI) : ellipse(context, fetti.x, fetti.y, Math.abs(x2 - x1) * fetti.ovalScalar, Math.abs(y2 - y1) * fetti.ovalScalar, Math.PI / 10 * fetti.wobble, 0, 2 * Math.PI);
-    } else {
-      context.moveTo(Math.floor(fetti.x), Math.floor(fetti.y));
-      context.lineTo(Math.floor(fetti.wobbleX), Math.floor(y1));
-      context.lineTo(Math.floor(x2), Math.floor(y2));
-      context.lineTo(Math.floor(x1), Math.floor(fetti.wobbleY));
-    }
-    context.closePath();
-    context.fill();
-    return fetti.tick < fetti.totalTicks;
-  }
-  function animate(canvas, fettis, resizer, size, done) {
-    var animatingFettis = fettis.slice();
-    var context = canvas.getContext(\\"2d\\");
-    var animationFrame;
-    var destroy;
-    var prom = promise(function(resolve) {
-      function onDone() {
-        animationFrame = destroy = null;
-        context.clearRect(0, 0, size.width, size.height);
-        done();
-        resolve();
-      }
-      function update() {
-        if (isWorker && !(size.width === workerSize.width && size.height === workerSize.height)) {
-          size.width = canvas.width = workerSize.width;
-          size.height = canvas.height = workerSize.height;
-        }
-        if (!size.width && !size.height) {
-          resizer(canvas);
-          size.width = canvas.width;
-          size.height = canvas.height;
-        }
-        context.clearRect(0, 0, size.width, size.height);
-        animatingFettis = animatingFettis.filter(function(fetti) {
-          return updateFetti(context, fetti);
-        });
-        if (animatingFettis.length) {
-          animationFrame = raf.frame(update);
-        } else {
-          onDone();
-        }
-      }
-      animationFrame = raf.frame(update);
-      destroy = onDone;
-    });
-    return {
-      addFettis: function(fettis2) {
-        animatingFettis = animatingFettis.concat(fettis2);
-        return prom;
-      },
-      canvas,
-      promise: prom,
-      reset: function() {
-        if (animationFrame) {
-          raf.cancel(animationFrame);
-        }
-        if (destroy) {
-          destroy();
-        }
-      }
-    };
-  }
-  function confettiCannon(canvas, globalOpts) {
-    var isLibCanvas = !canvas;
-    var allowResize = !!prop(globalOpts || {}, \\"resize\\");
-    var globalDisableForReducedMotion = prop(globalOpts, \\"disableForReducedMotion\\", Boolean);
-    var shouldUseWorker = canUseWorker && !!prop(globalOpts || {}, \\"useWorker\\");
-    var worker = shouldUseWorker ? getWorker() : null;
-    var resizer = isLibCanvas ? setCanvasWindowSize : setCanvasRectSize;
-    var initialized = canvas && worker ? !!canvas.__confetti_initialized : false;
-    var preferLessMotion = typeof matchMedia === \\"function\\" && matchMedia(\\"(prefers-reduced-motion)\\").matches;
-    var animationObj;
-    function fireLocal(options, size, done) {
-      var particleCount = prop(options, \\"particleCount\\", onlyPositiveInt);
-      var angle = prop(options, \\"angle\\", Number);
-      var spread = prop(options, \\"spread\\", Number);
-      var startVelocity = prop(options, \\"startVelocity\\", Number);
-      var decay = prop(options, \\"decay\\", Number);
-      var gravity = prop(options, \\"gravity\\", Number);
-      var drift = prop(options, \\"drift\\", Number);
-      var colors = prop(options, \\"colors\\", colorsToRgb);
-      var ticks = prop(options, \\"ticks\\", Number);
-      var shapes = prop(options, \\"shapes\\");
-      var scalar = prop(options, \\"scalar\\");
-      var origin = getOrigin(options);
-      var temp = particleCount;
-      var fettis = [];
-      var startX = canvas.width * origin.x;
-      var startY = canvas.height * origin.y;
-      while (temp--) {
-        fettis.push(randomPhysics({
-          x: startX,
-          y: startY,
-          angle,
-          spread,
-          startVelocity,
-          color: colors[temp % colors.length],
-          shape: shapes[randomInt(0, shapes.length)],
-          ticks,
-          decay,
-          gravity,
-          drift,
-          scalar
-        }));
-      }
-      if (animationObj) {
-        return animationObj.addFettis(fettis);
-      }
-      animationObj = animate(canvas, fettis, resizer, size, done);
-      return animationObj.promise;
-    }
-    function fire(options) {
-      var disableForReducedMotion = globalDisableForReducedMotion || prop(options, \\"disableForReducedMotion\\", Boolean);
-      var zIndex = prop(options, \\"zIndex\\", Number);
-      if (disableForReducedMotion && preferLessMotion) {
-        return promise(function(resolve) {
-          resolve();
-        });
-      }
-      if (isLibCanvas && animationObj) {
-        canvas = animationObj.canvas;
-      } else if (isLibCanvas && !canvas) {
-        canvas = getCanvas(zIndex);
-        document.body.appendChild(canvas);
-      }
-      if (allowResize && !initialized) {
-        resizer(canvas);
-      }
-      var size = {
-        width: canvas.width,
-        height: canvas.height
-      };
-      if (worker && !initialized) {
-        worker.init(canvas);
-      }
-      initialized = true;
-      if (worker) {
-        canvas.__confetti_initialized = true;
-      }
-      function onResize() {
-        if (worker) {
-          var obj = {
-            getBoundingClientRect: function() {
-              if (!isLibCanvas) {
-                return canvas.getBoundingClientRect();
-              }
-            }
-          };
-          resizer(obj);
-          worker.postMessage({
-            resize: {
-              width: obj.width,
-              height: obj.height
-            }
-          });
-          return;
-        }
-        size.width = size.height = null;
-      }
-      function done() {
-        animationObj = null;
-        if (allowResize) {
-          global.removeEventListener(\\"resize\\", onResize);
-        }
-        if (isLibCanvas && canvas) {
-          document.body.removeChild(canvas);
-          canvas = null;
-          initialized = false;
-        }
-      }
-      if (allowResize) {
-        global.addEventListener(\\"resize\\", onResize, false);
-      }
-      if (worker) {
-        return worker.fire(options, size, done);
-      }
-      return fireLocal(options, size, done);
-    }
-    fire.reset = function() {
-      if (worker) {
-        worker.reset();
-      }
-      if (animationObj) {
-        animationObj.reset();
-      }
-    };
-    return fire;
-  }
-  module2.exports = confettiCannon(null, {useWorker: true, resize: true});
-  module2.exports.create = confettiCannon;
-})(function() {
-  if (typeof window !== \\"undefined\\") {
-    return window;
-  }
-  if (typeof self !== \\"undefined\\") {
-    return self;
-  }
-  return this || {};
-}(), module, false);
-var __pika_web_default_export_for_treeshaking__ = module.exports;
-var create = module.exports.create;
-export default __pika_web_default_export_for_treeshaking__;"
-`;
-
-exports[`create-snowpack-app app-template-blank > build: _snowpack/pkg/import-map.json 1`] = `
-"{
-  \\"imports\\": {
-    \\"canvas-confetti\\": \\"./canvas-XXXXXXXX.js\\"
-  }
-}"
-`;
-
 exports[`create-snowpack-app app-template-blank > build: allFiles 1`] = `
 Array [
-  "_snowpack/pkg/canvas-confetti.js",
-  "_snowpack/pkg/import-map.json",
+  "dist/index.css",
   "dist/index.js",
   "favicon.ico",
-  "index.css",
   "index.html",
   "logo.svg",
   "robots.txt",
 ]
 `;
 
-exports[`create-snowpack-app app-template-blank > build: dist/index.js 1`] = `
-"/**
- * This file is just a silly example to show everything working in the browser.
- * When you're ready to start on your site, clear the file. Happy hacking!
- **/
-import confetti from '../_snowpack/pkg/canvas-XXXXXXXX.js';
-confetti.create(document.getElementById('canvas'), {
-  resize: true,
-  useWorker: true,
-})({ particleCount: 200, spread: 200 });"
-`;
-
-exports[`create-snowpack-app app-template-blank > build: index.css 1`] = `
-"#img {
+exports[`create-snowpack-app app-template-blank > build: dist/index.css 1`] = `
+"body {
+  font-size: calc(10px + 2vmin);
+  font-family: Arial, Helvetica, sans-serif;
+}
+#img {
   display: block;
   margin: auto;
   height: 128px;
   width: 128px;
   padding: 2rem;
 }
-#canvas {
+p {
   display: block;
-  margin: 2rem auto;
-  width: 540px;
-  height: 540px;
+  margin: 1rem auto;
+  text-align: center;
+}
+#counter {
+  background-color: rgb(46, 94, 130);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+a {
+  color: rgb(46, 94, 130);
 }"
+`;
+
+exports[`create-snowpack-app app-template-blank > build: dist/index.js 1`] = `
+"const counter = document.querySelector(\\"#counter\\")
+let seconds = 0;
+setInterval(() => {
+  seconds += 1;
+  counter.textContent = seconds;
+}, 1000);"
 `;
 
 exports[`create-snowpack-app app-template-blank > build: index.html 1`] = `
@@ -1117,12 +647,18 @@ exports[`create-snowpack-app app-template-blank > build: index.html 1`] = `
     <link rel=\\"icon\\" href=\\"/favicon.ico\\" />
     <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\" />
     <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
-    <link rel=\\"stylesheet\\" type=\\"text/css\\" href=\\"/index.css\\" />
+    <link rel=\\"stylesheet\\" type=\\"text/css\\" href=\\"/dist/index.css\\" />
     <title>Snowpack App</title>
   </head>
   <body>
     <img id=\\"img\\" src=\\"/logo.svg\\" />
-    <canvas id=\\"canvas\\"></canvas>
+    <img id=\\"img\\" src=\\"/logo.svg\\" />
+    <p>Page has been open for <code id=\\"counter\\">0</code> seconds.</p>
+    <p>
+      <a href=\\"https://developer.mozilla.org/en-US/docs/Learn\\">
+        Learn web development
+      </a>
+    </p>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
@@ -1137,518 +673,53 @@ exports[`create-snowpack-app app-template-blank > build: index.html 1`] = `
 </html>"
 `;
 
-exports[`create-snowpack-app app-template-blank-typescript > build: _snowpack/pkg/canvas-confetti.js 1`] = `
-"var module = {};
-(function main(global, module2, isWorker, workerSize) {
-  var canUseWorker = !!(global.Worker && global.Blob && global.Promise && global.OffscreenCanvas && global.OffscreenCanvasRenderingContext2D && global.HTMLCanvasElement && global.HTMLCanvasElement.prototype.transferControlToOffscreen && global.URL && global.URL.createObjectURL);
-  function noop() {
-  }
-  function promise(func) {
-    var ModulePromise = module2.exports.Promise;
-    var Prom = ModulePromise !== void 0 ? ModulePromise : global.Promise;
-    if (typeof Prom === \\"function\\") {
-      return new Prom(func);
-    }
-    func(noop, noop);
-    return null;
-  }
-  var raf = function() {
-    var TIME = Math.floor(1e3 / 60);
-    var frame, cancel;
-    var frames = {};
-    var lastFrameTime = 0;
-    if (typeof requestAnimationFrame === \\"function\\" && typeof cancelAnimationFrame === \\"function\\") {
-      frame = function(cb) {
-        var id = Math.random();
-        frames[id] = requestAnimationFrame(function onFrame(time) {
-          if (lastFrameTime === time || lastFrameTime + TIME - 1 < time) {
-            lastFrameTime = time;
-            delete frames[id];
-            cb();
-          } else {
-            frames[id] = requestAnimationFrame(onFrame);
-          }
-        });
-        return id;
-      };
-      cancel = function(id) {
-        if (frames[id]) {
-          cancelAnimationFrame(frames[id]);
-        }
-      };
-    } else {
-      frame = function(cb) {
-        return setTimeout(cb, TIME);
-      };
-      cancel = function(timer) {
-        return clearTimeout(timer);
-      };
-    }
-    return {frame, cancel};
-  }();
-  var getWorker = function() {
-    var worker;
-    var prom;
-    var resolves = {};
-    function decorate(worker2) {
-      function execute(options, callback) {
-        worker2.postMessage({options: options || {}, callback});
-      }
-      worker2.init = function initWorker(canvas) {
-        var offscreen = canvas.transferControlToOffscreen();
-        worker2.postMessage({canvas: offscreen}, [offscreen]);
-      };
-      worker2.fire = function fireWorker(options, size, done) {
-        if (prom) {
-          execute(options, null);
-          return prom;
-        }
-        var id = Math.random().toString(36).slice(2);
-        prom = promise(function(resolve) {
-          function workerDone(msg) {
-            if (msg.data.callback !== id) {
-              return;
-            }
-            delete resolves[id];
-            worker2.removeEventListener(\\"message\\", workerDone);
-            prom = null;
-            done();
-            resolve();
-          }
-          worker2.addEventListener(\\"message\\", workerDone);
-          execute(options, id);
-          resolves[id] = workerDone.bind(null, {data: {callback: id}});
-        });
-        return prom;
-      };
-      worker2.reset = function resetWorker() {
-        worker2.postMessage({reset: true});
-        for (var id in resolves) {
-          resolves[id]();
-          delete resolves[id];
-        }
-      };
-    }
-    return function() {
-      if (worker) {
-        return worker;
-      }
-      if (!isWorker && canUseWorker) {
-        var code = [
-          \\"var CONFETTI, SIZE = {}, module = {};\\",
-          \\"(\\" + main.toString() + \\")(this, module, true, SIZE);\\",
-          \\"onmessage = function(msg) {\\",
-          \\"  if (msg.data.options) {\\",
-          \\"    CONFETTI(msg.data.options).then(function () {\\",
-          \\"      if (msg.data.callback) {\\",
-          \\"        postMessage({ callback: msg.data.callback });\\",
-          \\"      }\\",
-          \\"    });\\",
-          \\"  } else if (msg.data.reset) {\\",
-          \\"    CONFETTI.reset();\\",
-          \\"  } else if (msg.data.resize) {\\",
-          \\"    SIZE.width = msg.data.resize.width;\\",
-          \\"    SIZE.height = msg.data.resize.height;\\",
-          \\"  } else if (msg.data.canvas) {\\",
-          \\"    SIZE.width = msg.data.canvas.width;\\",
-          \\"    SIZE.height = msg.data.canvas.height;\\",
-          \\"    CONFETTI = module.exports.create(msg.data.canvas);\\",
-          \\"  }\\",
-          \\"}\\"
-        ].join(\\"\\");
-        try {
-          worker = new Worker(URL.createObjectURL(new Blob([code])));
-        } catch (e) {
-          typeof console !== void 0 && typeof console.warn === \\"function\\" ? console.warn(\\"🎊 Could not load worker\\", e) : null;
-          return null;
-        }
-        decorate(worker);
-      }
-      return worker;
-    };
-  }();
-  var defaults = {
-    particleCount: 50,
-    angle: 90,
-    spread: 45,
-    startVelocity: 45,
-    decay: 0.9,
-    gravity: 1,
-    drift: 0,
-    ticks: 200,
-    x: 0.5,
-    y: 0.5,
-    shapes: [\\"square\\", \\"circle\\"],
-    zIndex: 100,
-    colors: [
-      \\"#26ccff\\",
-      \\"#a25afd\\",
-      \\"#ff5e7e\\",
-      \\"#88ff5a\\",
-      \\"#fcff42\\",
-      \\"#ffa62d\\",
-      \\"#ff36ff\\"
-    ],
-    disableForReducedMotion: false,
-    scalar: 1
-  };
-  function convert(val, transform) {
-    return transform ? transform(val) : val;
-  }
-  function isOk(val) {
-    return !(val === null || val === void 0);
-  }
-  function prop(options, name, transform) {
-    return convert(options && isOk(options[name]) ? options[name] : defaults[name], transform);
-  }
-  function onlyPositiveInt(number) {
-    return number < 0 ? 0 : Math.floor(number);
-  }
-  function randomInt(min, max) {
-    return Math.floor(Math.random() * (max - min)) + min;
-  }
-  function toDecimal(str) {
-    return parseInt(str, 16);
-  }
-  function colorsToRgb(colors) {
-    return colors.map(hexToRgb);
-  }
-  function hexToRgb(str) {
-    var val = String(str).replace(/[^0-9a-f]/gi, \\"\\");
-    if (val.length < 6) {
-      val = val[0] + val[0] + val[1] + val[1] + val[2] + val[2];
-    }
-    return {
-      r: toDecimal(val.substring(0, 2)),
-      g: toDecimal(val.substring(2, 4)),
-      b: toDecimal(val.substring(4, 6))
-    };
-  }
-  function getOrigin(options) {
-    var origin = prop(options, \\"origin\\", Object);
-    origin.x = prop(origin, \\"x\\", Number);
-    origin.y = prop(origin, \\"y\\", Number);
-    return origin;
-  }
-  function setCanvasWindowSize(canvas) {
-    canvas.width = document.documentElement.clientWidth;
-    canvas.height = document.documentElement.clientHeight;
-  }
-  function setCanvasRectSize(canvas) {
-    var rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-  }
-  function getCanvas(zIndex) {
-    var canvas = document.createElement(\\"canvas\\");
-    canvas.style.position = \\"fixed\\";
-    canvas.style.top = \\"0px\\";
-    canvas.style.left = \\"0px\\";
-    canvas.style.pointerEvents = \\"none\\";
-    canvas.style.zIndex = zIndex;
-    return canvas;
-  }
-  function ellipse(context, x, y, radiusX, radiusY, rotation, startAngle, endAngle, antiClockwise) {
-    context.save();
-    context.translate(x, y);
-    context.rotate(rotation);
-    context.scale(radiusX, radiusY);
-    context.arc(0, 0, 1, startAngle, endAngle, antiClockwise);
-    context.restore();
-  }
-  function randomPhysics(opts) {
-    var radAngle = opts.angle * (Math.PI / 180);
-    var radSpread = opts.spread * (Math.PI / 180);
-    return {
-      x: opts.x,
-      y: opts.y,
-      wobble: Math.random() * 10,
-      velocity: opts.startVelocity * 0.5 + Math.random() * opts.startVelocity,
-      angle2D: -radAngle + (0.5 * radSpread - Math.random() * radSpread),
-      tiltAngle: Math.random() * Math.PI,
-      color: opts.color,
-      shape: opts.shape,
-      tick: 0,
-      totalTicks: opts.ticks,
-      decay: opts.decay,
-      drift: opts.drift,
-      random: Math.random() + 5,
-      tiltSin: 0,
-      tiltCos: 0,
-      wobbleX: 0,
-      wobbleY: 0,
-      gravity: opts.gravity * 3,
-      ovalScalar: 0.6,
-      scalar: opts.scalar
-    };
-  }
-  function updateFetti(context, fetti) {
-    fetti.x += Math.cos(fetti.angle2D) * fetti.velocity + fetti.drift;
-    fetti.y += Math.sin(fetti.angle2D) * fetti.velocity + fetti.gravity;
-    fetti.wobble += 0.1;
-    fetti.velocity *= fetti.decay;
-    fetti.tiltAngle += 0.1;
-    fetti.tiltSin = Math.sin(fetti.tiltAngle);
-    fetti.tiltCos = Math.cos(fetti.tiltAngle);
-    fetti.random = Math.random() + 5;
-    fetti.wobbleX = fetti.x + 10 * fetti.scalar * Math.cos(fetti.wobble);
-    fetti.wobbleY = fetti.y + 10 * fetti.scalar * Math.sin(fetti.wobble);
-    var progress = fetti.tick++ / fetti.totalTicks;
-    var x1 = fetti.x + fetti.random * fetti.tiltCos;
-    var y1 = fetti.y + fetti.random * fetti.tiltSin;
-    var x2 = fetti.wobbleX + fetti.random * fetti.tiltCos;
-    var y2 = fetti.wobbleY + fetti.random * fetti.tiltSin;
-    context.fillStyle = \\"rgba(\\" + fetti.color.r + \\", \\" + fetti.color.g + \\", \\" + fetti.color.b + \\", \\" + (1 - progress) + \\")\\";
-    context.beginPath();
-    if (fetti.shape === \\"circle\\") {
-      context.ellipse ? context.ellipse(fetti.x, fetti.y, Math.abs(x2 - x1) * fetti.ovalScalar, Math.abs(y2 - y1) * fetti.ovalScalar, Math.PI / 10 * fetti.wobble, 0, 2 * Math.PI) : ellipse(context, fetti.x, fetti.y, Math.abs(x2 - x1) * fetti.ovalScalar, Math.abs(y2 - y1) * fetti.ovalScalar, Math.PI / 10 * fetti.wobble, 0, 2 * Math.PI);
-    } else {
-      context.moveTo(Math.floor(fetti.x), Math.floor(fetti.y));
-      context.lineTo(Math.floor(fetti.wobbleX), Math.floor(y1));
-      context.lineTo(Math.floor(x2), Math.floor(y2));
-      context.lineTo(Math.floor(x1), Math.floor(fetti.wobbleY));
-    }
-    context.closePath();
-    context.fill();
-    return fetti.tick < fetti.totalTicks;
-  }
-  function animate(canvas, fettis, resizer, size, done) {
-    var animatingFettis = fettis.slice();
-    var context = canvas.getContext(\\"2d\\");
-    var animationFrame;
-    var destroy;
-    var prom = promise(function(resolve) {
-      function onDone() {
-        animationFrame = destroy = null;
-        context.clearRect(0, 0, size.width, size.height);
-        done();
-        resolve();
-      }
-      function update() {
-        if (isWorker && !(size.width === workerSize.width && size.height === workerSize.height)) {
-          size.width = canvas.width = workerSize.width;
-          size.height = canvas.height = workerSize.height;
-        }
-        if (!size.width && !size.height) {
-          resizer(canvas);
-          size.width = canvas.width;
-          size.height = canvas.height;
-        }
-        context.clearRect(0, 0, size.width, size.height);
-        animatingFettis = animatingFettis.filter(function(fetti) {
-          return updateFetti(context, fetti);
-        });
-        if (animatingFettis.length) {
-          animationFrame = raf.frame(update);
-        } else {
-          onDone();
-        }
-      }
-      animationFrame = raf.frame(update);
-      destroy = onDone;
-    });
-    return {
-      addFettis: function(fettis2) {
-        animatingFettis = animatingFettis.concat(fettis2);
-        return prom;
-      },
-      canvas,
-      promise: prom,
-      reset: function() {
-        if (animationFrame) {
-          raf.cancel(animationFrame);
-        }
-        if (destroy) {
-          destroy();
-        }
-      }
-    };
-  }
-  function confettiCannon(canvas, globalOpts) {
-    var isLibCanvas = !canvas;
-    var allowResize = !!prop(globalOpts || {}, \\"resize\\");
-    var globalDisableForReducedMotion = prop(globalOpts, \\"disableForReducedMotion\\", Boolean);
-    var shouldUseWorker = canUseWorker && !!prop(globalOpts || {}, \\"useWorker\\");
-    var worker = shouldUseWorker ? getWorker() : null;
-    var resizer = isLibCanvas ? setCanvasWindowSize : setCanvasRectSize;
-    var initialized = canvas && worker ? !!canvas.__confetti_initialized : false;
-    var preferLessMotion = typeof matchMedia === \\"function\\" && matchMedia(\\"(prefers-reduced-motion)\\").matches;
-    var animationObj;
-    function fireLocal(options, size, done) {
-      var particleCount = prop(options, \\"particleCount\\", onlyPositiveInt);
-      var angle = prop(options, \\"angle\\", Number);
-      var spread = prop(options, \\"spread\\", Number);
-      var startVelocity = prop(options, \\"startVelocity\\", Number);
-      var decay = prop(options, \\"decay\\", Number);
-      var gravity = prop(options, \\"gravity\\", Number);
-      var drift = prop(options, \\"drift\\", Number);
-      var colors = prop(options, \\"colors\\", colorsToRgb);
-      var ticks = prop(options, \\"ticks\\", Number);
-      var shapes = prop(options, \\"shapes\\");
-      var scalar = prop(options, \\"scalar\\");
-      var origin = getOrigin(options);
-      var temp = particleCount;
-      var fettis = [];
-      var startX = canvas.width * origin.x;
-      var startY = canvas.height * origin.y;
-      while (temp--) {
-        fettis.push(randomPhysics({
-          x: startX,
-          y: startY,
-          angle,
-          spread,
-          startVelocity,
-          color: colors[temp % colors.length],
-          shape: shapes[randomInt(0, shapes.length)],
-          ticks,
-          decay,
-          gravity,
-          drift,
-          scalar
-        }));
-      }
-      if (animationObj) {
-        return animationObj.addFettis(fettis);
-      }
-      animationObj = animate(canvas, fettis, resizer, size, done);
-      return animationObj.promise;
-    }
-    function fire(options) {
-      var disableForReducedMotion = globalDisableForReducedMotion || prop(options, \\"disableForReducedMotion\\", Boolean);
-      var zIndex = prop(options, \\"zIndex\\", Number);
-      if (disableForReducedMotion && preferLessMotion) {
-        return promise(function(resolve) {
-          resolve();
-        });
-      }
-      if (isLibCanvas && animationObj) {
-        canvas = animationObj.canvas;
-      } else if (isLibCanvas && !canvas) {
-        canvas = getCanvas(zIndex);
-        document.body.appendChild(canvas);
-      }
-      if (allowResize && !initialized) {
-        resizer(canvas);
-      }
-      var size = {
-        width: canvas.width,
-        height: canvas.height
-      };
-      if (worker && !initialized) {
-        worker.init(canvas);
-      }
-      initialized = true;
-      if (worker) {
-        canvas.__confetti_initialized = true;
-      }
-      function onResize() {
-        if (worker) {
-          var obj = {
-            getBoundingClientRect: function() {
-              if (!isLibCanvas) {
-                return canvas.getBoundingClientRect();
-              }
-            }
-          };
-          resizer(obj);
-          worker.postMessage({
-            resize: {
-              width: obj.width,
-              height: obj.height
-            }
-          });
-          return;
-        }
-        size.width = size.height = null;
-      }
-      function done() {
-        animationObj = null;
-        if (allowResize) {
-          global.removeEventListener(\\"resize\\", onResize);
-        }
-        if (isLibCanvas && canvas) {
-          document.body.removeChild(canvas);
-          canvas = null;
-          initialized = false;
-        }
-      }
-      if (allowResize) {
-        global.addEventListener(\\"resize\\", onResize, false);
-      }
-      if (worker) {
-        return worker.fire(options, size, done);
-      }
-      return fireLocal(options, size, done);
-    }
-    fire.reset = function() {
-      if (worker) {
-        worker.reset();
-      }
-      if (animationObj) {
-        animationObj.reset();
-      }
-    };
-    return fire;
-  }
-  module2.exports = confettiCannon(null, {useWorker: true, resize: true});
-  module2.exports.create = confettiCannon;
-})(function() {
-  if (typeof window !== \\"undefined\\") {
-    return window;
-  }
-  if (typeof self !== \\"undefined\\") {
-    return self;
-  }
-  return this || {};
-}(), module, false);
-var __pika_web_default_export_for_treeshaking__ = module.exports;
-var create = module.exports.create;
-export default __pika_web_default_export_for_treeshaking__;"
-`;
-
-exports[`create-snowpack-app app-template-blank-typescript > build: _snowpack/pkg/import-map.json 1`] = `
-"{
-  \\"imports\\": {
-    \\"canvas-confetti\\": \\"./canvas-XXXXXXXX.js\\"
-  }
-}"
-`;
-
 exports[`create-snowpack-app app-template-blank-typescript > build: allFiles 1`] = `
 Array [
-  "_snowpack/pkg/canvas-confetti.js",
-  "_snowpack/pkg/import-map.json",
+  "dist/index.css",
   "dist/index.js",
   "favicon.ico",
-  "index.css",
   "index.html",
   "logo.svg",
   "robots.txt",
 ]
 `;
 
-exports[`create-snowpack-app app-template-blank-typescript > build: dist/index.js 1`] = `
-"import confetti from \\"../_snowpack/pkg/canvas-XXXXXXXX.js\\";
-confetti.create(document.getElementById(\\"canvas\\"), {
-  resize: true,
-  useWorker: true
-})({particleCount: 200, spread: 200});"
-`;
-
-exports[`create-snowpack-app app-template-blank-typescript > build: index.css 1`] = `
-"#img {
+exports[`create-snowpack-app app-template-blank-typescript > build: dist/index.css 1`] = `
+"body {
+  font-size: calc(10px + 2vmin);
+  font-family: Arial, Helvetica, sans-serif;
+}
+#img {
   display: block;
   margin: auto;
   height: 128px;
   width: 128px;
   padding: 2rem;
 }
-#canvas {
+p {
   display: block;
-  margin: 2rem auto;
-  width: 540px;
-  height: 540px;
+  margin: 1rem auto;
+  text-align: center;
+}
+#counter {
+  background-color: rgb(46, 94, 130);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+a {
+  color: rgb(46, 94, 130);
 }"
+`;
+
+exports[`create-snowpack-app app-template-blank-typescript > build: dist/index.js 1`] = `
+"const counter = document.querySelector(\\"#counter\\");
+let seconds = 0;
+setInterval(() => {
+  seconds += 1;
+  counter.textContent = seconds.toString();
+}, 1e3);
+export {};"
 `;
 
 exports[`create-snowpack-app app-template-blank-typescript > build: index.html 1`] = `
@@ -1659,12 +730,17 @@ exports[`create-snowpack-app app-template-blank-typescript > build: index.html 1
     <link rel=\\"icon\\" href=\\"/favicon.ico\\" />
     <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\" />
     <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
-    <link rel=\\"stylesheet\\" type=\\"text/css\\" href=\\"/index.css\\" />
+    <link rel=\\"stylesheet\\" type=\\"text/css\\" href=\\"/dist/index.css\\" />
     <title>Snowpack App</title>
   </head>
   <body>
     <img id=\\"img\\" src=\\"/logo.svg\\" />
-    <canvas id=\\"canvas\\"></canvas>
+    <p>Page has been open for <code id=\\"counter\\">0</code> seconds.</p>
+    <p>
+      <a href=\\"https://developer.mozilla.org/en-US/docs/Learn\\">
+        Learn web development
+      </a>
+    </p>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
