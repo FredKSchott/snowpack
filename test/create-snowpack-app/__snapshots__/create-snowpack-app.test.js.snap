@@ -631,7 +631,7 @@ a {
 `;
 
 exports[`create-snowpack-app app-template-blank > build: dist/index.js 1`] = `
-"const counter = document.querySelector(\\"#counter\\")
+"const counter = document.querySelector('#counter');
 let seconds = 0;
 setInterval(() => {
   seconds += 1;

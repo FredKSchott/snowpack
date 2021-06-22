@@ -10,6 +10,10 @@ const r = require('resolve');
  */
 module.exports = async function requireOrImport(filepath, { from = process.cwd() } = {}) {
     return new Promise((resolve, reject) => {
+        if(filepath.startsWith('node:')) {
+          return NATIVE_IMPORT(filepath).then(mdl => resolve(mdl), err => reject(err));
+        }
+
         // Resolve path based on `from`
         const resolvedPath = r.sync(filepath, {
             basedir: from
