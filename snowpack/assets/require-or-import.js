@@ -38,10 +38,10 @@ module.exports = async function requireOrImport(filepath, { from = process.cwd()
             console.error(`Failed to load "${filepath}"!\nESM format is not natively supported in "node@${process.version}".\nPlease use CommonJS or upgrade to an LTS version of node above "node@12.17.0".`)
           } else if (e.code === 'ERR_REQUIRE_ESM') {
               const url = pathToFileURL(resolvedPath);
-              return NATIVE_IMPORT(url).then(mdl => resolve(mdl), err => reject(err));
+              return NATIVE_IMPORT(url).then(mdl => resolve(mdl.default ? mdl.default : mdl), err => reject(err));
           }
           try {
-            return NATIVE_IMPORT(pathToFileURL(resolvedPath)).then(mdl => resolve(mdl), err => reject(err));
+            return NATIVE_IMPORT(pathToFileURL(resolvedPath)).then(mdl => resolve(mdl.default ? mdl.default : mdl), err => reject(err));
           } catch (e) {
             reject(e);  
           }
