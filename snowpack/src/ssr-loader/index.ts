@@ -1,6 +1,6 @@
 import {existsSync, readFileSync} from 'fs';
-import {resolve} from 'url';
-import {ServerRuntime, ServerRuntimeConfig} from '../types';
+import {resolve, pathToFileURL} from 'url';
+import {ServerRuntime, ServerRuntimeConfig, LoadResult} from '../types';
 import {sourcemap_stacktrace} from './sourcemaps';
 import {transform} from './transform';
 import {REQUIRE_OR_IMPORT} from '../util';
@@ -57,11 +57,12 @@ export function createLoader({config, load}: ServerRuntimeConfig): ServerRuntime
     return promise;
   }
 
-  async function initializeModule(url: string, loaded: {contents: string}, urlStack: string[]) {
+  async function initializeModule(url: string, loaded: LoadResult<string>, urlStack: string[]) {
     const {code, deps, css, names} = transform(loaded.contents);
 
     const exports = {};
     const allCss = new Set(css.map((relative) => resolve(url, relative)));
+    const fileURL = loaded.originalFileLoc ? pathToFileURL(loaded.originalFileLoc) : null;
 
     const args = [
       {
@@ -101,7 +102,7 @@ export function createLoader({config, load}: ServerRuntimeConfig): ServerRuntime
       },
       {
         name: names.__import_meta,
-        value: {url},
+        value: {url: fileURL},
       },
 
       ...(await Promise.all(

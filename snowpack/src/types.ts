@@ -27,7 +27,7 @@ export type DeepPartial<T> = {
 
 export interface ServerRuntimeConfig {
   config: SnowpackConfig;
-  load: (url: string) => Promise<{contents: string}>;
+  load: (url: string) => Promise<LoadResult<string>>;
 }
 export interface ServerRuntime {
   importModule: <T = any>(url: string) => Promise<ServerRuntimeModule<T>>;
