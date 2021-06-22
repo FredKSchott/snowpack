@@ -4,6 +4,12 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## esinstall@1.1.6 [2021-06-22]
+
+* fb7eaaa4 - Allow `external` CommonJS modules to be imported properly in Node (#3473) <Matthew Phillips>
+* 1dac52b3 - [ci] yarn format <matthewp>
+* afc6232f - Allow .astro files to be installed as JavaScript (#3406) <Matthew Phillips>
+
 ## esinstall@1.1.5 [2021-06-01]
 
 * c659b7c3 - [ci] yarn format <natemoo-re>
