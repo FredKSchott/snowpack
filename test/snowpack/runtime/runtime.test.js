@@ -79,7 +79,7 @@ describe('runtime', () => {
             "external": ["node:fs/promises"]
           }
         }
-      `
+      `,
     });
 
     try {
