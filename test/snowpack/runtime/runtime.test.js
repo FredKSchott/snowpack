@@ -90,4 +90,49 @@ describe('runtime', () => {
       await fixture.cleanup();
     }
   });
+
+  it('Can import a CommonJS module as the default export', async () => {
+    const fixture = await testRuntimeFixture({
+      'packages/other/package.json': dedent`
+        {
+          "version": "1.0.0",
+          "name": "other",
+          "main": "main.js"
+        }
+      `,
+      'packages/other/main.js': dedent`
+        module.exports = () => 'works';
+      `,
+      'main.js': dedent`
+        import fn from 'other';
+
+        export function test() {
+          return fn();
+        }
+      `,
+      'package.json': dedent`
+        {
+          "version": "1.0.1",
+          "name": "@snowpack/test-runtime-import-cjs",
+          "dependencies": {
+            "other": "file:./packages/other"
+          }
+        }
+      `,
+      'snowpack.config.json': dedent`
+        {
+          "packageOptions": {
+            "external": ["other"]
+          }
+        }
+      `
+    });
+
+    try {
+      let mod = await fixture.runtime.importModule('/main.js');
+      expect(await mod.exports.test()).toEqual('works');
+    } finally {
+      await fixture.cleanup();
+    }
+  });
 });
