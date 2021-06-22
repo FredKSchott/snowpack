@@ -4,6 +4,15 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.6.0 [2021-06-22]
+
+* fb7eaaa4 - Allow `external` CommonJS modules to be imported properly in Node (#3473) <Matthew Phillips>
+* 8cff0336 - Make import.meta.url be the file URL in SSR (#3472) <Matthew Phillips>
+* 29e609aa - [#3188] Add ant-design/icons to NEVER_PEER_PACKAGES (#3443) <manish gowardipe>
+* ded85e8a - Minor optimization on resolving path starts with '.' (#3361) <Jacty>
+* ffee2c57 - allow configuring loader (#3377) <Michael St Clair>
+* b8c76b00 - Fix websocket proxying (#3225) <Gael du Plessix>
+
 ## snowpack@3.5.9 [2021-06-16]
 
 * 343274e2 - [ci] yarn format <matthewp>
