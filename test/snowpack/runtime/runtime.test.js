@@ -125,7 +125,7 @@ describe('runtime', () => {
             "external": ["other"]
           }
         }
-      `
+      `,
     });
 
     try {
