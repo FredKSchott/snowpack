@@ -4,6 +4,10 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.6.1 [2021-06-23]
+
+* 110043e2 - Check externals before resolving entrypoint (#3479) <Matthew Phillips>
+
 ## snowpack@3.6.0 [2021-06-22]
 
 * fb7eaaa4 - Allow `external` CommonJS modules to be imported properly in Node (#3473) <Matthew Phillips>
