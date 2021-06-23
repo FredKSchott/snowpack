@@ -53,15 +53,38 @@ describe('runtime', () => {
   // https://github.com/nodejs/node/issues/35889
   it.skip('Provides import.meta.fileURL in SSR', async () => {
     const fixture = await testRuntimeFixture({
+      'packages/dep/package.json': dedent`
+        {
+          "name": "@snowpack/test-runtime-metaurl-dep",
+          "version": "0.0.1",
+          "main": "main.js"
+        }
+      `,
+      'packages/dep/main.js': dedent`
+        import fs from 'node:fs';
+        const readFile = fs.promises.readFile;
+
+        export async function getData(url) {
+          const json = await fs.readFile(url, 'utf-8');
+          const data = JSON.parse(json);
+          return data;
+        }
+      `,
       'main.js': dedent`
         import fs from 'node:fs/promises';
+        import { getData as getDataDepFn } from '@snowpack/test-runtime-metaurl-dep';
 
         const url = new URL('./data.json', import.meta.url);
+        const depUrl = new URL('./packages/dep/package.json', import.meta.url);
 
         export async function getData() {
           const json = await fs.readFile(url, 'utf-8');
           const data = JSON.parse(json);
           return data;
+        }
+
+        export async function getDepVersion() {
+          return (await getDataDepFn(depUrl)).version;
         }
       `,
       'data.json': dedent`
@@ -70,7 +93,7 @@ describe('runtime', () => {
       'package.json': dedent`
         {
           "version": "1.0.1",
-          "name": "@snowpack/test-runtime-invalidate"
+          "name": "@snowpack/test-runtime-metaurl"
         }
       `,
       'snowpack.config.json': dedent`
@@ -86,6 +109,7 @@ describe('runtime', () => {
       let mod = await fixture.runtime.importModule('/main.js');
 
       expect(await mod.exports.getData()).toStrictEqual([1, 2]);
+      expect(await mod.exports.getDepVersion()).equal('0.0.1');
     } finally {
       await fixture.cleanup();
     }

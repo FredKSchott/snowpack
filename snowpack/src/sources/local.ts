@@ -677,6 +677,13 @@ export class PackageSourceLocal implements PackageSource {
       spec = spec.replace(from, to);
     }
 
+    const [packageName] = parsePackageImportSpecifier(spec);
+
+    // If this import is marked as external, do not transform the original spec
+    if (this.isExternal(packageName, spec)) {
+      return spec;
+    }
+
     const entrypoint = resolveEntrypoint(spec, {
       cwd: source,
       packageLookupFields: [
@@ -693,12 +700,6 @@ export class PackageSourceLocal implements PackageSource {
       if (memoizedResolve[entrypoint]) {
         return path.posix.join(config.buildOptions.metaUrlPath, 'pkg', memoizedResolve[entrypoint]);
       }
-    }
-    const [packageName] = parsePackageImportSpecifier(spec);
-
-    // If this import is marked as external, do not transform the original spec
-    if (this.isExternal(packageName, spec)) {
-      return spec;
     }
 
     const isSymlink = !entrypoint.includes(path.join('node_modules', packageName));
