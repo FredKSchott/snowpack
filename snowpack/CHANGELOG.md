@@ -4,6 +4,10 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.6.2 [2021-06-24]
+
+* 33cd5648 - Pass real filepath to transform plugins (#3483) <Drew Powers>
+
 ## snowpack@3.6.1 [2021-06-23]
 
 * 110043e2 - Check externals before resolving entrypoint (#3479) <Matthew Phillips>
