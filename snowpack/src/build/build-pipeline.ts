@@ -182,6 +182,7 @@ async function runPipelineTransformStep(
           isPackage,
           fileExt: destExt,
           id: filePath,
+          srcPath,
           // @ts-ignore: Deprecated
           filePath: fileName,
           // @ts-ignore: Deprecated

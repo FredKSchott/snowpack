@@ -137,8 +137,10 @@ export interface PluginLoadOptions {
 }
 
 export interface PluginTransformOptions {
-  /** The absolute file path of the source file, on disk. */
+  /** The final build file path (note: this may differ from the source, e.g. `.vue` will yield `.js` and `.css` IDs) */
   id: string;
+  /** The original source location on disk (it may differ from ID) */
+  srcPath: string;
   /** The extension of the file */
   fileExt: string;
   /** Contents of the file to transform */
