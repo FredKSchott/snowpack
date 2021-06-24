@@ -37,7 +37,7 @@ module.exports = function postcssPlugin(snowpackConfig, options) {
 
       const encodedResult = await worker.transformAsync(contents, {
         config,
-        filepath: srcPath,
+        filepath: srcPath || id, // note: srcPath will be undefined in snowpack@3.6.1 and older
         cwd: snowpackConfig.root || process.cwd(),
         map:
           snowpackConfig.buildOptions && snowpackConfig.buildOptions.sourceMaps
