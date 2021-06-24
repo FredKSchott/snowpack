@@ -4,6 +4,12 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## @snowpack/plugin-postcss@1.4.2 [2021-06-24]
+
+* a6b3b71f - Allow srcPath fallback for older versions of Snowpack (#3484) <Drew Powers>
+* 33cd5648 - Pass real filepath to transform plugins (#3483) <Drew Powers>
+* b87534b2 - Remove postcss-cli from plugin-postcss docs (#3412) <Adam Burgess>
+
 ## @snowpack/plugin-postcss@1.4.1 [2021-06-07]
 
 * bc56243c - [PostCSS] Support `glob` property in `dir-dependency` messages (#3404) <Brad Cornes>
