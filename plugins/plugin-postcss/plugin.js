@@ -23,7 +23,7 @@ module.exports = function postcssPlugin(snowpackConfig, options) {
 
   return {
     name: '@snowpack/postcss-transform',
-    async transform({id, fileExt, contents}) {
+    async transform({id, srcPath, fileExt, contents}) {
       let {input = ['.css'], config} = options;
 
       if (!input.includes(fileExt) || !contents) return;
@@ -37,7 +37,7 @@ module.exports = function postcssPlugin(snowpackConfig, options) {
 
       const encodedResult = await worker.transformAsync(contents, {
         config,
-        filepath: id,
+        filepath: srcPath,
         cwd: snowpackConfig.root || process.cwd(),
         map:
           snowpackConfig.buildOptions && snowpackConfig.buildOptions.sourceMaps
