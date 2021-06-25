@@ -233,7 +233,7 @@ export class SkypackSDK {
       if (tarballResponse.statusCode !== 200) {
         throw new Error(tarballResponse.body.toString());
       }
-      tarballContents = (tarballResponse.body as any) as Buffer;
+      tarballContents = tarballResponse.body as any as Buffer;
       await cacache.put(RESOURCE_CACHE, typesTarballUrl, tarballContents);
     }
 

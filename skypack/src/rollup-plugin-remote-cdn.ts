@@ -57,7 +57,7 @@ export function rollupPluginSkypack({sdk, logger}: {sdk: SkypackSDK; logger: Abs
       return this.resolve(packageName, importer!, {skipSelf: true}).then((resolved) => {
         let finalResult = resolved;
         if (!finalResult) {
-          finalResult = ({id: packageName} as any) as ResolvedId;
+          finalResult = {id: packageName} as any as ResolvedId;
         }
         return finalResult;
       });

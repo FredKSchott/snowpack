@@ -295,9 +295,10 @@ export function expandCliFlags(flags: CLIFlags): SnowpackUserConfig {
 }
 
 /** load and normalize plugins from config */
-function loadPlugins(
-  config: SnowpackConfig,
-): {plugins: SnowpackPlugin[]; extensionMap: Record<string, string[]>} {
+function loadPlugins(config: SnowpackConfig): {
+  plugins: SnowpackPlugin[];
+  extensionMap: Record<string, string[]>;
+} {
   const plugins: SnowpackPlugin[] = [];
 
   function execPluginFactory(pluginFactory: any, pluginOptions: any = {}): SnowpackPlugin {
@@ -433,7 +434,7 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
   // TODO: This function is really fighting with TypeScript. Now that we have an accurate
   // SnowpackUserConfig type, we can have this function construct a fresh config object
   // from scratch instead of trying to modify the user's config object in-place.
-  let config: SnowpackConfig = (_config as any) as SnowpackConfig;
+  let config: SnowpackConfig = _config as any as SnowpackConfig;
   config.mode = config.mode || (process.env.NODE_ENV as SnowpackConfig['mode']);
   if (config.packageOptions.source === 'local') {
     config.packageOptions.rollup = config.packageOptions.rollup || {};
@@ -486,9 +487,8 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
   // If any plugins defined knownEntrypoints, add them here
   for (const {knownEntrypoints} of config.plugins) {
     if (knownEntrypoints) {
-      config.packageOptions.knownEntrypoints = config.packageOptions.knownEntrypoints.concat(
-        knownEntrypoints,
-      );
+      config.packageOptions.knownEntrypoints =
+        config.packageOptions.knownEntrypoints.concat(knownEntrypoints);
     }
   }
 

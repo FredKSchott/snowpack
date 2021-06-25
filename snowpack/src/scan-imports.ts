@@ -25,7 +25,8 @@ import {
 // (?!.*(:\/\/)) - Ignore if previous match was a protocol (ex: http://)
 const BARE_SPECIFIER_REGEX = /^[@\w](?!.*(:\/\/))/;
 
-const ESM_IMPORT_REGEX = /(?<![^;\n])[ ]*import(?:["'\s]*([\w*${}\n\r\t, ]+)\s*from\s*)?\s*["'](.*?)["']/gm;
+const ESM_IMPORT_REGEX =
+  /(?<![^;\n])[ ]*import(?:["'\s]*([\w*${}\n\r\t, ]+)\s*from\s*)?\s*["'](.*?)["']/gm;
 const ESM_DYNAMIC_IMPORT_REGEX = /(?<!\.)\bimport\((?:['"].+['"]|`[^$]+`)\)/gm;
 const HAS_NAMED_IMPORTS_REGEX = /^[\w\s\,]*\{(.*)\}/s;
 const STRIP_AS = /\s+as\s+.*/; // for `import { foo as bar }`, strips “as bar”
@@ -311,25 +312,23 @@ export async function scanImports(
   const mountedNodeModules = Object.keys(config.mount).filter((v) => v.includes('node_modules'));
   const foundExcludeMatch = picomatch(excludeGlobs);
   const loadedFiles: (SnowpackSourceFile | null)[] = await Promise.all(
-    includeFiles.map(
-      async (filePath: string): Promise<SnowpackSourceFile | null> => {
-        if (excludePrivate.test(filePath)) {
+    includeFiles.map(async (filePath: string): Promise<SnowpackSourceFile | null> => {
+      if (excludePrivate.test(filePath)) {
+        return null;
+      }
+      if (foundExcludeMatch(filePath)) {
+        const isMounted = mountedNodeModules.find((mountKey) => filePath.startsWith(mountKey));
+        if (!isMounted || (isMounted && foundExcludeMatch(filePath.slice(isMounted.length)))) {
           return null;
         }
-        if (foundExcludeMatch(filePath)) {
-          const isMounted = mountedNodeModules.find((mountKey) => filePath.startsWith(mountKey));
-          if (!isMounted || (isMounted && foundExcludeMatch(filePath.slice(isMounted.length)))) {
-            return null;
-          }
-        }
-        return {
-          baseExt: getExtension(filePath),
-          root: config.root,
-          locOnDisk: filePath,
-          contents: await readFile(filePath),
-        };
-      },
-    ),
+      }
+      return {
+        baseExt: getExtension(filePath),
+        root: config.root,
+        locOnDisk: filePath,
+        contents: await readFile(filePath),
+      };
+    }),
   );
 
   return scanImportsFromFiles(loadedFiles.filter(isTruthy), config);
