@@ -51,7 +51,7 @@ describe('packageOptions.source', () => {
       snowpackLogger.level = 'info';
       snowpackLogger.on('info', (message) => {
         loggerInfos.push(message);
-      });  
+      });
     });
 
     it('streams from pkg.snowpack.dev by default', async () => {
@@ -76,7 +76,13 @@ describe('packageOptions.source', () => {
         `,
       });
 
-      expect(loggerInfos).toEqual(expect.arrayContaining([expect.stringMatching(/import array-flatten@latest → https:\/\/pkg.snowpack.dev\/array-flatten/)]));
+      expect(loggerInfos).toEqual(
+        expect.arrayContaining([
+          expect.stringMatching(
+            /import array-flatten@latest → https:\/\/pkg.snowpack.dev\/array-flatten/,
+          ),
+        ]),
+      );
     });
 
     it('streams package from the requested origin', async () => {
@@ -105,7 +111,11 @@ describe('packageOptions.source', () => {
         `,
       });
 
-      expect(loggerInfos).toEqual(expect.arrayContaining([expect.stringMatching(/import skypack@latest → https:\/\/cdn.skypack.dev\/skypack/)]));
+      expect(loggerInfos).toEqual(
+        expect.arrayContaining([
+          expect.stringMatching(/import skypack@latest → https:\/\/cdn.skypack.dev\/skypack/),
+        ]),
+      );
     });
   });
 });

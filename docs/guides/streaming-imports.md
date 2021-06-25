@@ -28,7 +28,7 @@ The translation is done by the web server, so your source file will still contai
 
 `pkg.snowpack.dev` is our ESM Package CDN, powered by [Skypack](https://www.skypack.dev/). Every npm package is hosted as ESM, and any legacy non-ESM packages are upconverted to ESM on the CDN itself.
 
-> _**Note:** In some rare cases, a nested import from a package will result in an invalid resource reference on Skypack.  Explicitly setting the `packageOptions.origin` to `"https://cdn.skypack.dev"` (rather than using the default `pkg.snowpack.dev` shim) seems to resolve the issue._
+> _**Note:** In some rare cases, a nested import from a package will result in an invalid resource reference on Skypack. Explicitly setting the `packageOptions.origin` to `"https://cdn.skypack.dev"` (rather than using the default `pkg.snowpack.dev` shim) seems to resolve the issue._
 
 ## Benefits of Streaming Imports
 

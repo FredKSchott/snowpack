@@ -10,10 +10,13 @@ description: How to use @web/test-runner in your Snowpack project.
 [@web/test-runner](https://www.npmjs.com/package/@web/test-runner) is our recommended test runner for Snowpack projects. Read more about why we recommend @web/test-runner in our [Snowpack Testing Guide](/guides/testing).
 
 ## Setup
+
 This guide shows how to set up @web/test-runner and [@snowpack/web-test-runner-plugin](https://www.npmjs.com/package/@snowpack/web-test-runner-plugin) for a React project. The end result recreates the test configuration in [app-template-react](https://github.com/snowpackjs/snowpack/blob/main/create-snowpack-app/app-template-react), one of our Create Snowpack App starter templates. If you're using a different framework, tweak React specific steps appropriately.
 
 #### 1. Install dependencies
+
 The base testing dependencies (don't hit Enter just yet!):
+
 ```
 npm i -D @web/test-runner @snowpack/web-test-runner-plugin chai
 ```
@@ -39,6 +42,7 @@ module.exports = {
 #### 3. Script
 
 Add a `test` script to your project `package.json`:
+
 ```diff
 "scripts": {
   "start": "snowpack dev",
