@@ -1,9 +1,5 @@
 ---
-import Nav from './Nav.astro';
-
-export let title: string;
-export let description: string;
-export let permalink: string;
+const { title, description, permalink } = Astro.props;
 ---
 
 <meta charset="utf-8" />
