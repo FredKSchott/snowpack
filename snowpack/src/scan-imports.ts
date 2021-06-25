@@ -7,6 +7,9 @@ import path from 'path';
 import stripComments from 'strip-comments';
 import {logger} from './logger';
 import {SnowpackConfig, SnowpackSourceFile} from './types';
+const {existsSync} = require('fs');
+const readPackageJsonFast = require('read-package-json-fast')
+
 import {
   createInstallTarget,
   CSS_REGEX,
@@ -46,12 +49,33 @@ export async function getInstallTargets(
   } else {
     installTargets.push(...(await scanImports(config.mode === 'test', config)));
   }
-  return installTargets.filter(
+  installTargets = installTargets.filter(
     (dep) =>
       !config.packageOptions.external.some((packageName) =>
         isImportOfPackage(dep.specifier, packageName),
       ),
   );
+  if (process.env.NODE_ENV === 'production') {
+    return installTargets;
+  } else {
+    return new Promise((resolve) => {
+      installTargets.map((t, index) => {
+        const pPath = path.join(config.root, 'node_modules', t.specifier, 'package.json')
+        if (existsSync(pPath)) {
+          readPackageJsonFast(pPath).then((pkg) => {
+            pkg.unpkg && (t.specifier = `${t.specifier}/${pkg.unpkg}`)
+            if (installTargets.length === index + 1) {
+              resolve(installTargets)
+            }
+          })
+        } else {
+          if (installTargets.length === index + 1) {
+            resolve(installTargets)
+          }
+        }
+      })
+    })
+  }
 }
 
 export function matchDynamicImportValue(importStatement: string) {
