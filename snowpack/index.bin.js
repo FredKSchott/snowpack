@@ -9,7 +9,7 @@ if (majorVer < 10) {
   process.exit(1);
 }
 
-const cli = require('./lib/index.js');
+const cli = require('./lib/cjs/index.js');
 const run = cli.run || cli.cli || cli.default;
 run(process.argv).catch(function (error) {
   console.error(`

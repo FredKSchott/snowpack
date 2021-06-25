@@ -1,7 +1,7 @@
 const {readFileSync, existsSync} = require('fs');
 const fs = require('fs').promises;
 const glob = require('glob');
-const snowpack = require('../../snowpack/lib');
+const snowpack = require('../../snowpack/lib/cjs');
 const esinstall = require('../../esinstall/lib');
 const path = require('path');
 const {

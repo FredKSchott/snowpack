@@ -1,8 +1,0 @@
-{
-  "name": "vm2",
-  "version": "3.9.2",
-  "main": "index.js",
-  "repository": "github:patriksimek/vm2",
-  "license": "MIT",
-  "types": "index.d.ts"
-}

@@ -1,4 +1,4 @@
-const {generateSRI} = require('../../snowpack/lib/build/import-sri');
+const {generateSRI} = require('../../snowpack/lib/cjs/build/import-sri');
 
 const EMPTY = Buffer.from('');
 

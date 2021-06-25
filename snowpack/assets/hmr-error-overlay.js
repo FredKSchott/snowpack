@@ -26,10 +26,10 @@ SOFTWARE.
 */
 
 /*
-Background: This file was copied from the rendered HTML output of the 
-nextjs-error-overlay package / component. The source component was authored 
+Background: This file was copied from the rendered HTML output of the
+nextjs-error-overlay package / component. The source component was authored
 for React & JSX which we didn't want to add as dependencies, so we grab the
-output itself here. 
+output itself here.
 */
 
 const ERROR_OVERLAY_TEMPLATE = `
@@ -460,7 +460,7 @@ const ERROR_OVERLAY_TEMPLATE = `
             font-size: 1rem;
           }
     </style><style>
-                
+
         [data-nextjs-dialog-overlay] {
             position: fixed;
             top: 0;
@@ -502,7 +502,7 @@ const ERROR_OVERLAY_TEMPLATE = `
             backdrop-filter: blur(8px);
         }
 
-                
+
         [data-nextjs-toast] {
             position: fixed;
             bottom: var(--size-gap-double);
@@ -528,7 +528,7 @@ const ERROR_OVERLAY_TEMPLATE = `
             rgba(0, 0, 0, 0.25);
         }
 
-                
+
         [data-nextjs-dialog] {
             display: flex;
             flex-direction: column;
@@ -615,7 +615,7 @@ const ERROR_OVERLAY_TEMPLATE = `
             flex: 1 1 auto;
         }
 
-                
+
         [data-nextjs-dialog-left-right] {
             display: flex;
             flex-direction: row;
@@ -672,7 +672,7 @@ const ERROR_OVERLAY_TEMPLATE = `
             opacity: 0.7;
         }
 
-                
+
         [data-nextjs-codeframe] {
             border-radius: var(--size-gap-half);
             background-color: var(--color-ansi-bg);
@@ -721,7 +721,7 @@ const ERROR_OVERLAY_TEMPLATE = `
             margin-left: 0.5rem;
         }
 
-                
+
         [data-nextjs-terminal] {
             border-radius: var(--size-gap-half);
             background-color: var(--color-ansi-bg);
@@ -748,7 +748,7 @@ const ERROR_OVERLAY_TEMPLATE = `
         }
 
 
-                
+
         .nextjs-container-build-error-header > h4 {
             line-height: 1.5;
             margin: 0;
@@ -766,7 +766,7 @@ const ERROR_OVERLAY_TEMPLATE = `
             color: #757575;
         }
 
-                
+
         .nextjs-container-errors-header > h1 {
             font-size: var(--size-font-big);
             line-height: var(--size-font-bigger);
@@ -823,7 +823,7 @@ const ERROR_OVERLAY_TEMPLATE = `
             margin-right: var(--size-gap);
         }
 
-                
+
         button[data-nextjs-data-runtime-error-collapsed-action] {
             background: none;
             border: none;
@@ -872,7 +872,7 @@ const ERROR_OVERLAY_TEMPLATE = `
         }
 
     </style>
-    
+
     <div data-nextjs-dialog-overlay="true"><div data-nextjs-dialog-backdrop="true"></div><div data-nextjs-dialog="true" tabindex="-1" role="dialog" aria-labelledby="nextjs__container_errors_label" aria-describedby="nextjs__container_errors_desc" aria-modal="true"><div data-nextjs-dialog-banner="true" class="banner-error"></div><div data-nextjs-dialog-content="true"><div data-nextjs-dialog-header="true" class="nextjs-container-errors-header"><div data-nextjs-dialog-left-right="true">
     <nav>
         <button type="button" disabled="" aria-disabled="true"><svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.99996 1.16666L1.16663 6.99999L6.99996 12.8333M12.8333 6.99999H1.99996H12.8333Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button><button type="button" disabled="" aria-disabled="true"><svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.99996 1.16666L12.8333 6.99999L6.99996 12.8333M1.16663 6.99999H12H1.16663Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
@@ -890,60 +890,53 @@ const ERROR_OVERLAY_TEMPLATE = `
 const template = document.createElement('template');
 template.innerHTML = ERROR_OVERLAY_TEMPLATE;
 
-customElements.define('hmr-error-overlay', class HmrErrorOverlay extends HTMLElement {
-  constructor({ title, errorMessage, fileLoc, errorStackTrace }) {
-    super();
-    this.title = title;
-    this.errorMessage = errorMessage;
-    this.fileLoc = fileLoc;
-    this.errorStackTrace = errorStackTrace;
-    this.sr = this.attachShadow({ mode: 'open' });
-    this.sr.appendChild(template.content.cloneNode(true));
-    this.close = this.close.bind(this);
-  }
-
-  connectedCallback() {
-    this.sr
-      .getElementById('close-button')
-      .addEventListener('click', this.close);
-    this.sr
-      .querySelector('[data-nextjs-dialog-backdrop]')
-      .addEventListener('click', this.close);
-
-    this.sr.getElementById(
-      'nextjs__container_errors_label',
-    ).innerText = this.title;
-    this.sr.getElementById(
-      'nextjs__container_errors_desc',
-    ).innerText = this.errorMessage;
-    if (this.fileLoc) {
-      this.sr.getElementById('error-file-loc').innerText = this.fileLoc;
-    } else {
-      this.sr.getElementById('error-file-loc').innerText = 'No source file.';
+customElements.define(
+  'hmr-error-overlay',
+  class HmrErrorOverlay extends HTMLElement {
+    constructor({title, errorMessage, fileLoc, errorStackTrace}) {
+      super();
+      this.title = title;
+      this.errorMessage = errorMessage;
+      this.fileLoc = fileLoc;
+      this.errorStackTrace = errorStackTrace;
+      this.sr = this.attachShadow({mode: 'open'});
+      this.sr.appendChild(template.content.cloneNode(true));
+      this.close = this.close.bind(this);
     }
-    if (this.errorStackTrace) {
-      this.sr.querySelector('pre').innerText = this.errorStackTrace;
-    } else {
-      this.sr.querySelector('pre').style.display = 'none';
+
+    connectedCallback() {
+      this.sr.getElementById('close-button').addEventListener('click', this.close);
+      this.sr.querySelector('[data-nextjs-dialog-backdrop]').addEventListener('click', this.close);
+
+      this.sr.getElementById('nextjs__container_errors_label').innerText = this.title;
+      this.sr.getElementById('nextjs__container_errors_desc').innerText = this.errorMessage;
+      if (this.fileLoc) {
+        this.sr.getElementById('error-file-loc').innerText = this.fileLoc;
+      } else {
+        this.sr.getElementById('error-file-loc').innerText = 'No source file.';
+      }
+      if (this.errorStackTrace) {
+        this.sr.querySelector('pre').innerText = this.errorStackTrace;
+      } else {
+        this.sr.querySelector('pre').style.display = 'none';
+      }
     }
-  }
 
-  disconnectedCallback() {
-    this.sr
-      .getElementById('close-button')
-      .removeEventListener('click', this.close);
-    this.sr
-      .querySelector('[data-nextjs-dialog-backdrop]')
-      .removeEventListener('click', this.close);
-  }
-
-  close() {
-    this.parentNode.removeChild(this);
-  }
-
-  _watchEscape(event) {
-    if (event.key === 'Escape') {
-      this.close();
+    disconnectedCallback() {
+      this.sr.getElementById('close-button').removeEventListener('click', this.close);
+      this.sr
+        .querySelector('[data-nextjs-dialog-backdrop]')
+        .removeEventListener('click', this.close);
     }
-  }
-});
+
+    close() {
+      this.parentNode.removeChild(this);
+    }
+
+    _watchEscape(event) {
+      if (event.key === 'Escape') {
+        this.close();
+      }
+    }
+  },
+);
