@@ -1,5 +1,9 @@
 ---
-export let version: string = '3.5.6';
+// get snowpack version
+export let version = '3.6.0';
+await fetch('https://registry.npmjs.org/snowpack/latest')
+  .then((res) => res.json())
+  .then((manifest) => version = manifest.version);
 ---
 
 <style lang="scss">
