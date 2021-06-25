@@ -85,9 +85,12 @@ describe('@snowpack/plugin-postcss', () => {
   });
 
   test('the correct "from" is provided', async () => {
-    const pluginInstance = plugin({root: path.join(__dirname, 'fixtures', 'from')}, {
-      config: path.join(__dirname, 'fixtures', 'from', 'postcss.config.js')
-    });
+    const pluginInstance = plugin(
+      {root: path.join(__dirname, 'fixtures', 'from')},
+      {
+        config: path.join(__dirname, 'fixtures', 'from', 'postcss.config.js'),
+      },
+    );
 
     const cssPath = path.join(__dirname, 'fixtures', 'from', 'style.css');
     const cssContent = fs.readFileSync(cssPath, 'utf8');
@@ -104,9 +107,7 @@ describe('@snowpack/plugin-postcss', () => {
       fileExt: path.extname(fromCssPath),
       contents: fromCssContent,
     });
-    expect(transformCSSResults.code).toEqual(
-      expect.stringContaining('from.css')
-    );
+    expect(transformCSSResults.code).toEqual(expect.stringContaining('from.css'));
 
     await pluginInstance.cleanup();
   });

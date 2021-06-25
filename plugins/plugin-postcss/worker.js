@@ -13,7 +13,7 @@ async function transformAsync(css, {filepath, config, cwd, map}) {
   const key = config + '-' + cwd;
 
   // Initialize processor. `config`, `cwd` won't change until Snowpack is restarted
-  if(!processMap.has(key)) {
+  if (!processMap.has(key)) {
     let plugins = [];
     let options = {};
     if (typeof config === 'object') {
