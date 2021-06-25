@@ -216,17 +216,6 @@ The port the dev server runs on.
 
 Optional path to append to dev server url. May also include querystring parameters, example: `test/foo.html?bar=123`.
 
-### devOptions.fallback
-
-**Type**: `string`
-**Default**: `"index.html"`
-
-The HTML file to serve for non-resource routes.
-
-When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route.
-
-⚠️ Make sure that you configure your production servers to serve this.
-
 ### devOptions.open
 
 **Type**: `string`
