@@ -28,7 +28,7 @@
     "@snowpack/plugin-dotenv": "^2.1.0",
     "@snowpack/plugin-vue": "^2.4.0",
     "snowpack": "^3.3.7",
-    "typescript": "^4.2.4"
+    "typescript": "^4.3.4"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }

@@ -1,16 +1,14 @@
 body {
-    background: #fff;
+  background: #fff;
 }
 
 #root {
-    width: 480px;
-    margin: auto;
-    padding: 16px;
-    box-sizing: border-box;
+  box-sizing: border-box;
+  margin: auto;
+  padding: 16px;
+  width: 480px;
 }
 
 .content {
-    color: blue;
+  color: blue;
 }
-
-

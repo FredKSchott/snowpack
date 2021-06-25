@@ -257,15 +257,12 @@ export const MISSING_PLUGIN_SUGGESTIONS: {[ext: string]: string} = {
 const appNames = {
   win32: {
     brave: 'brave',
-    chrome: 'chrome',
   },
   darwin: {
     brave: 'Brave Browser',
-    chrome: 'Google Chrome',
   },
   linux: {
     brave: 'brave',
-    chrome: 'google-chrome',
   },
 };
 
@@ -305,17 +302,18 @@ export async function openInBrowser(
   openUrl?: string,
 ): Promise<void> {
   const url = new URL(openUrl || '', `${protocol}//${hostname}:${port}`).toString();
-  browser = /chrome/i.test(browser)
-    ? appNames[process.platform]['chrome']
-    : /brave/i.test(browser)
-    ? appNames[process.platform]['brave']
-    : browser;
+  if (/chrome/i.test(browser)) {
+    browser = open.apps.chrome as string;
+  }
+  if (/brave/i.test(browser)) {
+    browser = appNames[process.platform]['brave'];
+  }
   const isMacChrome =
     process.platform === 'darwin' &&
     (/chrome/i.test(browser) ||
       (/default/i.test(browser) && /chrome/i.test(await getDefaultBrowserId())));
   if (!isMacChrome) {
-    await (browser === 'default' ? open(url) : open(url, {app: browser}));
+    await (browser === 'default' ? open(url) : open(url, {app: {name: browser}}));
     return;
   }
   try {
