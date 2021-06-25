@@ -6,7 +6,7 @@ import {fdir} from 'fdir';
 import path from 'path';
 import stripComments from 'strip-comments';
 import {logger} from './logger';
-import {SnowpackConfig, SnowpackSourceFile} from './types';
+import {ScannableExt, SnowpackConfig, SnowpackSourceFile} from './types';
 import {
   createInstallTarget,
   CSS_REGEX,
@@ -53,6 +53,27 @@ export async function getInstallTargets(
         isImportOfPackage(dep.specifier, packageName),
       ),
   );
+}
+
+const scannableExts = new Set<ScannableExt>([
+  '.astro',
+  '.cjs',
+  '.css',
+  '.html',
+  '.interface',
+  '.js',
+  '.jsx',
+  '.less',
+  '.mjs',
+  '.sass',
+  '.scss',
+  '.svelte',
+  '.ts',
+  '.tsx',
+  '.vue',
+]);
+function isFileScannable(ext: string): boolean {
+  return scannableExts.has(ext as ScannableExt); // note: <ScannableExts> needed to keep Set() correct above, but this fn should test any string (hence "as").
 }
 
 export function matchDynamicImportValue(importStatement: string) {
@@ -178,7 +199,7 @@ function parseFileForInstallTargets({
   const relativeLoc = path.relative(root, locOnDisk);
 
   try {
-    switch (baseExt) {
+    switch (baseExt as ScannableExt) {
       case '.css':
       case '.less':
       case '.sass':
@@ -203,6 +224,7 @@ function parseFileForInstallTargets({
           ...parseJsForInstallTargets(extractJsFromAstro(contents)),
         ];
       }
+      case '.cjs':
       case '.js':
       case '.jsx':
       case '.mjs':
@@ -313,6 +335,10 @@ export async function scanImports(
   const foundExcludeMatch = picomatch(excludeGlobs);
   const loadedFiles: (SnowpackSourceFile | null)[] = await Promise.all(
     includeFiles.map(async (filePath: string): Promise<SnowpackSourceFile | null> => {
+      // don’t waste time trying to scan files that aren’t scannable
+      if (!isFileScannable(path.extname(filePath))) {
+        return null;
+      }
       if (excludePrivate.test(filePath)) {
         return null;
       }

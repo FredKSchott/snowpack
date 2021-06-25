@@ -405,3 +405,20 @@ export interface PackageSource {
   getCacheFolder(): string;
   clearCache(): void | Promise<void>;
 }
+
+export type ScannableExt =
+  | '.astro'
+  | '.cjs'
+  | '.css'
+  | '.html'
+  | '.interface'
+  | '.js'
+  | '.jsx'
+  | '.less'
+  | '.mjs'
+  | '.sass'
+  | '.scss'
+  | '.svelte'
+  | '.ts'
+  | '.tsx'
+  | '.vue';
