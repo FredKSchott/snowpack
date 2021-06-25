@@ -105,7 +105,7 @@ describe('@snowpack/plugin-postcss', () => {
       contents: fromCssContent,
     });
     expect(transformCSSResults.code).toEqual(
-      expect.stringContaining('plugin-postcss/test/fixtures/from/from.css')
+      expect.stringContaining('from.css')
     );
 
     await pluginInstance.cleanup();
