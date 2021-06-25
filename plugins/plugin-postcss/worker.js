@@ -6,11 +6,14 @@ const postcssrc = require('postcss-load-config');
 const loadPlugins = require('postcss-load-config/src/plugins.js');
 const loadOptions = require('postcss-load-config/src/options.js');
 
-let process = null;
+const processMap = new Map();
 
 async function transformAsync(css, {filepath, config, cwd, map}) {
+  let process = null;
+  const key = config + '-' + cwd;
+
   // Initialize processor. `config`, `cwd` won't change until Snowpack is restarted
-  if (!process) {
+  if(!processMap.has(key)) {
     let plugins = [];
     let options = {};
     if (typeof config === 'object') {
@@ -22,10 +25,12 @@ async function transformAsync(css, {filepath, config, cwd, map}) {
       options = rc.options;
     }
     const processor = postcss(plugins);
-    process = (css) => processor.process(css, {...options, from: filepath, map});
+    process = (css, filepath, map) => processor.process(css, {...options, from: filepath, map});
+    processMap.set(key, process);
   }
+  process = processMap.get(key);
 
-  const result = await process(css);
+  const result = await process(css, filepath, map);
   return JSON.stringify({css: result.css, map: result.map, messages: result.messages});
 }
 

@@ -83,4 +83,31 @@ describe('@snowpack/plugin-postcss', () => {
     expect(transformCSSResults.map).toBe(undefined);
     await pluginInstance.cleanup();
   });
+
+  test('the correct "from" is provided', async () => {
+    const pluginInstance = plugin({root: path.join(__dirname, 'fixtures', 'from')}, {
+      config: path.join(__dirname, 'fixtures', 'from', 'postcss.config.js')
+    });
+
+    const cssPath = path.join(__dirname, 'fixtures', 'from', 'style.css');
+    const cssContent = fs.readFileSync(cssPath, 'utf8');
+    let transformCSSResults = await pluginInstance.transform({
+      id: cssPath,
+      fileExt: path.extname(cssPath),
+      contents: cssContent,
+    });
+
+    const fromCssPath = path.join(__dirname, 'fixtures', 'from', 'from.css');
+    const fromCssContent = fs.readFileSync(fromCssPath, 'utf8');
+    transformCSSResults = await pluginInstance.transform({
+      id: fromCssPath,
+      fileExt: path.extname(fromCssPath),
+      contents: fromCssContent,
+    });
+    expect(transformCSSResults.code).toEqual(
+      expect.stringContaining('from.css')
+    );
+
+    await pluginInstance.cleanup();
+  });
 });
