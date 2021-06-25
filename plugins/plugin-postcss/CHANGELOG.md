@@ -4,6 +4,11 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## @snowpack/plugin-postcss@1.4.3 [2021-06-25]
+
+* 8cdad981 - [ci] yarn format <matthewp>
+* f9fc09a8 - Provide the 'from' filename when processing postcss (#3493) <Matthew Phillips>
+
 ## @snowpack/plugin-postcss@1.4.2 [2021-06-24]
 
 * a6b3b71f - Allow srcPath fallback for older versions of Snowpack (#3484) <Drew Powers>
