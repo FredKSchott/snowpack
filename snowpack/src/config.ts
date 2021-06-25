@@ -84,7 +84,7 @@ export const DEFAULT_PACKAGES_LOCAL_CONFIG: PackageOptionsLocal = {
   knownEntrypoints: [],
 };
 
-const REMOTE_PACKAGE_ORIGIN = 'https://pkg.snowpack.dev';
+export const REMOTE_PACKAGE_ORIGIN = 'https://pkg.snowpack.dev';
 
 const DEFAULT_PACKAGES_REMOTE_CONFIG: PackageOptionsRemote = {
   source: 'remote',

@@ -2,16 +2,16 @@ import {existsSync} from 'fs';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import rimraf from 'rimraf';
-import {clearCache as clearSkypackCache, rollupPluginSkypack} from 'skypack';
+import {clearCache as clearSkypackCache, rollupPluginSkypack, SkypackSDK} from 'skypack';
 import util from 'util';
 import {logger} from '../logger';
 import {LockfileManifest, PackageOptionsRemote, PackageSource, SnowpackConfig} from '../types';
 import {
   convertLockfileToSkypackImportMap,
+  createRemotePackageSDK,
   isJavaScript,
   parsePackageImportSpecifier,
   readLockfile,
-  remotePackageSDK,
 } from '../util';
 
 const fetchedPackages = new Set<string>();
@@ -38,9 +38,11 @@ function logFetching(origin: string, packageName: string, packageSemver: string 
 export class PackageSourceRemote implements PackageSource {
   config: SnowpackConfig;
   lockfile: LockfileManifest | null = null;
+  remotePackageSDK: SkypackSDK;
 
   constructor(config: SnowpackConfig) {
     this.config = config;
+    this.remotePackageSDK = createRemotePackageSDK(config);
   }
 
   async prepare() {
@@ -60,7 +62,7 @@ export class PackageSourceRemote implements PackageSource {
     for (const lockEntry of lockEntryList) {
       const [packageName, semverRange] = lockEntry.split('#');
       const exactVersion = lockfile.lock[lockEntry]?.substr(packageName.length + 1);
-      await remotePackageSDK
+      await this.remotePackageSDK
         .installTypes(
           packageName,
           exactVersion || semverRange,
@@ -90,7 +92,7 @@ export class PackageSourceRemote implements PackageSource {
     installOptions.rollup.plugins = installOptions.rollup.plugins || [];
     installOptions.rollup.plugins.push(
       rollupPluginSkypack({
-        sdk: remotePackageSDK,
+        sdk: this.remotePackageSDK,
         logger: {
           debug: (...args: [any, ...any[]]) => logger.debug(util.format(...args)),
           log: (...args: [any, ...any[]]) => logger.info(util.format(...args)),
@@ -112,16 +114,17 @@ export class PackageSourceRemote implements PackageSource {
       spec.startsWith('new/') ||
       spec.startsWith('error/')
     ) {
-      body = (await remotePackageSDK.fetch(`/${spec}`)).body;
+      body = (await this.remotePackageSDK.fetch(`/${spec}`)).body;
     } else {
       const [packageName, packagePath] = parsePackageImportSpecifier(spec);
       if (lockfile && lockfile.dependencies[packageName]) {
         const lockEntry = packageName + '#' + lockfile.dependencies[packageName];
         if (packagePath) {
-          body = (await remotePackageSDK.fetch('/' + lockfile.lock[lockEntry] + '/' + packagePath))
-            .body;
+          body = (
+            await this.remotePackageSDK.fetch('/' + lockfile.lock[lockEntry] + '/' + packagePath)
+          ).body;
         } else {
-          body = (await remotePackageSDK.fetch('/' + lockfile.lock[lockEntry])).body;
+          body = (await this.remotePackageSDK.fetch('/' + lockfile.lock[lockEntry])).body;
         }
       } else {
         const packageSemver = 'latest';
@@ -130,13 +133,13 @@ export class PackageSourceRemote implements PackageSource {
           packageName,
           packageSemver,
         );
-        let lookupResponse = await remotePackageSDK.lookupBySpecifier(spec, packageSemver);
+        let lookupResponse = await this.remotePackageSDK.lookupBySpecifier(spec, packageSemver);
         if (!lookupResponse.error && lookupResponse.importStatus === 'NEW') {
-          const buildResponse = await remotePackageSDK.buildNewPackage(spec, packageSemver);
+          const buildResponse = await this.remotePackageSDK.buildNewPackage(spec, packageSemver);
           if (!buildResponse.success) {
             throw new Error('Package could not be built!');
           }
-          lookupResponse = await remotePackageSDK.lookupBySpecifier(spec, packageSemver);
+          lookupResponse = await this.remotePackageSDK.lookupBySpecifier(spec, packageSemver);
         }
         if (lookupResponse.error) {
           throw lookupResponse.error;
@@ -144,7 +147,7 @@ export class PackageSourceRemote implements PackageSource {
         // Trigger a type fetch asynchronously. We want to resolve the JS as fast as possible, and
         // the result of this is totally disconnected from the loading flow.
         if (!existsSync(path.join(this.getCacheFolder(), '.snowpack/types', packageName))) {
-          remotePackageSDK
+          this.remotePackageSDK
             .installTypes(
               packageName,
               packageSemver,
