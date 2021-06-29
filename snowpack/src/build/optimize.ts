@@ -405,9 +405,9 @@ async function runEsbuildOnBuildDirectory(
     publicPath,
     minify: config.optimize!.minify,
     target: config.optimize!.target,
-    external: Array.from(new Set(allFiles.map((f) => '*' + path.extname(f)))).filter(
-      (ext) => ext !== '*.js' && ext !== '*.mjs' && ext !== '*.css' && ext !== '*',
-    ),
+    external: Array.from(new Set(allFiles.map((f) => '*' + path.extname(f))))
+      .filter((ext) => ext !== '*.js' && ext !== '*.mjs' && ext !== '*.css' && ext !== '*')
+      .concat(config.packageOptions?.external ?? []),
     charset: 'utf8',
   });
 
