@@ -215,6 +215,7 @@ export type MountEntry = {
   url: string;
   static: boolean;
   resolve: boolean;
+  dot: boolean;
 };
 
 export interface OptimizeOptions {

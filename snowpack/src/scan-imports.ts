@@ -4,6 +4,7 @@ import glob from 'glob';
 import picomatch from 'picomatch';
 import {fdir} from 'fdir';
 import path from 'path';
+import slash from 'slash';
 import stripComments from 'strip-comments';
 import {logger} from './logger';
 import {ScannableExt, SnowpackConfig, SnowpackSourceFile} from './types';
@@ -19,6 +20,7 @@ import {
   readFile,
   SVELTE_VUE_REGEX,
   ASTRO_REGEX,
+  IS_DOTFILE_REGEX,
 } from './util';
 
 // [@\w] - Match a word-character or @ (valid package name)
@@ -315,9 +317,17 @@ export async function scanImports(
   config: SnowpackConfig,
 ): Promise<InstallTarget[]> {
   await initESModuleLexer;
+
   const includeFileSets = await Promise.all(
-    Object.keys(config.mount).map(async (fromDisk) => {
-      return (await new fdir().withFullPaths().crawl(fromDisk).withPromise()) as string[];
+    Object.entries(config.mount).map(async ([fromDisk, mountEntry]) => {
+      const allMatchedFiles = (await new fdir()
+        .withFullPaths()
+        .crawl(fromDisk)
+        .withPromise()) as string[];
+      if (mountEntry.dot) {
+        return allMatchedFiles;
+      }
+      return allMatchedFiles.filter((f) => !IS_DOTFILE_REGEX.test(slash(f))); // TODO: use a file URL instead
     }),
   );
   const includeFiles = Array.from(new Set(([] as string[]).concat.apply([], includeFileSets)));
@@ -326,20 +336,15 @@ export async function scanImports(
   }
 
   // Scan every matched JS file for web dependency imports
-  const excludePrivate = new RegExp(`\\${path.sep}\\.`);
   const excludeGlobs = includeTests
     ? config.exclude
     : [...config.exclude, ...config.testOptions.files];
-
   const mountedNodeModules = Object.keys(config.mount).filter((v) => v.includes('node_modules'));
   const foundExcludeMatch = picomatch(excludeGlobs);
   const loadedFiles: (SnowpackSourceFile | null)[] = await Promise.all(
     includeFiles.map(async (filePath: string): Promise<SnowpackSourceFile | null> => {
       // don’t waste time trying to scan files that aren’t scannable
       if (!isFileScannable(path.extname(filePath))) {
-        return null;
-      }
-      if (excludePrivate.test(filePath)) {
         return null;
       }
       if (foundExcludeMatch(filePath)) {

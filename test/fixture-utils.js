@@ -5,19 +5,7 @@ const fs = require('fs').promises;
 const snowpack = require('snowpack');
 const assert = require('assert');
 
-const UTF8_FRIENDLY_EXTS = [
-  'css',
-  'html',
-  'js',
-  'map',
-  'jsx',
-  'ts',
-  'tsx',
-  'svelte',
-  'svg',
-  'vue',
-  'json',
-]; // only read non-binary files (add more exts here as needed)
+const IGNORE_EXTS = ['.png', '.jpg', '.ico']; // only read non-binary files (add more exts here as needed)
 
 const writeFile = (file, data) =>
   fs.mkdir(path.dirname(file), {recursive: true}).then(() => fs.writeFile(file, data));
@@ -51,7 +39,7 @@ async function runInFixture(testFiles, {absolute = false, overrides = {}} = {}, 
   const result = {};
   assert(path.isAbsolute(outDir));
 
-  const allFiles = glob.sync(`**/*.{${UTF8_FRIENDLY_EXTS.join(',')}}`, {
+  const allFiles = glob.sync(`**/*!(${IGNORE_EXTS.join('|')})`, {
     cwd: outDir,
     nodir: true,
     absolute: true,
@@ -64,7 +52,7 @@ async function runInFixture(testFiles, {absolute = false, overrides = {}} = {}, 
     ] = require('fs').readFileSync(fileLoc, 'utf8');
   }
 
-  const snowpackCache = glob.sync(`.snowpack/**/*.{${UTF8_FRIENDLY_EXTS.join(',')}}`, {
+  const snowpackCache = glob.sync(`.snowpack/**/*!(${IGNORE_EXTS.join('|')})`, {
     cwd: inDir,
     nodir: true,
     absolute: true,
@@ -150,7 +138,7 @@ exports.testRuntimeFixture = async function testRuntimeFixture(
       const result = {};
       assert(path.isAbsolute(outDir));
 
-      const allFiles = glob.sync(`**/*.{${UTF8_FRIENDLY_EXTS.join(',')}}`, {
+      const allFiles = glob.sync(`**/*!(${IGNORE_EXTS.join('|')})`, {
         cwd: outDir,
         nodir: true,
         absolute: true,

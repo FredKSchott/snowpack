@@ -118,6 +118,7 @@ const configSchema = {
               url: {type: 'string'},
               static: {type: 'boolean'},
               resolve: {type: 'boolean'},
+              dot: {type: 'boolean'},
             },
           },
         ],
@@ -378,7 +379,7 @@ function normalizeMount(config: SnowpackConfig) {
   for (const [mountDir, rawMountEntry] of Object.entries(mountedDirs)) {
     const mountEntry: Partial<MountEntry> =
       typeof rawMountEntry === 'string'
-        ? {url: rawMountEntry, static: false, resolve: true}
+        ? {url: rawMountEntry, static: false, resolve: true, dot: false}
         : rawMountEntry;
     if (!mountEntry.url) {
       handleConfigError(
@@ -395,6 +396,7 @@ function normalizeMount(config: SnowpackConfig) {
       url: mountEntry.url === '/' ? '/' : removeTrailingSlash(mountEntry.url),
       static: mountEntry.static ?? false,
       resolve: mountEntry.resolve ?? true,
+      dot: mountEntry.dot ?? false,
     };
   }
   // if no mounted directories, mount the root directory to the base URL
@@ -403,6 +405,7 @@ function normalizeMount(config: SnowpackConfig) {
       url: '/',
       static: false,
       resolve: true,
+      dot: false,
     };
   }
   return normalizedMount;

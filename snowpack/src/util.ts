@@ -19,6 +19,7 @@ import {REMOTE_PACKAGE_ORIGIN} from './config';
 // Because this file is imported from so many different parts of Snowpack,
 // importing other relative files inside of it is likely to introduce broken
 // circular dependencies (sometimes only visible in the final bundled build.)
+export const IS_DOTFILE_REGEX = /\/\.[^\/]+/; // note: always assume forward-slashes, even on Windows
 
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
 export const LOCKFILE_NAME = 'snowpack.deps.json';

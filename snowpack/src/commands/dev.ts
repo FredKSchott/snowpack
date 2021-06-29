@@ -41,6 +41,7 @@ import {
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
   isFsEventsEnabled,
+  IS_DOTFILE_REGEX,
   openInBrowser,
 } from '../util';
 import {getPort, startDashboard, paintEvent} from './paint';
@@ -538,7 +539,7 @@ export async function startServer(
     // directory, so we can't strip that info just yet. Try the exact match first, and then strip
     // it later on if there is no match.
     let resourcePath = reqPath;
-    let resourceType = matchOutputExt(reqPath) || '.html';
+    let resourceType = matchOutputExt(reqPath) || (IS_DOTFILE_REGEX.test(reqPath) ? '' : '.html');
     let foundFile: FoundFile;
 
     // * Workspaces & Linked Packages:
@@ -666,9 +667,11 @@ export async function startServer(
       // TODO: This data type structuring/destructuring is neccesary for now,
       // but we hope to add "virtual file" support soon via plugins. This would
       // be the interface for those response types.
+      let foundFileType = path.extname(reqPath) || '.html';
+      if (IS_DOTFILE_REGEX.test(reqPath)) foundFileType = '';
       foundFile = {
         loc: attemptedFileLoc,
-        type: path.extname(reqPath) || '.html',
+        type: foundFileType,
         isStatic: mountEntry.static,
         isResolve: mountEntry.resolve,
       };

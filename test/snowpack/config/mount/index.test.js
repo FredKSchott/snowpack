@@ -3,11 +3,14 @@ const dedent = require('dedent');
 
 const advanced = {
   'src/g/dep.js': dedent`
-    console.log('dep');      
+    console.log('dep');
+  `,
+  'src/g/.dotfile': dedent`
+    # I am a dotfile.
   `,
   'src/g/index.jsx': dedent`
     import './dep';
-    console.log('index');      
+    console.log('index');
   `,
   'src/g/main.html': dedent`
     <!DOCTYPE html>
@@ -25,7 +28,7 @@ const advanced = {
           console.log('main');
         </script>
       </body>
-    </html>   
+    </html>
   `,
 };
 
@@ -228,5 +231,47 @@ describe('mount', () => {
     // Unmounted node_modules directories are not included
     expect(result['explicit/node_modules/implicit/index.js']).not.toBeDefined();
     expect(result['node_modules/implicit/index.js']).not.toBeDefined();
+  });
+
+  it('Ignores dotfiles when "dot" is undefined', async () => {
+    const result = await testFixture({
+      ...advanced,
+      'snowpack.config.js': dedent`
+        module.exports = {
+          mount: {
+            'src/g': {url: '/g'},
+          }
+        };
+      `,
+    });
+    expect(result['g/.dotfile']).not.toBeDefined();
+  });
+
+  it('Ignores dotfiles when "dot" is false', async () => {
+    const result = await testFixture({
+      ...advanced,
+      'snowpack.config.js': dedent`
+        module.exports = {
+          mount: {
+            'src/g': {url: '/g', dot: false},
+          }
+        };
+      `,
+    });
+    expect(result['g/.dotfile']).not.toBeDefined();
+  });
+
+  it('Includes dotfiles when "dot" is true', async () => {
+    const result = await testFixture({
+      ...advanced,
+      'snowpack.config.js': dedent`
+        module.exports = {
+          mount: {
+            'src/g': {url: '/g', dot: true},
+          }
+        };
+      `,
+    });
+    expect(result['g/.dotfile']).toBeDefined();
   });
 });

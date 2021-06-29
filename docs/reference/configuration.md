@@ -67,7 +67,7 @@ Supports glob pattern matching.
 
 ```
 mount: {
-  [path: string]: string | {url: string, resolve: boolean, static: boolean}
+  [path: string]: string | {url: string, resolve: boolean, static: boolean, dot: boolean}
 }
 ```
 
@@ -76,6 +76,7 @@ Mount local directories to custom URLs in your built application.
 - `mount.url` | `string` | _required_ : The URL to mount to, matching the string in the simple form above.
 - `mount.static` | `boolean` | _optional_ | **Default**: `false` : If true, don't build files in this directory. Copy and serve them directly from disk to the browser.
 - `mount.resolve` | `boolean` | _optional_ | **Default**: `true`: If false, don't resolve JS & CSS imports in your JS, CSS, and HTML files. Instead send every import to the browser, as written.
+- - `mount.dot` | `boolean` | _optional_ | **Default**: `false`: If true, include dotfiles (ex: `.htaccess`) in the final build.
 
 Example:
 
