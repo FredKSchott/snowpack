@@ -138,6 +138,7 @@ exports.testRuntimeFixture = async function testRuntimeFixture(
 
   return {
     runtime,
+    loadUrl: server.loadUrl,
     async writeFile(fileLoc, fileContents) {
       await writeFile(
         path.join(inDir, fileLoc),
