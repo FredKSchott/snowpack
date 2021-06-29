@@ -129,6 +129,8 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       );
 
       if (descriptor.template) {
+        const scoped = descriptor.styles.some((s) => s.scoped);
+
         const js = compiler.compileTemplate({
           id,
           filename: path.relative(snowpackConfig.root || process.cwd(), filePath),
@@ -137,7 +139,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
           ssrCssVars: [],
           preprocessLang: descriptor.template.lang,
           compilerOptions: {
-            scopeId: descriptor.styles.some((s) => s.scoped) ? `data-v-${id}` : null,
+            scopeId: scoped ? `data-v-${id}` : null,
           },
         });
         if (js.errors && js.errors.length > 0) {
@@ -149,6 +151,10 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
         if (output['.js'].code) output['.js'].code += '\n';
         output['.js'].code += `${js.code.replace(/;?$/, ';')}`; // add trailing semicolon if missing (helps with some SSR cases)
         output['.js'].code += `\n\ndefaultExport.${renderFn} = ${renderFn};`;
+
+        if ( scoped ) {
+          output['.js'].code += `\n\ndefaultExport.__scopeId = "data-v-${ id }";`
+        }
 
         // inject CSS Module styles, if needed
         if (hasCssModules) {

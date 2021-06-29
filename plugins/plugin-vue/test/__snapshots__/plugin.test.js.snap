@@ -105,6 +105,37 @@ export default defaultExport;",
 }
 `;
 
+exports[`plugin base style scoped 1`] = `
+Object {
+  ".css": Object {
+    "code": "
+h1[data-v-XXXXXXXX] {
+  color: red;
+}
+",
+    "map": "",
+  },
+  ".js": Object {
+    "code": "
+const defaultExport = {};
+
+import { openBlock as _openBlock, createBlock as _createBlock, withScopeId as _withScopeId } from \\"vue\\"
+const _withId = /*#__PURE__*/_withScopeId(\\"data-v-XXXXXXXX\\")
+
+export const render = /*#__PURE__*/_withId((_ctx, _cache) => {
+  return (_openBlock(), _createBlock(\\"h1\\", null, \\"Vue Content Style Scoped\\"))
+});
+
+defaultExport.render = render;
+
+defaultExport.__scopeId = \\"data-v-XXXXXXXX\\";
+
+export default defaultExport;",
+    "map": "",
+  },
+}
+`;
+
 exports[`plugin base with sourceMap 1`] = `
 Object {
   ".css": Object {
