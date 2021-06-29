@@ -23,7 +23,7 @@ describe('runtime', () => {
         {
           "version": "1.0.1",
           "name": "@snowpack/test-runtime-invalidate"
-        }  
+        }
       `,
     });
 
@@ -155,6 +155,26 @@ describe('runtime', () => {
     try {
       let mod = await fixture.runtime.importModule('/main.js');
       expect(await mod.exports.test()).toEqual('works');
+    } finally {
+      await fixture.cleanup();
+    }
+  });
+
+  it('Can handle folders with dots', async () => {
+    const fixture = await testRuntimeFixture({
+      'public/example.com/index.html': `<html></html>\n`,
+      'public/example/index.html': `<html></html>\n`,
+      'snowpack.config.js': `
+        module.exports = {
+          mount: {
+            public: { url: '/', static: true }
+          }
+        }
+      `,
+    });
+    try {
+      let contents = (await fixture.loadUrl('/example.com/')).contents.toString('utf8');
+      expect(contents).toEqual('<html></html>\n');
     } finally {
       await fixture.cleanup();
     }
