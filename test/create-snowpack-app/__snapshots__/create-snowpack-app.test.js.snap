@@ -7839,12 +7839,12 @@ Array [
 ]
 `;
 
-exports[`create-snowpack-app app-template-svelte-typescript > build: dist/App.svelte.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1sqyd3v.svelte-1sqyd3v{text-align:center}.App.svelte-1sqyd3v code.svelte-1sqyd3v{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1sqyd3v p.svelte-1sqyd3v{margin:0.4rem}.App-header.svelte-1sqyd3v.svelte-1sqyd3v{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1sqyd3v.svelte-1sqyd3v{color:#ff3e00}.App-logo.svelte-1sqyd3v.svelte-1sqyd3v{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1sqyd3v-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1sqyd3v-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
+exports[`create-snowpack-app app-template-svelte-typescript > build: dist/App.svelte.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-190tdcp.svelte-190tdcp{text-align:center}.App.svelte-190tdcp code.svelte-190tdcp{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-190tdcp p.svelte-190tdcp{margin:0.4rem}.App-header.svelte-190tdcp.svelte-190tdcp{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-190tdcp.svelte-190tdcp{color:#ff3e00}.App-logo.svelte-190tdcp.svelte-190tdcp{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-190tdcp-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-190tdcp-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
 
 exports[`create-snowpack-app app-template-svelte-typescript > build: dist/App.svelte.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
-  const code = \\"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1sqyd3v.svelte-1sqyd3v{text-align:center}.App.svelte-1sqyd3v code.svelte-1sqyd3v{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1sqyd3v p.svelte-1sqyd3v{margin:0.4rem}.App-header.svelte-1sqyd3v.svelte-1sqyd3v{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1sqyd3v.svelte-1sqyd3v{color:#ff3e00}.App-logo.svelte-1sqyd3v.svelte-1sqyd3v{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1sqyd3v-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1sqyd3v-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}\\";
+  const code = \\"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-190tdcp.svelte-190tdcp{text-align:center}.App.svelte-190tdcp code.svelte-190tdcp{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-190tdcp p.svelte-190tdcp{margin:0.4rem}.App-header.svelte-190tdcp.svelte-190tdcp{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-190tdcp.svelte-190tdcp{color:#ff3e00}.App-logo.svelte-190tdcp.svelte-190tdcp{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-190tdcp-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-190tdcp-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}\\";
   const styleEl = document.createElement(\\"style\\");
   const codeEl = document.createTextNode(code);
   styleEl.type = 'text/css';
@@ -7892,7 +7892,7 @@ function create_fragment(ctx) {
 			img = element(\\"img\\");
 			t0 = space();
 			p0 = element(\\"p\\");
-			p0.innerHTML = \`Edit <code class=\\"svelte-1sqyd3v\\">src/App.svelte</code> and save to reload.\`;
+			p0.innerHTML = \`Edit <code class=\\"svelte-190tdcp\\">src/App.svelte</code> and save to reload.\`;
 			t4 = space();
 			p1 = element(\\"p\\");
 			t5 = text(\\"Page has been open for \\");
@@ -7901,16 +7901,16 @@ function create_fragment(ctx) {
 			t7 = text(\\" seconds.\\");
 			t8 = space();
 			p2 = element(\\"p\\");
-			p2.innerHTML = \`<a class=\\"App-link svelte-1sqyd3v\\" href=\\"https://svelte.dev\\" target=\\"_blank\\" rel=\\"noopener noreferrer\\">Learn Svelte</a>\`;
+			p2.innerHTML = \`<a class=\\"App-link svelte-190tdcp\\" href=\\"https://svelte.dev\\" target=\\"_blank\\" rel=\\"noopener noreferrer\\">Learn Svelte</a>\`;
 			if (img.src !== (img_src_value = \\"/logo.svg\\")) attr(img, \\"src\\", img_src_value);
-			attr(img, \\"class\\", \\"App-logo svelte-1sqyd3v\\");
+			attr(img, \\"class\\", \\"App-logo svelte-190tdcp\\");
 			attr(img, \\"alt\\", \\"logo\\");
-			attr(p0, \\"class\\", \\"svelte-1sqyd3v\\");
-			attr(code1, \\"class\\", \\"svelte-1sqyd3v\\");
-			attr(p1, \\"class\\", \\"svelte-1sqyd3v\\");
-			attr(p2, \\"class\\", \\"svelte-1sqyd3v\\");
-			attr(header, \\"class\\", \\"App-header svelte-1sqyd3v\\");
-			attr(div, \\"class\\", \\"App svelte-1sqyd3v\\");
+			attr(p0, \\"class\\", \\"svelte-190tdcp\\");
+			attr(code1, \\"class\\", \\"svelte-190tdcp\\");
+			attr(p1, \\"class\\", \\"svelte-190tdcp\\");
+			attr(p2, \\"class\\", \\"svelte-190tdcp\\");
+			attr(header, \\"class\\", \\"App-header svelte-190tdcp\\");
+			attr(div, \\"class\\", \\"App svelte-190tdcp\\");
 		},
 		m(target, anchor) {
 			insert(target, div, anchor);
