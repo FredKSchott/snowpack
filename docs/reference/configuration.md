@@ -493,7 +493,7 @@ Run Snowpack's build pipeline through a file watcher. This option works best for
 
 Toggles whether HTML fragments are transformed like full HTML pages.
 
-HTML fragments are HTML files not starting with "<!doctype html>".
+HTML fragments are HTML files not starting with `<!doctype html>`.
 
 ### buildOptions.jsxFactory
 
