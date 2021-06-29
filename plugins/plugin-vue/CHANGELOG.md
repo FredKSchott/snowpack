@@ -4,6 +4,10 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## @snowpack/plugin-vue@2.6.2 [2021-06-29]
+
+* 7cf0e10d - [#3427] Add scopeId to exported components (#3481) <Kevin Ennis>
+
 ## @snowpack/plugin-vue@2.6.1 [2021-06-07]
 
 * 52a09b7d - Set the `preventAssignment` option in the vue plugin (#3422) <Matthew Phillips>
