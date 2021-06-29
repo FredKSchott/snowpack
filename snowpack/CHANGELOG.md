@@ -4,6 +4,16 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.7.0 [2021-06-29]
+
+* 101dc42f - Pass `external` modules through to `esbuild`. (#3499) <Lucas Garron>
+* 4ab4f07e - configure if dotfiles are included in build (#3455) 
+* fe288ca4 - Respect trailing slash in dev server (#3509) <Drew Powers>
+* 7939563b - Don’t scan imports from non-JS files (#3495) <Drew Powers>
+* e449b7b8 - [ci] yarn format <drwpow>
+* 6506cff2 - Chore: update deps (#3494) <Drew Powers>
+* 30b7ef45 - Ensure remote package fetches always use the configured origin (#3397) <Jared Reisinger>
+
 ## snowpack@3.6.2 [2021-06-24]
 
 * 33cd5648 - Pass real filepath to transform plugins (#3483) <Drew Powers>
