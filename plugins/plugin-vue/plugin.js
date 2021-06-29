@@ -152,8 +152,8 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
         output['.js'].code += `${js.code.replace(/;?$/, ';')}`; // add trailing semicolon if missing (helps with some SSR cases)
         output['.js'].code += `\n\ndefaultExport.${renderFn} = ${renderFn};`;
 
-        if ( scoped ) {
-          output['.js'].code += `\n\ndefaultExport.__scopeId = "data-v-${ id }";`
+        if (scoped) {
+          output['.js'].code += `\n\ndefaultExport.__scopeId = "data-v-${id}";`;
         }
 
         // inject CSS Module styles, if needed

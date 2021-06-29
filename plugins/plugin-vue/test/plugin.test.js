@@ -54,7 +54,7 @@ test('plugin base style scoped', async () => {
   const resultContent = await pluginLoad({
     filePath: codeFilePath,
   });
-  ['.css', '.js'].forEach(key => {
+  ['.css', '.js'].forEach((key) => {
     const code = resultContent[key].code;
     resultContent[key].code = code.replace(/data-v-[a-z0-9]+/g, 'data-v-XXXXXXXX');
   });
