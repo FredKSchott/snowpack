@@ -13,6 +13,7 @@ import {fdir} from 'fdir';
 import mkdirp from 'mkdirp';
 import path from 'path';
 import picomatch from 'picomatch';
+import slash from 'slash';
 import {getUrlsForFile} from './file-urls';
 import {runPipelineCleanupStep, runPipelineOptimizeStep} from './build-pipeline';
 import {wrapImportProxy} from './build-import-proxy';
@@ -183,7 +184,7 @@ export async function addBuildFilesFromMountpoints(state: BuildState): Promise<v
     if (mountEntry.dot) {
       possibleFiles.push(...allMatchedFiles);
     } else {
-      possibleFiles.push(...allMatchedFiles.filter((f) => !IS_DOTFILE_REGEX.test(f)));
+      possibleFiles.push(...allMatchedFiles.filter((f) => !IS_DOTFILE_REGEX.test(slash(f)))); // TODO: use a file URL instead
     }
   }
 

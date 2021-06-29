@@ -4,6 +4,7 @@ import glob from 'glob';
 import picomatch from 'picomatch';
 import {fdir} from 'fdir';
 import path from 'path';
+import slash from 'slash';
 import stripComments from 'strip-comments';
 import {logger} from './logger';
 import {ScannableExt, SnowpackConfig, SnowpackSourceFile} from './types';
@@ -323,10 +324,10 @@ export async function scanImports(
         .withFullPaths()
         .crawl(fromDisk)
         .withPromise()) as string[];
-      if (!mountEntry.dot) {
-        return allMatchedFiles.filter((f) => !IS_DOTFILE_REGEX.test(f));
+      if (mountEntry.dot) {
+        return allMatchedFiles;
       }
-      return allMatchedFiles;
+      return allMatchedFiles.filter((f) => !IS_DOTFILE_REGEX.test(slash(f))); // TODO: use a file URL instead
     }),
   );
   const includeFiles = Array.from(new Set(([] as string[]).concat.apply([], includeFileSets)));

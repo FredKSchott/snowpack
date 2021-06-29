@@ -3,14 +3,14 @@ const dedent = require('dedent');
 
 const advanced = {
   'src/g/dep.js': dedent`
-    console.log('dep');      
+    console.log('dep');
   `,
   'src/g/.dotfile': dedent`
     # I am a dotfile.
   `,
   'src/g/index.jsx': dedent`
     import './dep';
-    console.log('index');      
+    console.log('index');
   `,
   'src/g/main.html': dedent`
     <!DOCTYPE html>
@@ -28,7 +28,7 @@ const advanced = {
           console.log('main');
         </script>
       </body>
-    </html>   
+    </html>
   `,
 };
 

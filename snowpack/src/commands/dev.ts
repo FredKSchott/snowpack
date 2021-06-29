@@ -663,9 +663,11 @@ export async function startServer(
       // TODO: This data type structuring/destructuring is neccesary for now,
       // but we hope to add "virtual file" support soon via plugins. This would
       // be the interface for those response types.
+      let foundFileType = path.extname(reqPath) || '.html';
+      if (IS_DOTFILE_REGEX.test(reqPath)) foundFileType = '';
       foundFile = {
         loc: attemptedFileLoc,
-        type: path.extname(reqPath) || '.html',
+        type: foundFileType,
         isStatic: mountEntry.static,
         isResolve: mountEntry.resolve,
       };
