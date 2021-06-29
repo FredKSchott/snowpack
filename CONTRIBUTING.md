@@ -156,10 +156,12 @@ Some tips for creating your first pull request:
 - Link to any relevant issues, discussions, or past PRs.
 - Add accompanying tests if applicable.
 - Ensure all tests have been passed.
+- Be sure to add a [changesets][changesets] message along with your commit! Our friendly 🤖 bot will help guide you with more instructions.
 
 ## Discussion
 
 [Join the Pika Discord][discord]
 
+[changesets]: https://github.com/atlassian/changesets
 [discord]: https://discord.gg/rS8SnRk
 [discussion]: https://github.com/snowpackjs/snowpack/discussions
