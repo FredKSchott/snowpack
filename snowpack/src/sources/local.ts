@@ -33,12 +33,12 @@ import {installPackages} from './local-install';
 
 const CURRENT_META_FILE_CONTENTS = `.snowpack cache - Do not edit this directory!
 
-The ".snowpack" cache directory is fully managed for you by Snowpack. 
+The ".snowpack" cache directory is fully managed for you by Snowpack.
 Manual changes that you make to the files inside could break things.
 
 Commit this directory to source control to speed up cold starts.
 
-Found an issue? You can always delete the ".snowpack" 
+Found an issue? You can always delete the ".snowpack"
 directory and Snowpack will recreate it on next run.
 
 [.meta.version=2]`;
@@ -117,6 +117,7 @@ export class PackageSourceLocal implements PackageSource {
   allKnownSpecs = new Set<string>();
   allKnownProjectSpecs = new Set<string>();
   hasWorkspaceWarningFired = false;
+  installedPackages = new Set<string>();
 
   constructor(config: SnowpackConfig) {
     this.config = config;
@@ -481,6 +482,10 @@ export class PackageSourceLocal implements PackageSource {
     const packageName = packageManifest.name || _packageName;
     const packageVersion = packageManifest.version || 'unknown';
     const packageUID = packageName + '@' + packageVersion;
+
+    if (this.installedPackages.has(packageUID)) return; // if already installed, skip
+    this.installedPackages.add(packageUID); // otherwise, add to cache & continue
+
     const installDest = path.join(this.cacheDirectory, 'build', packageUID);
     const isKnownSpec = allKnownSpecs.has(`${packageUID}:${spec}`);
     allKnownSpecs.add(`${packageUID}:${spec}`);
