@@ -522,7 +522,7 @@ function handleDeprecatedConfigError(mainMsg: string, ...msgs: string[]) {
   throw new Error(msg);
 }
 
-function valdiateDeprecatedConfig(rawConfig: any) {
+function validateDeprecatedConfig(rawConfig: any) {
   if (rawConfig.scripts) {
     handleDeprecatedConfigError(
       '[v3.0] Legacy "scripts" config is deprecated in favor of "plugins". Safe to remove if empty.',
@@ -738,6 +738,15 @@ function validateConfig(config: SnowpackConfig) {
       logger.warn(`config.mount[${mountDir}]: mounted directory does not exist.`);
     }
   }
+  if (
+    config.buildOptions.baseUrl[0] !== '/' &&
+    !config.buildOptions.baseUrl.startsWith('http://') &&
+    !config.buildOptions.baseUrl.startsWith('https://')
+  ) {
+    throw new Error(
+      `buildOptions.baseUrl must start with '/' or be a remote URL. Received "${config.buildOptions.baseUrl}"`,
+    );
+  }
 }
 
 export function createConfiguration(config: SnowpackUserConfig = {}): SnowpackConfig {
@@ -833,8 +842,8 @@ export async function loadConfiguration(
 
   const {config, filepath} = result;
   const configBase = getConfigBasePath(filepath, config.root);
-  valdiateDeprecatedConfig(config);
-  valdiateDeprecatedConfig(overrides);
+  validateDeprecatedConfig(config);
+  validateDeprecatedConfig(overrides);
   resolveRelativeConfig(config, configBase);
 
   let extendConfig: SnowpackUserConfig = {} as SnowpackUserConfig;
@@ -853,7 +862,7 @@ export async function loadConfiguration(
     if (extendValidation.errors && extendValidation.errors.length > 0) {
       handleValidationErrors(extendConfigLoc, new ConfigValidationError(extendValidation.errors));
     }
-    valdiateDeprecatedConfig(extendConfig);
+    validateDeprecatedConfig(extendConfig);
     resolveRelativeConfig(extendConfig, configBase);
   }
 

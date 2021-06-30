@@ -82,4 +82,26 @@ describe('buildOptions.baseUrl', () => {
       expect(result['index.js']).toContain(`console.log(__SNOWPACK_ENV__)`);
     });
   });
+
+  describe('relative URL', () => {
+    it('throws', async () => {
+      try {
+        const result = await testFixture({
+          'index.js': `import {flatten} from 'array-flatten';`,
+          'snowpack.config.js': `
+        module.exports = {
+          buildOptions: {
+            baseUrl: './',
+          }
+        };
+      `,
+        });
+        expect(result).toThrow();
+      } catch (err) {
+        expect(err.toString()).toContain(
+          `buildOptions.baseUrl must start with '/' or be a remote URL`,
+        );
+      }
+    });
+  });
 });

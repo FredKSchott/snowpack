@@ -435,7 +435,7 @@ The local directory that we output your final build to.
 **Type**: `string`
 **Default**: `/`
 
-In your HTML, replace all instances of `%PUBLIC_URL%` with this
+In your HTML, replace all instances of `%PUBLIC_URL%` with this absolute URL.
 
 Inspired by the same [Create React App](https://create-react-app.dev/docs/using-the-public-folder/) concept. This is useful if your app will be deployed to a subdirectory.
 
@@ -448,7 +448,7 @@ Set to `false` to prevent Snowpack from deleting the build output folder (`build
 
 ### buildOptions.cacheDirPath
 
-**Type**: `string`  
+**Type**: `string`
 **Default**: `./node_modules/.cache/snowpack`
 
 Specify the cache directory in which bundled Node modules will be cached.
