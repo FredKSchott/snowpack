@@ -32,10 +32,10 @@ describe('alias', () => {
           }
         `,
       'public/robots.txt': dedent`
-          THIS IS A ROBOTS.TXT TEST FILE            
+          THIS IS A ROBOTS.TXT TEST FILE
         `,
       'src/foo.svelte': dedent`
-          <div class="Foo" />           
+          <div class="Foo" />
         `,
       'src/index.html': dedent`
           <!DOCTYPE html>
@@ -179,29 +179,29 @@ describe('alias', () => {
           console.log(robotsTxtRef, robotsTxtRef_);
         `,
       'src/sort.js': dedent`
-          export default (arr) => arr.sort();         
+          export default (arr) => arr.sort();
         `,
       'src/test-mjs.mjs': dedent`
           // Path aliases
           import {flatten} from 'array-flatten';
-          console.log(flatten);       
+          console.log(flatten);
         `,
       'src/components/index.js': dedent`
           import sort from '../sort';
           console.log(sort);
-          
-          export default 'Button';             
+
+          export default 'Button';
         `,
       'src/components/style.css': dedent`
           /* Include 2+ imports to make sure regex isn't borked. */
           @import 'css-package-a/style.css';
-          @import '@css/package-b/style.css';            
+          @import '@css/package-b/style.css';
         `,
       'src/nested/index.js': dedent`
           import sort from '../sort';
           console.log(sort);
-          
-          export default 'Button';        
+
+          export default 'Button';
         `,
       'src/nested/foo.js': dedent`
           // importing index.js by shortcut
@@ -225,7 +225,7 @@ describe('alias', () => {
                 return null;
               },
             };
-          };          
+          };
         `,
       'package.json': dedent`
           {

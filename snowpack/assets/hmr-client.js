@@ -49,7 +49,7 @@ function sendSocketMessage(msg) {
 let socketURL = isWindowDefined && window.HMR_WEBSOCKET_URL;
 if (!socketURL) {
   const socketHost =
-    isWindowDefined && window.HMR_WEBSOCKET_PORT && (window.HMR_WEBSOCKET_PORT !== 80)
+    isWindowDefined && window.HMR_WEBSOCKET_PORT && window.HMR_WEBSOCKET_PORT !== 80
       ? `${location.hostname}:${window.HMR_WEBSOCKET_PORT}`
       : location.host;
   socketURL = (location.protocol === 'http:' ? 'ws://' : 'wss://') + socketHost + '/';
@@ -146,7 +146,7 @@ async function runCssStyleAccept({url: id}) {
     () => setTimeout(() => document.head.removeChild(oldLinkEl), 30),
     false,
   );
-  oldLinkEl.parentNode.insertBefore(linkEl, oldLinkEl)
+  oldLinkEl.parentNode.insertBefore(linkEl, oldLinkEl);
   return true;
 }
 
@@ -235,36 +235,37 @@ socket.addEventListener('message', ({data: _data}) => {
 log('listening for file changes...');
 
 /** Runtime error reporting: If a runtime error occurs, show it in an overlay. */
-isWindowDefined && window.addEventListener('error', function (event) {
-  if (window.snowpackHmrErrorOverlayIgnoreErrors) {
-    const ignoreErrors = window.snowpackHmrErrorOverlayIgnoreErrors;
-    for (const item of ignoreErrors) {
-      if (event.message && event.message.match(item)) {
-        console.warn('[ESM-HMR] Hmr Error Overlay Ignored', event.message);
-        return
+isWindowDefined &&
+  window.addEventListener('error', function (event) {
+    if (window.snowpackHmrErrorOverlayIgnoreErrors) {
+      const ignoreErrors = window.snowpackHmrErrorOverlayIgnoreErrors;
+      for (const item of ignoreErrors) {
+        if (event.message && event.message.match(item)) {
+          console.warn('[ESM-HMR] Hmr Error Overlay Ignored', event.message);
+          return;
+        }
       }
     }
-  }
-  // Generate an "error location" string
-  let fileLoc;
-  if (event.filename) {
-    fileLoc = event.filename;
-    if (event.lineno !== undefined) {
-      fileLoc += ` [:${event.lineno}`;
-      if (event.colno !== undefined) {
-        fileLoc += `:${event.colno}`;
+    // Generate an "error location" string
+    let fileLoc;
+    if (event.filename) {
+      fileLoc = event.filename;
+      if (event.lineno !== undefined) {
+        fileLoc += ` [:${event.lineno}`;
+        if (event.colno !== undefined) {
+          fileLoc += `:${event.colno}`;
+        }
+        fileLoc += `]`;
       }
-      fileLoc += `]`;
     }
-  }
-  let errorMessage = event.message;
-  if (event.message === 'Uncaught ReferenceError: process is not defined') {
-    errorMessage += `\n(Tip: Node's "process" global does not exist in Snowpack. Use "import.meta.env" instead of "process.env").`;
-  }
-  createNewErrorOverlay({
-    title: 'Unhandled Runtime Error',
-    fileLoc,
-    errorMessage: errorMessage,
-    errorStackTrace: event.error ? event.error.stack : undefined,
+    let errorMessage = event.message;
+    if (event.message === 'Uncaught ReferenceError: process is not defined') {
+      errorMessage += `\n(Tip: Node's "process" global does not exist in Snowpack. Use "import.meta.env" instead of "process.env").`;
+    }
+    createNewErrorOverlay({
+      title: 'Unhandled Runtime Error',
+      fileLoc,
+      errorMessage: errorMessage,
+      errorStackTrace: event.error ? event.error.stack : undefined,
+    });
   });
-});

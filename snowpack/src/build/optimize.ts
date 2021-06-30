@@ -207,11 +207,17 @@ function addNewBundledCss(
     const hasCssImportAlready = htmlData
       .getLinks('stylesheet')
       .toArray()
-      .some((v) => v.attribs.href.includes(removeLeadingSlash(key)));
+      .some((v) => {
+        const {attribs} = v as cheerio.TagElement;
+        return attribs && attribs.href.includes(removeLeadingSlash(key));
+      });
     const hasScriptImportAlready = htmlData
       .getScripts()
       .toArray()
-      .some((v) => v.attribs.src.includes(removeLeadingSlash(scriptKey)));
+      .some((v) => {
+        const {attribs} = v as cheerio.TagElement;
+        return attribs && attribs.src.includes(removeLeadingSlash(scriptKey));
+      });
 
     if (hasCssImportAlready || !hasScriptImportAlready) {
       continue;
@@ -231,7 +237,10 @@ function preloadEntrypoint(
 ): void {
   const {root, getScripts} = htmlData;
   const preloadScripts = getScripts()
-    .map((_, elem) => elem.attribs.src)
+    .map((_, elem) => {
+      const {attribs} = elem as cheerio.TagElement;
+      return attribs.src;
+    })
     .get()
     .filter(isTruthy);
   const collectedDeepImports = new Set<string>();
@@ -344,23 +353,25 @@ async function processEntrypoints(
     const bundleEntrypoints = Array.from(
       htmlEntrypoints.reduce((all, val) => {
         val.getLinks('stylesheet').each((_, elem) => {
-          if (!elem.attribs.href || isRemoteUrl(elem.attribs.href)) {
+          const {attribs} = elem as cheerio.TagElement;
+          if (!attribs || !attribs.href || isRemoteUrl(attribs.href)) {
             return;
           }
           const resolvedCSS =
-            elem.attribs.href[0] === '/'
-              ? path.resolve(buildDirectoryLoc, removeLeadingSlash(elem.attribs.href))
-              : path.resolve(val.file, '..', elem.attribs.href);
+            attribs.href[0] === '/'
+              ? path.resolve(buildDirectoryLoc, removeLeadingSlash(attribs.href))
+              : path.resolve(val.file, '..', attribs.href);
           all.add(resolvedCSS);
         });
         val.getScripts().each((_, elem) => {
-          if (!elem.attribs.src || isRemoteUrl(elem.attribs.src)) {
+          const {attribs} = elem as cheerio.TagElement;
+          if (!attribs.src || isRemoteUrl(attribs.src)) {
             return;
           }
           const resolvedJS =
-            elem.attribs.src[0] === '/'
-              ? path.join(buildDirectoryLoc, removeLeadingSlash(elem.attribs.src))
-              : path.join(val.file, '..', elem.attribs.src);
+            attribs.src[0] === '/'
+              ? path.join(buildDirectoryLoc, removeLeadingSlash(attribs.src))
+              : path.join(val.file, '..', attribs.src);
           all.add(resolvedJS);
         });
         return all;

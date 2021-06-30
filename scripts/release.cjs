@@ -27,8 +27,6 @@ module.exports = function release(pkgFolder, tag, bump, skipBuild) {
   if (skipBuild !== true) {
     console.log('Building...');
     console.log(execa.sync('yarn', ['run', 'build'], {cwd: root}));
-    console.log('Bundling...');
-    console.log(execa.sync('yarn', ['run', 'bundle'], {cwd: root}));
   }
 
   console.log('Publishing...');

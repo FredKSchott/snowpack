@@ -32,7 +32,7 @@ export const NATIVE_REQUIRE = eval('require');
 export const REQUIRE_OR_IMPORT: (
   id: string,
   opts?: {from?: string},
-) => Promise<any> = require('../assets/require-or-import.js');
+) => Promise<any> = require('../../assets/require-or-import.js');
 
 export function createRemotePackageSDK(config: SnowpackConfig) {
   // This should only be called when config.packageOptions.source is 'remote'.
@@ -273,11 +273,14 @@ async function openInExistingChromeBrowser(url: string) {
     shell: true,
   });
   // use open Chrome tab if exists; create new Chrome tab if not
-  const openChrome = execa('osascript ../assets/openChrome.appleScript "' + encodeURI(url) + '"', {
-    cwd: __dirname,
-    stdio: 'ignore',
-    shell: true,
-  });
+  const openChrome = execa(
+    'osascript ../../assets/openChrome.appleScript "' + encodeURI(url) + '"',
+    {
+      cwd: __dirname,
+      stdio: 'ignore',
+      shell: true,
+    },
+  );
   // if Chrome doesn’t respond within 3s, fall back to opening new tab in default browser
   let isChromeStalled = setTimeout(() => {
     openChrome.cancel();
@@ -516,14 +519,14 @@ export function spliceString(source: string, withSlice: string, start: number, e
 }
 
 export const HMR_CLIENT_CODE = fs.readFileSync(
-  path.resolve(__dirname, '../assets/hmr-client.js'),
+  path.resolve(__dirname, '../../assets/hmr-client.js'),
   'utf8',
 );
 export const HMR_OVERLAY_CODE = fs.readFileSync(
-  path.resolve(__dirname, '../assets/hmr-error-overlay.js'),
+  path.resolve(__dirname, '../../assets/hmr-error-overlay.js'),
   'utf8',
 );
 export const INIT_TEMPLATE_FILE = fs.readFileSync(
-  path.resolve(__dirname, '../assets/snowpack-init-file.js'),
+  path.resolve(__dirname, '../../assets/snowpack-init-file.js'),
   'utf8',
 );

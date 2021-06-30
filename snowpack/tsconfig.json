@@ -1,8 +1,9 @@
 {
-  "include": ["src"],
+  "include": ["src", "assets/require-or-import.ts"],
+  "exclude": ["lib"],
   "compilerOptions": {
-    "outDir": "lib",
-    "module": "commonjs",
+    "outDir": "lib/esm",
+    "module": "ESNext",
     "target": "es2018",
     "moduleResolution": "node",
     "declaration": true,

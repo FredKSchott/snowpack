@@ -1,4 +1,4 @@
-const {getExtensionMatch} = require('../../snowpack/lib/util');
+const {getExtensionMatch} = require('../../snowpack/lib/cjs/util');
 
 const EMPTY = Buffer.from('');
 
