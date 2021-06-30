@@ -16,7 +16,7 @@ You can import and use Preact without any custom configuration needed.
 // snowpack.config.mjs
 export default {
   alias: {
-    react: 'preact/compat',
+    'react': 'preact/compat',
     'react-dom': 'preact/compat',
   },
 };
