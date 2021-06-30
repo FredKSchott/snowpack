@@ -1,10 +1,14 @@
 ---
 import Banner from './Banner.astro';
 import Nav from './Nav.astro';
+
+const version = await fetch('https://registry.npmjs.org/snowpack/latest')
+  .then((res) => res.json())
+  .then((manifest) => manifest.version);
 ---
 
 <!-- <Banner /> -->
-<Nav />
+<Nav version={version} />
 
 <slot></slot>
 

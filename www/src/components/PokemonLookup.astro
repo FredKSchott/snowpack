@@ -1,5 +1,5 @@
 ---
-export let number: number;
+let { number } = Astro.props;
 
 const pokemonDataReq = await fetch(`https://pokeapi.co/api/v2/pokemon/${number}`);
 const pokemonData = await pokemonDataReq.json();

@@ -8,7 +8,7 @@
     "copy": "node scripts/copy.js"
   },
   "dependencies": {
-    "astro": "^0.12.5",
+    "astro": "^0.15.1",
     "date-fns": "^2.19.0",
     "docsearch.js": "^2.6.3"
   }

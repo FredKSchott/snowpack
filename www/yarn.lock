@@ -2,49 +2,49 @@
 # yarn lockfile v1
 
 
-"@astrojs/markdown-support@0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@astrojs/markdown-support/-/markdown-support-0.1.1.tgz#8430fdaad347a87783bc6a43adbab0ebb587ddb2"
-  integrity sha512-CBFac5F/6uJo/P0tY8dTDcjoJcOjcAzwfExASg1N58GULybqPCHs5qW8sqp/52ZnQoHnFi4PCZw6jW1DxPWQOQ==
+"@astrojs/markdown-support@0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@astrojs/markdown-support/-/markdown-support-0.1.2.tgz#ce550f362c43f2e5210c93409aaa3d5107c050a6"
+  integrity sha512-sD5hPnT0Mafn3sq+v5jXQH0IoNZltbEaXS4+saaWySXIUMeoUZkotzWLmyfrYt+FlvmETz1n8NOzbGPZdnMtTw==
 
-"@astrojs/parser@0.12.1":
-  version "0.12.1"
-  resolved "https://registry.yarnpkg.com/@astrojs/parser/-/parser-0.12.1.tgz#dfd08ec0cc675da64be4450b6de0c092211e5d06"
-  integrity sha512-rPhzne6+oLX68gr92gld6whAaptj40fLxqW8kJgva0kIFnNQOkkP4ZitF4uwlAfYpD3AtTdJ42xMwBgKbL9pWA==
+"@astrojs/parser@0.15.0":
+  version "0.15.0"
+  resolved "https://registry.yarnpkg.com/@astrojs/parser/-/parser-0.15.0.tgz#2fbef3789c8cf29453f253f94719d2835704399c"
+  integrity sha512-X7FpDr67jcqJ8fOHVLY3mbuPiuu5jlPCRrdMKMnQpa95CejIx4B/5RhugQH5JSZQRfYbZvhd4N+vKif16HK3sQ==
 
-"@astrojs/prism@0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@astrojs/prism/-/prism-0.2.0.tgz#f8564a3d82eeefeb0e73347b701ba44f5a277446"
-  integrity sha512-Z7aG+hP+MVIxcOXVRkdPO5q1le8W1e7Ql4MmAt72cAKZK3EsiMcvaMiJhsqyXXpxcuFurdTEx2GYVxffFWD8LQ==
+"@astrojs/prism@0.2.2":
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/@astrojs/prism/-/prism-0.2.2.tgz#6f23c3922df2ca0bce0362ee48d13b0820b09bb3"
+  integrity sha512-STrtNBw7MSaf9RfSdQDqW38p3GrIfNZEZvLgEyWqlEeafUxtF783L2PDLW3nBUyIsY6GZvQd5jq19NpGrhSWLw==
 
-"@astrojs/renderer-preact@0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@astrojs/renderer-preact/-/renderer-preact-0.1.0.tgz#c2652bd2c6fa8a89817cdaf4e84ba0d88eedcbcd"
-  integrity sha512-tlBTXWlF/kJBVUwvziEPNEdoBKxJcHtC31QSoYgwWmeiAGSyl9b0dkBeU7NtV2KeoMeiqT9/dsA+PIZMS6n3hA==
+"@astrojs/renderer-preact@0.1.3":
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/@astrojs/renderer-preact/-/renderer-preact-0.1.3.tgz#9a1ab8d9bbca9cb9fee6173ce9bdd95f806dfded"
+  integrity sha512-8ERju3mEDthcElFEvjpE1Tnqd+5sBkxpWueJOspHxVNyro26FNv4VnV7vrPRrFC7SGgtT9I57oCNAY5L3ZbFrg==
   dependencies:
     preact "^10.5.13"
     preact-render-to-string "^5.1.18"
 
-"@astrojs/renderer-react@0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@astrojs/renderer-react/-/renderer-react-0.1.0.tgz#8177c3cdcd5d102dfccd99f7c2a8d7df6de7d7ac"
-  integrity sha512-QgBgSb68YwUxpngy9L5rqCkc+g/xgHzfODoG6APUS+uJGfF8ZWVhqMUpdOxvhr2vDpGWp1kXFHzE2etLsZjU8Q==
+"@astrojs/renderer-react@0.1.4":
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@astrojs/renderer-react/-/renderer-react-0.1.4.tgz#39b7c826b81a6b86188568e0ea99538b610b6205"
+  integrity sha512-RfRiGOwBLDY9SeWbe9B3lChJVHv7Dsvhpf9KrczdFXKCUG3HLJhttiejuvC9pWV0eC37X1EEwSKRDkaitGTc8Q==
   dependencies:
     react "^17.0.2"
     react-dom "^17.0.2"
 
-"@astrojs/renderer-svelte@0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@astrojs/renderer-svelte/-/renderer-svelte-0.1.0.tgz#31d4311b7cf5ca77a40620e77a8e0fac920c2828"
-  integrity sha512-1p7nKHhI/2fZnkdpZTYEfSCl1XVBUPTpVGijHTrKzhOHToAyU2qHcLq8qTVhzpw11r2yfEN5K4tjnQfUDn7rAw==
+"@astrojs/renderer-svelte@0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@astrojs/renderer-svelte/-/renderer-svelte-0.1.1.tgz#c39a2fa3fb799b48398fbef049ffb1417e605764"
+  integrity sha512-SP7DLnTpsb/mua5lQ/H4iYVoAqpw0oJKm0U5DPmauL/sBWZDYf+dSKLRZKX6KBYpxP+QR7BInTUTEwDWKnMDQQ==
   dependencies:
     "@snowpack/plugin-svelte" "^3.7.0"
     svelte "^3.35.0"
 
-"@astrojs/renderer-vue@0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@astrojs/renderer-vue/-/renderer-vue-0.1.1.tgz#1638a63816b0a1a10561986f53cfa715508fb9c0"
-  integrity sha512-Mfm+yNJ/srZGLzRTXH+dtoacemQ3IZXG3ORbs+3mkzglblpjzIcdU1XGfTqWY3PPkWd9tKOLLzyRuhumr1lG5w==
+"@astrojs/renderer-vue@0.1.3":
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/@astrojs/renderer-vue/-/renderer-vue-0.1.3.tgz#a34a9afc380a2ff90f9ab667e61c675131ff0306"
+  integrity sha512-RTzUPxZVENUhNMu9la89SOzyLVMLT0GIPIqP40B35zcem5+a6O/0Hr6wbJahV5ct8AKgwaSkYdPPEZi9CMK+/Q==
   dependencies:
     "@snowpack/plugin-vue" "^2.6.1"
     "@vue/server-renderer" "^3.0.10"
@@ -239,10 +239,10 @@
     retext-smartypants "^4.0.0"
     unist-util-visit "^2.0.1"
 
-"@snowpack/plugin-postcss@^1.4.1":
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/@snowpack/plugin-postcss/-/plugin-postcss-1.4.1.tgz#21aa7b0633204d60bf3a82a956964d641f172ffa"
-  integrity sha512-igFSEIje1akoHgnHqNfGSetxMb6V9O9ygMoKtXlEfHaEQhABxZd5a9wbZQoOoDIDCECzmy3DIavM7k1qb2q59Q==
+"@snowpack/plugin-postcss@^1.4.3":
+  version "1.4.3"
+  resolved "https://registry.yarnpkg.com/@snowpack/plugin-postcss/-/plugin-postcss-1.4.3.tgz#09704923033bd710e50a466bfc0afc90c7cc59df"
+  integrity sha512-RJGYagse6Pi86Bqm8vPukhCwFVa92VIB81qP3PXPQ/ITQy5gVWDYi4oU+r1A6hsEZ9scUNZevfw6ISya+oiMNQ==
   dependencies:
     minimatch "^3.0.4"
     normalize-path "^3.0.0"
@@ -564,24 +564,24 @@ astring@^1.7.4:
   resolved "https://registry.yarnpkg.com/astring/-/astring-1.7.5.tgz#a7d47fceaf32b052d33a3d07c511efeec67447ca"
   integrity sha512-lobf6RWXb8c4uZ7Mdq0U12efYmpD1UFnyOWVJPTa3ukqZrMopav+2hdNu0hgBF0JIBFK9QgrBDfwYvh3DFJDAA==
 
-astro@^0.12.5:
-  version "0.12.6"
-  resolved "https://registry.yarnpkg.com/astro/-/astro-0.12.6.tgz#a43b2dca01d40a3080780f6e255c0ffed3baf009"
-  integrity sha512-m7T6ejldzg+3Dtb4es7lUcbTxx7uluBgMOvvmon4wUT6+KuC9krsjINb/+ksPon5TZD7KYdynf1+HNhePmygVQ==
+astro@^0.15.1:
+  version "0.15.1"
+  resolved "https://registry.yarnpkg.com/astro/-/astro-0.15.1.tgz#757f158db5558a480f9ddfde11fccaba3a08138e"
+  integrity sha512-dtz62anDb1ahlAhMThMOiH6kdFEn1NoWW/rrY32/dHvQS9PiBns2WciIh80aQ2IBnWjTXs4voC3R1fkqb7j+Ow==
   dependencies:
-    "@astrojs/markdown-support" "0.1.1"
-    "@astrojs/parser" "0.12.1"
-    "@astrojs/prism" "0.2.0"
-    "@astrojs/renderer-preact" "0.1.0"
-    "@astrojs/renderer-react" "0.1.0"
-    "@astrojs/renderer-svelte" "0.1.0"
-    "@astrojs/renderer-vue" "0.1.1"
+    "@astrojs/markdown-support" "0.1.2"
+    "@astrojs/parser" "0.15.0"
+    "@astrojs/prism" "0.2.2"
+    "@astrojs/renderer-preact" "0.1.3"
+    "@astrojs/renderer-react" "0.1.4"
+    "@astrojs/renderer-svelte" "0.1.1"
+    "@astrojs/renderer-vue" "0.1.3"
     "@babel/code-frame" "^7.12.13"
     "@babel/generator" "^7.13.9"
     "@babel/parser" "^7.13.15"
     "@babel/traverse" "^7.13.15"
     "@silvenon/remark-smartypants" "^1.0.0"
-    "@snowpack/plugin-postcss" "^1.4.1"
+    "@snowpack/plugin-postcss" "^1.4.3"
     "@snowpack/plugin-sass" "^1.4.0"
     acorn "^7.4.0"
     astring "^1.7.4"
@@ -620,7 +620,7 @@ astro@^0.12.5:
     sass "^1.32.13"
     shorthash "^0.0.2"
     slash "^4.0.0"
-    snowpack "^3.5.6"
+    snowpack "^3.6.2"
     source-map-support "^0.5.19"
     string-width "^5.0.0"
     tiny-glob "^0.2.8"
@@ -3354,10 +3354,10 @@ smart-buffer@^4.1.0:
   resolved "https://registry.yarnpkg.com/smart-buffer/-/smart-buffer-4.1.0.tgz#91605c25d91652f4661ea69ccf45f1b331ca21ba"
   integrity sha512-iVICrxOzCynf/SNaBQCw34eM9jROU/s5rzIhpOvzhzuYHfJR/DhZfDkXiZSgKXfgv26HT3Yni3AV/DGw0cGnnw==
 
-snowpack@^3.5.6:
-  version "3.5.6"
-  resolved "https://registry.yarnpkg.com/snowpack/-/snowpack-3.5.6.tgz#79f8699e4248e19f67ec50433e50072bb2e69e89"
-  integrity sha512-R9uqattPhS2j1zaOFgwl7i54rFTtxxk4kmKmqJBRwD+9YggUulGm7O7YRXaMMjtmi69czK7jxbtZs1Up/xA+1A==
+snowpack@^3.6.2:
+  version "3.6.2"
+  resolved "https://registry.yarnpkg.com/snowpack/-/snowpack-3.6.2.tgz#9f4eea15400d2863b73711a2ec811114ebabc846"
+  integrity sha512-F+Q3qFLPLp+vJZtisnJG8dmJyXaZ2xePKU0VC1u7LDVD55xxh/h8NFHB7zBgstY33EyCkGrxmHZ4kZQu3FTTlw==
   dependencies:
     cli-spinners "^2.5.0"
     default-browser-id "^2.0.0"

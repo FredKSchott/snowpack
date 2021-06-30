@@ -1,5 +1,5 @@
-import { h, Fragment } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import {h, Fragment} from 'preact';
+import {useEffect, useState} from 'preact/hooks';
 import Styles from './PluginSearchPage.module.css';
 
 async function searchPlugins(val) {
@@ -7,14 +7,12 @@ async function searchPlugins(val) {
     ['q', 'snowpack plugin ' + (val || '')],
     ['count', '100'],
   ]);
-  const res = await fetch(
-    `https://api.skypack.dev/v1/search?${params3.toString()}`,
-  );
+  const res = await fetch(`https://api.skypack.dev/v1/search?${params3.toString()}`);
   const jsonres = await res.json();
   return jsonres.results;
 }
 
-function Card({ result }) {
+function Card({result}) {
   const updatedAtFormatted = Intl.DateTimeFormat('en', {
     month: 'long',
     day: 'numeric',
@@ -44,7 +42,9 @@ function Card({ result }) {
 }
 
 function PluginSearchPageLive() {
-  const searchParams = new URLSearchParams(window.location.search);
+  const searchParams = new URLSearchParams(
+    import.meta.env.SSR ? undefined : window.location.search,
+  );
   const [results, setResults] = useState(null);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q'));
   useEffect(() => {
@@ -54,6 +54,7 @@ function PluginSearchPageLive() {
   }, []);
 
   async function onFormSubmit(e) {
+    if (import.meta.env.SSR) return;
     e.preventDefault();
     const form = new FormData(e.target);
     const formula = form.get('q');
@@ -88,10 +89,7 @@ function PluginSearchPageLive() {
         </button>
       </form>
       <div class={Styles.Count} id="total-result-count">
-        {!searchQuery &&
-          results &&
-          results.length > 50 &&
-          `${results.length}+ plugins available!`}
+        {!searchQuery && results && results.length > 50 && `${results.length}+ plugins available!`}
       </div>
       <section id="search-results" class={Styles.Results}>
         {!results && (
@@ -117,9 +115,5 @@ function PluginSearchPageLive() {
 }
 
 export default function PluginSearchPage(props) {
-  return import.meta.env.astro ? (
-    <div>Loading...</div>
-  ) : (
-    <PluginSearchPageLive {...props} />
-  );
+  return import.meta.env.astro ? <div>Loading...</div> : <PluginSearchPageLive {...props} />;
 }
