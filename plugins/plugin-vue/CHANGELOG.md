@@ -1,26 +1,37 @@
-# Changelog
+# @snowpack/plugin-vue
 
-> *For older releases, check our curated [release update thread](https://github.com/snowpackjs/snowpack/discussions/1183) or the raw [commit history](https://github.com/snowpackjs/snowpack/commits/main/plugins/plugin-vue).*
+## 2.6.2
 
-<!-- add changelog entries here - do not delete! -->
+### Patch Changes
 
-## @snowpack/plugin-vue@2.6.2 [2021-06-29]
+- 7cf0e10d: [#3427] Add scopeId to exported components (#3481) <Kevin Ennis>
 
-* 7cf0e10d - [#3427] Add scopeId to exported components (#3481) <Kevin Ennis>
+## 2.6.1
 
-## @snowpack/plugin-vue@2.6.1 [2021-06-07]
+### Patch Changes
 
-* 52a09b7d - Set the `preventAssignment` option in the vue plugin (#3422) <Matthew Phillips>
+- 52a09b7d: Set the `preventAssignment` option in the vue plugin (#3422) <Matthew Phillips>
 
-## @snowpack/plugin-vue@2.6.0 [2021-05-27]
+## 2.6.0
 
-* 12410984 - Enable proper tree-shaking of Vue's ESM bundler (#3382) <Nate Moore>
-* 1823b35f - Chore: update docs to refer to snowpack.config.mjs (#3341) <Drew Powers>
+### Minor Changes
 
-## @snowpack/plugin-vue@2.5.0 [2021-05-13]
+- 12410984: Enable proper tree-shaking of Vue's ESM bundler (#3382) <Nate Moore>
 
-* 4403595e - Sourcemaps (#3271) <Luke Jackson>
+### Patch Changes
 
-## @snowpack/plugin-vue@2.4.0 [2021-04-02]
+- 1823b35f: Chore: update docs to refer to snowpack.config.mjs (#3341) <Drew Powers>
 
-* 5d6ee1f3 - Enable CSS Module support in Vue SSR (#3072) <Drew Powers>
+## 2.5.0
+
+### Minor Changes
+
+- 4403595e: Sourcemaps (#3271) <Luke Jackson>
+
+## 2.4.0
+
+### Minor Changes
+
+- 5d6ee1f3: Enable CSS Module support in Vue SSR (#3072) <Drew Powers>
+
+_For older releases, check our curated [release update thread](https://github.com/snowpackjs/snowpack/discussions/1183) or the raw [commit history](https://github.com/snowpackjs/snowpack/commits/main/plugins/plugin-vue)._
