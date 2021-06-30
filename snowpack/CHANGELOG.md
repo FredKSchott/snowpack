@@ -4,6 +4,10 @@
 
 <!-- add changelog entries here - do not delete! -->
 
+## snowpack@3.7.1 [2021-06-30]
+
+* a4768503 - Fix CSS Modules + baseUrl (#3515) <Drew Powers>
+
 ## snowpack@3.7.0 [2021-06-29]
 
 * 101dc42f - Pass `external` modules through to `esbuild`. (#3499) <Lucas Garron>
