@@ -117,7 +117,6 @@ export class PackageSourceLocal implements PackageSource {
   allKnownSpecs = new Set<string>();
   allKnownProjectSpecs = new Set<string>();
   hasWorkspaceWarningFired = false;
-  installedPackages = new Set<string>();
 
   constructor(config: SnowpackConfig) {
     this.config = config;
@@ -142,6 +141,11 @@ export class PackageSourceLocal implements PackageSource {
   private async setupCacheDirectory() {
     const {config, packageSourceDirectory, cacheDirectory} = this;
     await mkdirp(packageSourceDirectory);
+
+    const lockfileLoc = path.join(cacheDirectory, 'lock.json');
+    const packageJSONLoc = path.join(packageSourceDirectory, 'package.json');
+    const packageLockLoc = path.join(packageSourceDirectory, 'package-lock.json');
+
     if (config.dependencies) {
       await fs.writeFile(
         path.join(packageSourceDirectory, 'package.json'),
@@ -155,15 +159,16 @@ export class PackageSourceLocal implements PackageSource {
         ),
         'utf8',
       );
-      const lockfile = await fs.readFile(path.join(cacheDirectory, 'lock.json')).catch(() => null);
-      if (lockfile) {
-        await fs.writeFile(path.join(packageSourceDirectory, 'package-lock.json'), lockfile);
-      } else {
-        await fs.unlink(path.join(packageSourceDirectory, 'package-lock.json')).catch(() => null);
+      if (existsSync(lockfileLoc)) {
+        const lockfile = await fs.readFile(lockfileLoc, 'utf8');
+        await fs.writeFile(packageLockLoc, lockfile);
+      } else if (existsSync(packageLockLoc)) {
+        await fs.unlink(packageLockLoc);
       }
     } else {
-      await fs.unlink(path.join(packageSourceDirectory, 'package.json')).catch(() => null);
-      await fs.unlink(path.join(packageSourceDirectory, 'package-lock.json')).catch(() => null);
+      await Promise.all(
+        [packageJSONLoc, packageLockLoc].filter((f) => existsSync(f)).map((f) => fs.unlink(f)),
+      );
     }
   }
 
@@ -203,9 +208,9 @@ export class PackageSourceLocal implements PackageSource {
 
   async prepare() {
     const installDirectoryHashLoc = path.join(this.cacheDirectory, '.meta');
-    const installDirectoryHash = await fs
-      .readFile(installDirectoryHashLoc, 'utf-8')
-      .catch(() => null);
+    let installDirectoryHash: string | null = null;
+    if (existsSync(installDirectoryHashLoc))
+      installDirectoryHash = await fs.readFile(installDirectoryHashLoc, 'utf8');
 
     if (installDirectoryHash === CURRENT_META_FILE_CONTENTS) {
       logger.debug(`Install directory ".meta" file is up-to-date. Welcome back!`);
@@ -483,12 +488,11 @@ export class PackageSourceLocal implements PackageSource {
     const packageVersion = packageManifest.version || 'unknown';
     const packageUID = packageName + '@' + packageVersion;
 
-    if (this.installedPackages.has(packageUID)) return; // if already installed, skip
-    this.installedPackages.add(packageUID); // otherwise, add to cache & continue
-
     const installDest = path.join(this.cacheDirectory, 'build', packageUID);
-    const isKnownSpec = allKnownSpecs.has(`${packageUID}:${spec}`);
-    allKnownSpecs.add(`${packageUID}:${spec}`);
+    const specUID = `${packageUID}:${spec}`;
+
+    if (allKnownSpecs.has(specUID)) return; // if already installed, skip
+    allKnownSpecs.add(specUID); // otherwise, add and continue
 
     // NOTE(@fks): This build step used to use a queue system, which allowed multiple
     // parallel builds at once. Unfortunately, these builds are compute heavy and not well
@@ -514,7 +518,7 @@ export class PackageSourceLocal implements PackageSource {
       if (logLine || (depth === 0 && (!importMap || needsBuild))) {
         logLine = true;
         // TODO: We need to confirm version match, not just package import match
-        const isDedupe = depth > 0 && (isKnownSpec || this.allKnownProjectSpecs.has(spec));
+        const isDedupe = depth > 0 && this.allKnownProjectSpecs.has(spec);
         logger.info(`${lineBullet} ${packageFormatted}${isDedupe ? colors.dim(` (dedupe)`) : ''}`);
       }
       if (!importMap || needsBuild) {
