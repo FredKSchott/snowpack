@@ -1,0 +1,52 @@
+name: "\U0001F41B Bug Report"
+description: Report an issue or possible bug
+title: "\U0001F41B BUG:"
+labels: []
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to file a bug report! Please fill out this form as completely as possible.
+  - type: checkboxes
+    attributes:
+      label: Quick checklist
+      options:
+        - label: I am using the **latest version of Snowpack** and all plugins.
+      validations:
+        required: true
+  - type: input
+    attributes:
+      label: What package manager are you using?
+      placeholder: npm, yarn, pnpm
+      validations:
+        required: true
+  - type: input
+    attributes:
+      label: What operating system are you using?
+      placeholder: macOS, Windows, Linux
+      validations:
+        required: true
+  - type: textarea
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+      validations:
+        required: true
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+      description: Describe the bug in steps that we can reproduce ourselves.
+      value: |
+        1. `npx create-snowpack-app` using template <NAME>
+        2. ...
+        3. ...
+        4. ...
+        5. Error! Describe what went wrong (and what was expected instead)...
+      validations:
+        required: true
+  - type: input
+    attributes:
+      label: Link to minimal reproducible example (optional)
+      description: 'Issues with easy reproductions are more likely to get fixed, faster.'
+      placeholder: 'https://github.com/username/repo'
