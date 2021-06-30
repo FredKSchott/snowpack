@@ -539,7 +539,8 @@ export async function startServer(
     // directory, so we can't strip that info just yet. Try the exact match first, and then strip
     // it later on if there is no match.
     let resourcePath = reqPath;
-    let resourceType = matchOutputExt(reqPath) || (IS_DOTFILE_REGEX.test(reqPath) ? '' : '.html');
+    let resourceType = matchOutputExt(reqPath) || '.html';
+    if (IS_DOTFILE_REGEX.test(reqPath)) resourceType = '';
     let foundFile: FoundFile;
 
     // * Workspaces & Linked Packages:
@@ -637,10 +638,9 @@ export async function startServer(
       if (!attemptedFileLoc) {
         resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
         if (resourcePath.endsWith('/')) {
-          resourceType = '.html'; // note: path.extname() will ignore trailing '/'
-        } else {
-          resourceType = path.extname(resourcePath) || '.html';
+          resourcePath += 'index.html'; // note: path.extname
         }
+        resourceType = path.extname(resourcePath) || '.html';
       }
       attemptedFileLoc =
         fileToUrlMapping.key(resourcePath) ||
@@ -667,11 +667,9 @@ export async function startServer(
       // TODO: This data type structuring/destructuring is neccesary for now,
       // but we hope to add "virtual file" support soon via plugins. This would
       // be the interface for those response types.
-      let foundFileType = path.extname(reqPath) || '.html';
-      if (IS_DOTFILE_REGEX.test(reqPath)) foundFileType = '';
       foundFile = {
         loc: attemptedFileLoc,
-        type: foundFileType,
+        type: resourceType,
         isStatic: mountEntry.static,
         isResolve: mountEntry.resolve,
       };
