@@ -539,7 +539,7 @@ export async function startServer(
     // directory, so we can't strip that info just yet. Try the exact match first, and then strip
     // it later on if there is no match.
     let resourcePath = reqPath;
-    let resourceType = matchOutputExt(reqPath) || '.html';
+    let resourceType = matchOutputExt(reqPath);
     if (IS_DOTFILE_REGEX.test(reqPath)) resourceType = '';
     let foundFile: FoundFile;
 
@@ -621,8 +621,9 @@ export async function startServer(
       if (!fileLocationExists) {
         throw new NotFoundError(reqPath, [attemptedFileLoc]);
       }
-      let foundType = path.extname(attemptedFileLoc) || '.html';
-      if (IS_DOTFILE_REGEX.test(attemptedFileLoc)) foundType = '';
+      let foundType = path.extname(reqPath);
+      if (attemptedFileLoc.endsWith('.html')) foundType = '.html';
+      if (IS_DOTFILE_REGEX.test(reqPath)) foundType = '';
       foundFile = {
         loc: attemptedFileLoc,
         type: foundType,
@@ -639,14 +640,13 @@ export async function startServer(
       if (!attemptedFileLoc) {
         resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
         if (resourcePath.endsWith('/')) {
-          resourcePath += 'index.html'; // note: path.extname
+          resourcePath += 'index.html'; // if trailing slash, pretending like /index.html was requested makes the below much easier
         }
-        resourceType = path.extname(resourcePath) || '.html';
+        resourceType = path.extname(resourcePath);
       }
       attemptedFileLoc =
         fileToUrlMapping.key(resourcePath) ||
         fileToUrlMapping.key(resourcePath + '.html') ||
-        fileToUrlMapping.key(resourcePath + 'index.html') ||
         fileToUrlMapping.key(resourcePath + '/index.html');
       if (!attemptedFileLoc) {
         // last attempt: if this is a CSS Module, try and load JSON
@@ -668,8 +668,9 @@ export async function startServer(
       // TODO: This data type structuring/destructuring is neccesary for now,
       // but we hope to add "virtual file" support soon via plugins. This would
       // be the interface for those response types.
-      let foundType = path.extname(attemptedFileLoc) || '.html';
-      if (IS_DOTFILE_REGEX.test(attemptedFileLoc)) foundType = '';
+      let foundType = path.extname(reqPath);
+      if (attemptedFileLoc.endsWith('.html')) foundType = '.html';
+      if (IS_DOTFILE_REGEX.test(reqPath)) foundType = '';
       foundFile = {
         loc: attemptedFileLoc,
         type: foundType,
