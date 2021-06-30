@@ -162,4 +162,18 @@ describe('cssModules', () => {
     expect(result['_dist_/App.module.css']).not.toContain(`.App {`);
     expect(result['_dist_/App.module.css.json']).toBeDefined();
   });
+
+  it('Works with buildOptions.baseUrl set', async () => {
+    const result = await testFixture({
+      ...files(),
+      'snowpack.config.js': dedent`
+        module.exports = {
+          buildOptions: {
+            baseUrl: '/subdir/'
+          }
+        };
+      `,
+    });
+    expect(result['src/App.module.css.proxy.js']).toContain(`let json = {"App":"_App_`);
+  });
 });

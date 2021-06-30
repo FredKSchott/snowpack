@@ -244,9 +244,10 @@ async function generateCssModuleImportProxy({
   hmr: boolean;
   config: SnowpackConfig;
 }) {
+  const reqUrl = url.replace(new RegExp(`^${config.buildOptions.baseUrl}`), '/'); // note: in build, buildOptions.baseUrl gets prepended. Remove that for looking up CSS Module code
   return `
 export let code = ${JSON.stringify(code)};
-let json = ${cssModuleJSON(url)};
+let json = ${cssModuleJSON(reqUrl)};
 export default json;
 ${
   hmr
