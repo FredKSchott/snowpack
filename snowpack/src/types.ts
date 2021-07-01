@@ -34,7 +34,7 @@ export interface ServerRuntime {
   invalidateModule: (url: string) => void;
 }
 
-export interface ServerRuntimeModule<T> {
+export interface ServerRuntimeModule<T extends any> {
   exports: T;
   css: string[];
 }
