@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const execa = require('execa');
-const rimraf = require('rimraf');
+const del = require('del');
 const glob = require('glob');
 
 const TEMPLATES_DIR = path.resolve(__dirname, '..', '..', 'create-snowpack-app');
@@ -23,7 +23,7 @@ describe('create-snowpack-app', () => {
     const template = 'app-template-preact'; // any template will do
     const installDir = path.resolve(__dirname, 'test-install');
 
-    rimraf.sync(installDir);
+    await del(installDir);
 
     // run the local create-snowpack-app bin
     console.log(
@@ -60,7 +60,7 @@ describe('create-snowpack-app', () => {
     const template = 'app-template-preact'; // any template will do
     const installDir = path.resolve(__dirname, 'test-install');
 
-    rimraf.sync(installDir);
+    await del(installDir);
 
     // run the local create-snowpack-app bin
     await execa(
@@ -137,7 +137,7 @@ describe('create-snowpack-app', () => {
      * As of 2021-04-29 (this message), all templates’s test suites are passing
      */
     it.skip(`${template} > test`, async () => {
-      rimraf.sync(path.join(cwd, 'node_modules', '.cache'));
+      await del(path.join(cwd, 'node_modules', '.cache'));
       const {stdout, stderr, all, exitCode} = await execa('yarn', ['test'], {
         cwd,
         // Jest sets NODE_ENV to "test" by default, but this should be undefined in real-world use

@@ -14,7 +14,7 @@ export default {
     // "bundle": true,
   },
   packageOptions: {
-    /* ... */
+    source: 'v4',
   },
   devOptions: {
     /* ... */

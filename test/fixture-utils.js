@@ -1,4 +1,4 @@
-const rimraf = require('rimraf');
+const del = require('del');
 const glob = require('glob');
 const path = require('path');
 const fs = require('fs').promises;
@@ -65,7 +65,7 @@ async function runInFixture(testFiles, {absolute = false, overrides = {}} = {}, 
   }
 
   // TODO: Make it easier to turn this off when debugging.
-  await rimraf.sync(inDir);
+  await del(inDir);
   // Return the result.
   return result;
 }
@@ -166,7 +166,7 @@ exports.testRuntimeFixture = async function testRuntimeFixture(
 
     async cleanup() {
       // TODO: Make it easier to turn this off when debugging.
-      await rimraf.sync(inDir);
+      await del(inDir);
       await server.shutdown();
     },
   };

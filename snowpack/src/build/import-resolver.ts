@@ -11,7 +11,7 @@ import {
   replaceExtension,
 } from '../util';
 import {getUrlsForFile} from './file-urls';
-import glob from 'glob';
+import glob from 'tiny-glob';
 
 /** Perform a file disk lookup for the requested import specifier. */
 export function getFsStat(importedFileOnDisk: string): fs.Stats | false {
@@ -164,14 +164,7 @@ export function createImportGlobResolver({
       searchSpec = path.relative(path.dirname(fileLoc), searchSpec);
     }
 
-    const resolved = await new Promise<string[]>((resolve, reject) =>
-      glob(searchSpec, {cwd: path.dirname(fileLoc), nodir: true}, (err, matches) => {
-        if (err) {
-          return reject(err);
-        }
-        return resolve(matches);
-      }),
-    );
+    const resolved = await glob(searchSpec, {cwd: path.dirname(fileLoc), filesOnly: true});
     return resolved
       .map((fileLoc) => {
         const normalized = slash(fileLoc);

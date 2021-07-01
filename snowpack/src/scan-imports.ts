@@ -1,6 +1,7 @@
 import {ImportSpecifier, init as initESModuleLexer, parse} from 'es-module-lexer';
 import {InstallTarget} from 'esinstall';
-import glob from 'glob';
+import {hasMagic} from 'glob'; // TODO: replace this?
+import glob from 'tiny-glob/sync';
 import picomatch from 'picomatch';
 import {fdir} from 'fdir';
 import path from 'path';
@@ -302,11 +303,11 @@ function extractJsFromAstro(contents: string): string {
 export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
   return depList
     .map((whitelistItem) => {
-      if (!glob.hasMagic(whitelistItem)) {
+      if (!hasMagic(whitelistItem)) {
         return [createInstallTarget(whitelistItem, true)];
       } else {
         const nodeModulesLoc = path.join(cwd, 'node_modules');
-        return scanDepList(glob.sync(whitelistItem, {cwd: nodeModulesLoc, nodir: true}), cwd);
+        return scanDepList(glob(whitelistItem, {cwd: nodeModulesLoc, filesOnly: true}), cwd);
       }
     })
     .reduce((flat, item) => flat.concat(item), []);

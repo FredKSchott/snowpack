@@ -94,6 +94,7 @@ async function installOptimizedDependencies(
     installTargets,
   );
   // 2. Install dependencies, based on the scan of your final build.
+
   const installResult = await installPackages({
     config: commandOptions.config,
     isSSR: commandOptions.config.buildOptions.ssr,

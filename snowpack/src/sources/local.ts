@@ -11,7 +11,8 @@ import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
 import pacote from 'pacote';
 import path from 'path';
-import rimraf from 'rimraf';
+import url from 'url';
+import del from 'del';
 import slash from 'slash';
 import {getBuiltFileUrls} from '../build/file-urls';
 import {logger} from '../logger';
@@ -33,12 +34,12 @@ import {installPackages} from './local-install';
 
 const CURRENT_META_FILE_CONTENTS = `.snowpack cache - Do not edit this directory!
 
-The ".snowpack" cache directory is fully managed for you by Snowpack. 
+The ".snowpack" cache directory is fully managed for you by Snowpack.
 Manual changes that you make to the files inside could break things.
 
 Commit this directory to source control to speed up cold starts.
 
-Found an issue? You can always delete the ".snowpack" 
+Found an issue? You can always delete the ".snowpack"
 directory and Snowpack will recreate it on next run.
 
 [.meta.version=2]`;
@@ -249,14 +250,14 @@ export class PackageSourceLocal implements PackageSource {
     return;
   }
 
-  async prepareSingleFile(fileLoc: string) {
+  async prepareSingleFile(fileLoc: URL) {
     const {config, allKnownProjectSpecs} = this;
     // get install targets (imports) for a single file.
     const installTargets = await getInstallTargets(config, config.packageOptions.knownEntrypoints, [
       {
-        baseExt: getExtension(fileLoc),
+        baseExt: getExtension(url.fileURLToPath(fileLoc)),
         root: config.root,
-        locOnDisk: fileLoc,
+        locOnDisk: url.fileURLToPath(fileLoc),
         contents: await readFile(fileLoc),
       },
     ]);
@@ -747,8 +748,8 @@ export class PackageSourceLocal implements PackageSource {
     return this.resolvePackageImport(_spec, {source: options.source, isRetry: true});
   }
 
-  clearCache() {
-    return rimraf.sync(this.cacheDirectory);
+  async clearCache() {
+    await del(this.cacheDirectory);
   }
 
   getCacheFolder() {

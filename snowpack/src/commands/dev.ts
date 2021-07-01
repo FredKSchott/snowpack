@@ -975,7 +975,7 @@ export async function startServer(
     });
     watcher.on('add', async (fileLoc) => {
       knownETags.clear();
-      await pkgSource.prepareSingleFile(fileLoc);
+      await pkgSource.prepareSingleFile(new URL(`file://${fileLoc}`));
       await onWatchEvent(fileLoc);
       fileToUrlMapping.add(fileLoc, getUrlsForFile(fileLoc, config)!);
     });
@@ -986,7 +986,7 @@ export async function startServer(
     });
     watcher.on('change', async (fileLoc) => {
       // TODO: If this needs to build a new dependency, report to the browser via HMR event.
-      await pkgSource.prepareSingleFile(fileLoc);
+      await pkgSource.prepareSingleFile(new URL(`file://${fileLoc}`));
       await onWatchEvent(fileLoc);
     });
     // [hmrDelay] - Let users with noisy startups delay HMR (ex: 11ty, tsc builds)

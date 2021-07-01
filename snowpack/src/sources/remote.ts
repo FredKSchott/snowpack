@@ -1,7 +1,7 @@
 import {existsSync} from 'fs';
 import * as colors from 'kleur/colors';
 import path from 'path';
-import rimraf from 'rimraf';
+import del from 'del';
 import {clearCache as clearSkypackCache, rollupPluginSkypack, SkypackSDK} from 'skypack';
 import util from 'util';
 import {logger} from '../logger';
@@ -58,7 +58,7 @@ export class PackageSourceRemote implements PackageSource {
     }
 
     logger.info('checking for new TypeScript types...', {name: 'packageOptions.types'});
-    await rimraf.sync(path.join(this.getCacheFolder(), '.snowpack/types'));
+    await del(path.join(this.getCacheFolder(), '.snowpack/types'));
     for (const lockEntry of lockEntryList) {
       const [packageName, semverRange] = lockEntry.split('#');
       const exactVersion = lockfile.lock[lockEntry]?.substr(packageName.length + 1);

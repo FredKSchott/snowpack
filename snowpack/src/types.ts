@@ -244,7 +244,7 @@ export interface PackageOptionsLocal
     EsinstallOptions,
     'alias' | 'dest' | 'sourcemap' | 'verbose' | 'logger' | 'cwd' | 'dest' | 'treeshake'
   > {
-  source: 'local' | 'remote-next' | {[key: string]: string};
+  source: 'local' | 'remote-next' | 'v4' | {[key: string]: string};
   external: string[];
   knownEntrypoints: string[];
 }
@@ -384,7 +384,7 @@ export interface PackageSource {
    * Like prepare(), but only looks at a single file and meant to run at anytime,
    * usually after the server has already started and is running.
    */
-  prepareSingleFile(fileLoc: string): Promise<void>;
+  prepareSingleFile(fileLoc: URL): Promise<void>;
   /**
    * Load a dependency with the given spec (ex: "/pkg/react" -> "react")
    * If load fails or is unsuccessful, reject the promise.
