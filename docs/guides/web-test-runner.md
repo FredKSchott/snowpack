@@ -21,7 +21,7 @@ The base testing dependencies (don't hit Enter just yet!):
 npm i -D @web/test-runner @snowpack/web-test-runner-plugin chai
 ```
 
-If using React, Vue, Svelte, or Preact, add the corresponding [Testing Library](https://testing-library.com/) (in this case `@testing-libary/react`).
+If using React, Vue, Svelte, or Preact, add the corresponding [Testing Library](https://testing-library.com/) (in this case `@testing-library/react`).
 
 If using TypeScript, add `@types/mocha` and `@types/chai`.
 
