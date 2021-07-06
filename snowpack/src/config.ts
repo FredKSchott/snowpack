@@ -50,11 +50,13 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
   env: {},
   exclude: [],
   routes: [],
+  public: new URL('public/', `file://${DEFAULT_ROOT}/`),
   dependencies: {},
   devOptions: {
     secure: false,
     hostname: 'localhost',
     port: 8080,
+    root: new URL('src/', `file://${DEFAULT_ROOT}/`),
     hmrDelay: 0,
     hmrPort: undefined,
     hmrErrorOverlay: true,
@@ -103,6 +105,7 @@ const configSchema = {
     exclude: {type: 'array', items: {type: 'string'}},
     plugins: {type: 'array'},
     env: {type: 'object'},
+    public: {type: 'string'},
     alias: {
       type: 'object',
       additionalProperties: {type: 'string'},
@@ -143,6 +146,7 @@ const configSchema = {
         openUrl: {type: 'string'},
         open: {type: 'string'},
         output: {type: 'string', enum: ['stream', 'dashboard']},
+        root: {type: 'string'},
         hmr: {type: 'boolean'},
         hmrDelay: {type: 'number'},
         hmrPort: {type: 'number'},
@@ -443,12 +447,30 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
     config.packageOptions.rollup = config.packageOptions.rollup || {};
     config.packageOptions.rollup.plugins = config.packageOptions.rollup.plugins || [];
   }
+  if (config.devOptions && config.devOptions.root instanceof URL === false) {
+    config.devOptions.root = new URL(
+      `file://${
+        typeof config.devOptions.root === 'string'
+          ? addTrailingSlash(config.devOptions.root)
+          : DEFAULT_ROOT + '/src/'
+      }`,
+    );
+  }
   // normalize config URL/path values
   config.buildOptions.out = removeTrailingSlash(config.buildOptions.out);
   config.buildOptions.baseUrl = addTrailingSlash(config.buildOptions.baseUrl);
   config.buildOptions.metaUrlPath = removeTrailingSlash(
     addLeadingSlash(config.buildOptions.metaUrlPath),
   );
+  if (config.public && config.public instanceof URL === false) {
+    config.public = new URL(
+      `file://${
+        (config.public as any) === 'string'
+          ? addTrailingSlash(config.public as any)
+          : DEFAULT_ROOT + '/public/'
+      }`,
+    );
+  }
   config.mount = normalizeMount(config);
   config.routes = normalizeRoutes(config.routes);
 

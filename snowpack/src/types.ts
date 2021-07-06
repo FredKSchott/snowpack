@@ -267,6 +267,7 @@ export interface SnowpackConfig {
   exclude: string[];
   env?: Record<string, string | boolean | undefined>;
   mount: Record<string, MountEntry>;
+  public?: URL;
   alias: Record<string, string>;
   plugins: SnowpackPlugin[];
   dependencies: Record<string, string>;
@@ -277,6 +278,7 @@ export interface SnowpackConfig {
     openUrl?: string;
     open?: string;
     output?: 'stream' | 'dashboard';
+    root?: URL;
     hmr?: boolean;
     hmrDelay: number;
     hmrPort: number | undefined;
@@ -319,8 +321,10 @@ export type SnowpackUserConfig = {
   workspaceRoot?: string;
   install?: string[];
   env?: Record<string, string>;
+  public?: URL;
   extends?: string;
   exclude?: string[];
+  /** @deprecated */
   mount?: Record<string, string | Partial<MountEntry>>;
   alias?: Record<string, string>;
   plugins?: (string | [string, any])[];

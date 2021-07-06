@@ -1,8 +1,8 @@
 /** @type {import("snowpack").SnowpackUserConfig } */
 export default {
   mount: {
-    public: { url: '/', static: true },
     src: { url: '/dist' },
+    public: { url: '/', static: true },
   },
   plugins: ['@snowpack/plugin-react-refresh', '@snowpack/plugin-dotenv'],
   routes: [
