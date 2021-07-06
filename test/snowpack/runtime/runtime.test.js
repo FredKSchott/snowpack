@@ -179,4 +179,29 @@ describe('runtime', () => {
       await fixture.cleanup();
     }
   });
+
+  it('Executes scripts in the correct order', async () => {
+    const fixture = await testRuntimeFixture({
+      'one.js': dedent`
+        global.NUM = 1;
+        export default {};
+      `,
+      'two.js': dedent`
+        global.NUM++;
+        export default global.NUM;
+      `,
+      'main.js': dedent`
+        import one from './one.js';
+        import two from './two.js';
+        export const val = two;
+      `
+    });
+
+    try {
+      let mod = await fixture.runtime.importModule('/main.js');
+      expect(await mod.exports.val).toEqual(2);
+    } finally {
+      await fixture.cleanup();
+    }
+  })
 });

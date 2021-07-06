@@ -5,6 +5,13 @@ import {sourcemap_stacktrace} from './sourcemaps';
 import {transform} from './transform';
 import {REQUIRE_OR_IMPORT} from '../util';
 
+interface ModuleInstance {
+  exports: any;
+  css: string[];
+}
+
+type ModuleInitializer = () => Promise<ModuleInstance>;
+
 // This function makes it possible to load modules from the snowpack server, for the sake of SSR.
 export function createLoader({config, load}: ServerRuntimeConfig): ServerRuntime {
   const cache = new Map();
@@ -17,14 +24,17 @@ export function createLoader({config, load}: ServerRuntimeConfig): ServerRuntime
       graph.get(pathname).add(importer);
       return _load(pathname, urlStack);
     }
-    const mod = await REQUIRE_OR_IMPORT(imported, {
-      from: config.root || config.workspaceRoot || process.cwd(),
-    });
 
-    return {
-      exports: mod,
-      css: [],
-    };
+    return async function() {
+      const mod = await REQUIRE_OR_IMPORT(imported, {
+        from: config.root || config.workspaceRoot || process.cwd(),
+      });
+
+      return {
+        exports: mod,
+        css: [],
+      };
+    }
   }
 
   function invalidateModule(path) {
@@ -39,30 +49,59 @@ export function createLoader({config, load}: ServerRuntimeConfig): ServerRuntime
     if (dependents) dependents.forEach(invalidateModule);
   }
 
-  async function _load(url, urlStack) {
+  async function _load(url, urlStack): Promise<ModuleInitializer> {
     if (urlStack.includes(url)) {
       console.warn(`Circular dependency: ${urlStack.join(' -> ')} -> ${url}`);
-      return {};
+      return async () => ({
+        exports: null,
+        css: []
+      });
     }
     if (cache.has(url)) {
       return cache.get(url);
     }
-    const promise = load(url)
-      .then((loaded) => initializeModule(url, loaded, urlStack.concat(url)))
-      .catch((e) => {
-        cache.delete(url);
-        throw e;
-      });
+    const promise = (async function() {
+        const loaded = await load(url);
+        return function() {
+          try {
+            return initializeModule(url, loaded, urlStack.concat(url));
+          } catch(e) {
+            cache.delete(url);
+            throw e;
+          }
+        };
+
+    })();
     cache.set(url, promise);
     return promise;
   }
 
-  async function initializeModule(url: string, loaded: LoadResult<string>, urlStack: string[]) {
+  async function initializeModule(url: string, loaded: LoadResult<string>, urlStack: string[]): Promise<ModuleInstance> {
     const {code, deps, css, names} = transform(loaded.contents);
 
     const exports = {};
     const allCss = new Set(css.map((relative) => resolve(url, relative)));
     const fileURL = loaded.originalFileLoc ? pathToFileURL(loaded.originalFileLoc) : null;
+
+    // Load dependencies but do not execute.
+    const depsLoaded: Array<Promise<{ name: string, init: ModuleInitializer}>> = deps.map(async dep => {
+      return {
+        name: dep.name,
+        init: await getModule(url, dep.source, urlStack)
+      };
+    });
+
+    // Execute dependencies *in order*.
+    const depValues: Array<{ name: string, value: any }> = [];
+    for await(const {name, init} of depsLoaded) {
+      const module = await init();
+      module.css.forEach((dep) => allCss.add(dep));
+
+      depValues.push({
+        name: name,
+        value: module.exports,
+      });
+    }
 
     const args = [
       {
@@ -98,24 +137,13 @@ export function createLoader({config, load}: ServerRuntimeConfig): ServerRuntime
       },
       {
         name: names.__import,
-        value: (source) => getModule(url, source, urlStack).then((mod) => mod.exports),
+        value: (source) => getModule(url, source, urlStack).then(fn => fn()).then((mod) => mod.exports),
       },
       {
         name: names.__import_meta,
         value: {url: fileURL},
       },
-
-      ...(await Promise.all(
-        deps.map(async (dep) => {
-          const module = await getModule(url, dep.source, urlStack);
-          module.css.forEach((dep) => allCss.add(dep));
-
-          return {
-            name: dep.name,
-            value: module.exports,
-          };
-        }),
-      )),
+      ...depValues
     ];
 
     const fn = new Function(...args.map((d) => d.name), `${code}\n//# sourceURL=${url}`);
@@ -148,7 +176,9 @@ export function createLoader({config, load}: ServerRuntimeConfig): ServerRuntime
 
   return {
     importModule: async (url) => {
-      return _load(url, []);
+      const init = await _load(url, []);
+      const mod = await init();
+      return mod;
     },
     invalidateModule: (url) => {
       invalidateModule(url);
