@@ -25,7 +25,7 @@ export function createLoader({config, load}: ServerRuntimeConfig): ServerRuntime
       return _load(pathname, urlStack);
     }
 
-    return async function() {
+    return async function () {
       const mod = await REQUIRE_OR_IMPORT(imported, {
         from: config.root || config.workspaceRoot || process.cwd(),
       });
@@ -34,7 +34,7 @@ export function createLoader({config, load}: ServerRuntimeConfig): ServerRuntime
         exports: mod,
         css: [],
       };
-    }
+    };
   }
 
   function invalidateModule(path) {
@@ -54,29 +54,32 @@ export function createLoader({config, load}: ServerRuntimeConfig): ServerRuntime
       console.warn(`Circular dependency: ${urlStack.join(' -> ')} -> ${url}`);
       return async () => ({
         exports: null,
-        css: []
+        css: [],
       });
     }
     if (cache.has(url)) {
       return cache.get(url);
     }
-    const promise = (async function() {
-        const loaded = await load(url);
-        return function() {
-          try {
-            return initializeModule(url, loaded, urlStack.concat(url));
-          } catch(e) {
-            cache.delete(url);
-            throw e;
-          }
-        };
-
+    const promise = (async function () {
+      const loaded = await load(url);
+      return function () {
+        try {
+          return initializeModule(url, loaded, urlStack.concat(url));
+        } catch (e) {
+          cache.delete(url);
+          throw e;
+        }
+      };
     })();
     cache.set(url, promise);
     return promise;
   }
 
-  async function initializeModule(url: string, loaded: LoadResult<string>, urlStack: string[]): Promise<ModuleInstance> {
+  async function initializeModule(
+    url: string,
+    loaded: LoadResult<string>,
+    urlStack: string[],
+  ): Promise<ModuleInstance> {
     const {code, deps, css, names} = transform(loaded.contents);
 
     const exports = {};
@@ -84,16 +87,18 @@ export function createLoader({config, load}: ServerRuntimeConfig): ServerRuntime
     const fileURL = loaded.originalFileLoc ? pathToFileURL(loaded.originalFileLoc) : null;
 
     // Load dependencies but do not execute.
-    const depsLoaded: Array<Promise<{ name: string, init: ModuleInitializer}>> = deps.map(async dep => {
-      return {
-        name: dep.name,
-        init: await getModule(url, dep.source, urlStack)
-      };
-    });
+    const depsLoaded: Array<Promise<{name: string; init: ModuleInitializer}>> = deps.map(
+      async (dep) => {
+        return {
+          name: dep.name,
+          init: await getModule(url, dep.source, urlStack),
+        };
+      },
+    );
 
     // Execute dependencies *in order*.
-    const depValues: Array<{ name: string, value: any }> = [];
-    for await(const {name, init} of depsLoaded) {
+    const depValues: Array<{name: string; value: any}> = [];
+    for await (const {name, init} of depsLoaded) {
       const module = await init();
       module.css.forEach((dep) => allCss.add(dep));
 
@@ -137,13 +142,16 @@ export function createLoader({config, load}: ServerRuntimeConfig): ServerRuntime
       },
       {
         name: names.__import,
-        value: (source) => getModule(url, source, urlStack).then(fn => fn()).then((mod) => mod.exports),
+        value: (source) =>
+          getModule(url, source, urlStack)
+            .then((fn) => fn())
+            .then((mod) => mod.exports),
       },
       {
         name: names.__import_meta,
         value: {url: fileURL},
       },
-      ...depValues
+      ...depValues,
     ];
 
     const fn = new Function(...args.map((d) => d.name), `${code}\n//# sourceURL=${url}`);

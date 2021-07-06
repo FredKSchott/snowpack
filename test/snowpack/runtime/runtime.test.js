@@ -194,7 +194,7 @@ describe('runtime', () => {
         import one from './one.js';
         import two from './two.js';
         export const val = two;
-      `
+      `,
     });
 
     try {
@@ -203,5 +203,5 @@ describe('runtime', () => {
     } finally {
       await fixture.cleanup();
     }
-  })
+  });
 });
