@@ -21,7 +21,7 @@ The base testing dependencies (don't hit Enter just yet!):
 npm i -D @web/test-runner @snowpack/web-test-runner-plugin chai
 ```
 
-If using React, Vue, Svelte, or Preact, add the corresponding [Testing Library](https://testing-library.com/) (in this case `@testing-libary/react`).
+If using React, Vue, Svelte, or Preact, add the corresponding [Testing Library](https://testing-library.com/) (in this case `@testing-library/react`).
 
 If using TypeScript, add `@types/mocha` and `@types/chai`.
 
@@ -47,7 +47,7 @@ Add a `test` script to your project `package.json`:
 "scripts": {
   "start": "snowpack dev",
   "build": "snowpack build",
-+  "test": "web-test-runner \"src/**/*.test.jsx\"",
++  "test": "web-test-runner \\\"src/**/*.test.jsx\\\"",
   ...
 },
 ```
@@ -57,7 +57,7 @@ If needed, swap `.jsx` with the file type(s) containing your tests.
 To specify multiple test file types, enclose with curly brackets and separate with commas. For example, to match `.jsx`, `.js`, and `.ts` files, the script would be:
 
 ```
-"test": "web-test-runner \"src/**/*.test.{jsx,js,ts}\"",
+"test": "web-test-runner \\\"src/**/*.test.{jsx,js,ts}\\\"",
 ```
 
 > 💡 Tip: `wtr` can be used as a shorthand for `web-test-runner`.
