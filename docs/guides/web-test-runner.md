@@ -47,7 +47,7 @@ Add a `test` script to your project `package.json`:
 "scripts": {
   "start": "snowpack dev",
   "build": "snowpack build",
-+  "test": "web-test-runner \"src/**/*.test.jsx\"",
++  "test": "web-test-runner \\\"src/**/*.test.jsx\\\"",
   ...
 },
 ```
