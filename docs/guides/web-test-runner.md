@@ -57,7 +57,7 @@ If needed, swap `.jsx` with the file type(s) containing your tests.
 To specify multiple test file types, enclose with curly brackets and separate with commas. For example, to match `.jsx`, `.js`, and `.ts` files, the script would be:
 
 ```
-"test": "web-test-runner \"src/**/*.test.{jsx,js,ts}\"",
+"test": "web-test-runner \\\"src/**/*.test.{jsx,js,ts}\\\"",
 ```
 
 > 💡 Tip: `wtr` can be used as a shorthand for `web-test-runner`.
