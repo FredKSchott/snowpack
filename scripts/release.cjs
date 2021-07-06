@@ -14,8 +14,8 @@ function formatDate() {
   return [year, month, day].join('-');
 }
 
-module.exports = function release(pkgFolder, tag, bump, skipBuild) {
-  console.log(`# release(${pkgFolder}, ${tag}, ${bump})`);
+module.exports = function release(pkgFolder, tag, skipBuild) {
+  console.log(`# release(${pkgFolder}, ${tag})`);
 
   const root = path.resolve(__dirname, '..');
   const dir = path.resolve(root, pkgFolder);
@@ -31,15 +31,11 @@ module.exports = function release(pkgFolder, tag, bump, skipBuild) {
 
   console.log('Publishing...');
   const pkgJsonLoc = path.join(dir, 'package.json');
-  const {name: pkgName, version: oldPkgVersion} = JSON.parse(fs.readFileSync(pkgJsonLoc, 'utf8'));
-  const oldPkgTag = `${pkgName}@${oldPkgVersion}`;
-  console.log(execa.sync('npm', ['version', bump], {cwd: dir}));
-  const {version: newPkgVersion} = JSON.parse(fs.readFileSync(pkgJsonLoc, 'utf8'));
-  const newPkgTag = `${pkgName}@${newPkgVersion}`;
-
   if (!pkgFolder.startsWith('create-snowpack-app/')) {
-    execa.sync('yarn changesets version');
+    execa.sync('yarn', ['changeset', 'version']);
   }
+  const {name: pkgName, version: newPkgVersion} = JSON.parse(fs.readFileSync(pkgJsonLoc, 'utf8'));
+  const newPkgTag = `${pkgName}@${newPkgVersion}`;
 
   console.log(execa.sync('git', ['add', '-A'], {cwd: dir}));
   console.log(execa.sync('git', ['commit', '-m', `[skip ci] ${newPkgTag}`], {cwd: dir}));

@@ -8,9 +8,6 @@ on:
       tag:
         description: 'what kind of release? (ex: "next", "latest")'
         required: true
-      bump:
-        description: 'how much to bump? (ex: "patch", "prerelease")'
-        required: true
       packagePath:
         description: 'path to package? (ex: "snowpack", "plugins/plugin-babel")'
         required: true
@@ -27,7 +24,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Use Node.js ${{ env.node_version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ env.node_version }}
           # (REQUIRED) setting a registry enables the NODE_AUTH_TOKEN env variable where we can set an npm token.
@@ -37,6 +34,6 @@ jobs:
       - run: yarn --frozen-lockfile
 
       # PUBLISH:
-      - run: node -e "require('./scripts/release.cjs')('${{ github.event.inputs.packagePath }}', '${{ github.event.inputs.tag }}', '${{ github.event.inputs.bump }}')"
+      - run: node -e "require('./scripts/release.cjs')('${{ github.event.inputs.packagePath }}', '${{ github.event.inputs.tag }}')"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
