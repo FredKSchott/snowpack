@@ -6,14 +6,14 @@
 
 const release = require('./release.cjs');
 
-release('esinstall', 'latest', 'patch', true);
-release('skypack', 'latest', 'patch', true);
-release('snowpack', 'latest', 'patch', true);
-release('app-template-blank-typescript', 'latest', 'patch', true);
-release('app-template-lit-element', 'latest', 'patch', true);
-release('app-template-preact-typescript', 'latest', 'patch', true);
-release('app-template-react-typescript', 'latest', 'patch', true);
-release('app-template-svelte-typescript', 'latest', 'patch', true);
-release('app-template-vue-typescript', 'latest', 'patch', true);
-release('plugins/plugin-optimize', 'latest', 'patch', true);
-release('plugins/web-test-runner-plugin', 'latest', 'patch', true);
+release('esinstall', 'latest', true);
+release('skypack', 'latest', true);
+release('snowpack', 'latest', true);
+release('app-template-blank-typescript', 'latest', true);
+release('app-template-lit-element', 'latest', true);
+release('app-template-preact-typescript', 'latest', true);
+release('app-template-react-typescript', 'latest', true);
+release('app-template-svelte-typescript', 'latest', true);
+release('app-template-vue-typescript', 'latest', true);
+release('plugins/plugin-optimize', 'latest', true);
+release('plugins/web-test-runner-plugin', 'latest', true);
