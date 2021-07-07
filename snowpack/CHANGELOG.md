@@ -1,5 +1,16 @@
 # snowpack
 
+## 3.8.0
+
+### Minor Changes
+
+- a3eadde7: Ship unbundled ESM & CJS Snowpack builds
+
+### Patch Changes
+
+- f4e0bc42: Fixes regression with modules executing more than once
+- ab4ddec3: Fix dot folder dev response
+
 ## 3.7.1
 
 ### Patch Changes

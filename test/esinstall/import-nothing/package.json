@@ -3,6 +3,6 @@
   "version": "1.0.1",
   "name": "@snowpack/test-import-nothing",
   "devDependencies": {
-    "snowpack": "^3.0.0"
+    "snowpack": "^3.8.0"
   }
 }
