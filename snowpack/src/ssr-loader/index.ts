@@ -12,6 +12,13 @@ interface ModuleInstance {
 
 type ModuleInitializer = () => Promise<ModuleInstance>;
 
+function moduleInit(fn: ModuleInitializer) {
+  let promise: null | Promise<ModuleInstance> = null;
+  return function() {
+    return promise || (promise = fn());
+  };
+}
+
 // This function makes it possible to load modules from the snowpack server, for the sake of SSR.
 export function createLoader({config, load}: ServerRuntimeConfig): ServerRuntime {
   const cache = new Map();
@@ -25,7 +32,7 @@ export function createLoader({config, load}: ServerRuntimeConfig): ServerRuntime
       return _load(pathname, urlStack);
     }
 
-    return async function () {
+    return moduleInit(async function () {
       const mod = await REQUIRE_OR_IMPORT(imported, {
         from: config.root || config.workspaceRoot || process.cwd(),
       });
@@ -34,7 +41,7 @@ export function createLoader({config, load}: ServerRuntimeConfig): ServerRuntime
         exports: mod,
         css: [],
       };
-    };
+    });
   }
 
   function invalidateModule(path) {
@@ -62,14 +69,14 @@ export function createLoader({config, load}: ServerRuntimeConfig): ServerRuntime
     }
     const promise = (async function () {
       const loaded = await load(url);
-      return function () {
+      return moduleInit(function () {
         try {
           return initializeModule(url, loaded, urlStack.concat(url));
         } catch (e) {
           cache.delete(url);
           throw e;
         }
-      };
+      });
     })();
     cache.set(url, promise);
     return promise;

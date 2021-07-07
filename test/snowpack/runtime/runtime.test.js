@@ -204,4 +204,38 @@ describe('runtime', () => {
       await fixture.cleanup();
     }
   });
+
+  it('Executes scripts only once', async () => {
+    const fixture = await testRuntimeFixture({
+      'dep.js': dedent`
+        export let state = 0;
+        export default function() {
+          state++;
+        };
+      `,
+      'one.js': dedent`
+        import inc from './dep.js';
+
+        inc();
+      `,
+      'two.js': dedent`
+        import inc from './dep.js';
+
+        inc();
+      `,
+      'main.js': dedent`
+        import './one.js';
+        import './two.js';
+        import { state } from './dep.js';
+        export const val = state;
+      `,
+    });
+
+    try {
+      let mod = await fixture.runtime.importModule('/main.js');
+      expect(mod.exports.val).toEqual(2);
+    } finally {
+      await fixture.cleanup();
+    }
+  });
 });
