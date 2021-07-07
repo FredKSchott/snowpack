@@ -14,7 +14,7 @@ type ModuleInitializer = () => Promise<ModuleInstance>;
 
 function moduleInit(fn: ModuleInitializer) {
   let promise: null | Promise<ModuleInstance> = null;
-  return function() {
+  return function () {
     return promise || (promise = fn());
   };
 }
