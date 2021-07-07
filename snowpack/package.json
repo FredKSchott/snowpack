@@ -22,7 +22,7 @@
   },
   "scripts": {
     "build": "tsc --noUnusedLocals false --noUnusedParameters false && tsc -p tsconfig.cjs.json",
-    "build:watch": "tsc --watch --noUnusedLocals false --noUnusedParameters false",
+    "build:watch": "tsc --watch -p tsconfig.cjs.json",
     "lint": "tsc --noEmit"
   },
   "engines": {
