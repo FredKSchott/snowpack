@@ -115,7 +115,7 @@ Add the missing doctype, or set buildOptions.htmlFragments=true if HTML fragment
   if (hmr && isFullPage) {
     let hmrScript = ``;
     if (hmrPort) {
-      hmrScript += `<script type="text/javascript">window.HMR_WEBSOCKET_PORT=${hmrPort}</script>\n`;
+      hmrScript += `<script>window.HMR_WEBSOCKET_PORT=${hmrPort}</script>\n`;
     }
     hmrScript += `<script type="module" integrity="${SRI_CLIENT_HMR_SNOWPACK}" src="${getMetaUrlPath(
       'hmr-client.js',
