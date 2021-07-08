@@ -30,16 +30,6 @@
   },
   "types": "./lib/cjs/index.d.ts",
   "main": "./lib/cjs/index.js",
-  "exports": {
-    ".": {
-      "esm": "./lib/cjs/index.js",
-      "node": "./lib/cjs/index.js",
-      "require": "./lib/cjs/index.js",
-      "default": "./lib/esm/index.js"
-    },
-    "./assets": "./assets/*",
-    "./*": "./*"
-  },
   "bin": {
     "sp": "./index.bin.js",
     "snowpack": "./index.bin.js"
