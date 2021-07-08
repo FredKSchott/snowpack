@@ -247,6 +247,7 @@ export interface PackageOptionsLocal
   source: 'local' | 'remote-next' | {[key: string]: string};
   external: string[];
   knownEntrypoints: string[];
+  externalCjs: string[];
 }
 
 export interface PackageOptionsRemote {
