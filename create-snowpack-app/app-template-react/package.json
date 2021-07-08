@@ -29,7 +29,7 @@
   "devDependencies": {
     "@snowpack/plugin-dotenv": "^2.1.0",
     "@snowpack/plugin-react-refresh": "^2.5.0",
-    "@snowpack/web-test-runner-plugin": "^1.0.0",
+    "@snowpack/web-test-runner-plugin": "^0.2.2",
     "@testing-library/react": "^11.2.6",
     "@web/test-runner": "^0.13.3",
     "chai": "^4.3.4",
