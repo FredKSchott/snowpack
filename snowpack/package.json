@@ -82,6 +82,7 @@
     "rimraf": "^3.0.0",
     "rollup": "~2.37.1",
     "signal-exit": "^3.0.3",
+    "slash": "~3.0.0",
     "skypack": "^0.3.0",
     "source-map": "^0.7.3",
     "strip-ansi": "^6.0.0",
