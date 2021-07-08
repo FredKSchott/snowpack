@@ -1,14 +1,5 @@
 # @snowpack/web-test-runner-plugin
 
-## 1.0.0
-
-### Patch Changes
-
-- Updated dependencies [f4e0bc42]
-- Updated dependencies [ab4ddec3]
-- Updated dependencies [a3eadde7]
-  - snowpack@3.8.0
-
 ## 0.2.2
 
 ### Patch Changes
