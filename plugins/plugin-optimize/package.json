@@ -15,12 +15,12 @@
   "dependencies": {
     "csso": "^4.1.0",
     "es-module-lexer": "^0.3.25",
-    "esbuild": "^0.9.3",
+    "esbuild": "^0.12.15",
     "glob": "^7.1.6",
     "html-minifier": "^4.0.0",
     "hypertag": "^0.0.3",
-    "mkdirp": "^1.0.4",
     "kleur": "^4.1.3",
+    "mkdirp": "^1.0.4",
     "node-inject-html": "^0.0.5",
     "object.fromentries": "^2.0.2",
     "p-queue": "^6.6.1"

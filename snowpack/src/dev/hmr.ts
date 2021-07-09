@@ -1,90 +1,252 @@
+import WebSocket from 'ws';
+import stripAnsi from 'strip-ansi';
 import type http from 'http';
 import type http2 from 'http2';
-import path from 'path';
-import onProcessExit from 'signal-exit';
-import {FileBuilder} from '../build/file-builder';
-import {EsmHmrEngine} from '../hmr-server-engine';
-import {SnowpackConfig} from '../types';
-import {getCacheKey, hasExtension} from '../util';
+import {logger} from '../core/util/logger';
 
-export function startHmrEngine(
-  inMemoryBuildCache: Map<string, FileBuilder>,
-  server: http.Server | http2.Http2Server | undefined,
-  serverPort: number | undefined,
-  config: SnowpackConfig,
-) {
-  const {hmrDelay} = config.devOptions;
-  const hmrPort = config.devOptions.hmrPort || serverPort;
-  const hmrEngine = new EsmHmrEngine({server, port: hmrPort, delay: hmrDelay});
-  onProcessExit(() => {
-    hmrEngine.disconnectAllClients();
-  });
+interface Dependency {
+  dependents: Set<string>;
+  dependencies: Set<string>;
+  isHmrEnabled: boolean;
+  isHmrAccepted: boolean;
+  needsReplacement: boolean;
+  needsReplacementCount: number;
+}
 
-  // Live Reload + File System Watching
-  function updateOrBubble(url: string, visited: Set<string>) {
-    if (visited.has(url)) {
-      return;
+type HMRMessage =
+  | {type: 'reload'}
+  | {type: 'update'; url: string; bubbled: boolean}
+  | {
+      type: 'error';
+      title: string;
+      errorMessage: string;
+      fileLoc?: string;
+      errorStackTrace?: string;
+    };
+
+interface ESMHMREngineOptions {
+  server: http.Server | http2.Http2Server | undefined;
+  port: number;
+  delay: number;
+}
+
+const DEFAULT_CONNECT_DELAY = 2000;
+
+export class ESMHMREngine {
+  clients: Set<WebSocket> = new Set();
+  dependencyTree = new Map<string, Dependency>();
+
+  private delay: number = 0;
+  private currentBatch: HMRMessage[] = [];
+  private currentBatchTimeout: NodeJS.Timer | null = null;
+  private cachedConnectErrors: Set<HMRMessage> = new Set();
+  readonly port: number = 0;
+  private wss: WebSocket.Server;
+
+  constructor(options: ESMHMREngineOptions) {
+    this.port = options.port;
+    const wss = (this.wss = options.server
+      ? new WebSocket.Server({noServer: true})
+      : new WebSocket.Server({port: this.port}));
+    if (options.delay) {
+      this.delay = options.delay;
     }
-    const node = hmrEngine.getEntry(url);
-    const isBubbled = visited.size > 0;
-    if (node && node.isHmrEnabled) {
-      hmrEngine.broadcastMessage({type: 'update', url, bubbled: isBubbled});
-    }
-    visited.add(url);
-    if (node && node.isHmrAccepted) {
-      // Found a boundary, no bubbling needed
-    } else if (node && node.dependents.size > 0) {
-      node.dependents.forEach((dep) => {
-        hmrEngine.markEntryForReplacement(node, true);
-        updateOrBubble(dep, visited);
+
+    if (options.server) {
+      options.server.on('upgrade', (req, socket, head) => {
+        // Only handle upgrades to ESM-HMR requests, ignore others.
+        if (req.headers['sec-websocket-protocol'] !== 'esm-hmr') {
+          return;
+        }
+        wss.handleUpgrade(req, socket, head, (client) => {
+          wss.emit('connection', client, req);
+        });
       });
+    }
+    wss.on('connection', (client) => {
+      this.connectClient(client);
+      this.registerListener(client);
+      if (this.cachedConnectErrors.size > 0) {
+        this.dispatchMessage(Array.from(this.cachedConnectErrors), client);
+      }
+    });
+    wss.on('close', (client: WebSocket | undefined) => {
+      if (client) {
+        this.disconnectClient(client);
+      }
+    });
+  }
+
+  registerListener(client: WebSocket) {
+    client.on('message', (data) => {
+      try {
+        const message = JSON.parse(data.toString());
+        if (message.type === 'hotAccept') {
+          const entry = this.getEntry(message.id, true) as Dependency;
+          entry.isHmrAccepted = true;
+          entry.isHmrEnabled = true;
+        }
+      } catch (error) {
+        logger.error(error.toString());
+      }
+    });
+  }
+
+  createEntry(sourceUrl: string) {
+    const newEntry: Dependency = {
+      dependencies: new Set(),
+      dependents: new Set(),
+      needsReplacement: false,
+      needsReplacementCount: 0,
+      isHmrEnabled: false,
+      isHmrAccepted: false,
+    };
+    this.dependencyTree.set(sourceUrl, newEntry);
+    return newEntry;
+  }
+
+  getEntry(sourceUrl: string, createIfNotFound = false) {
+    const result = this.dependencyTree.get(sourceUrl);
+    if (result) {
+      return result;
+    }
+    if (createIfNotFound) {
+      return this.createEntry(sourceUrl);
+    }
+    return null;
+  }
+
+  setEntry(sourceUrl: string, imports: string[], isHmrEnabled = false) {
+    const result = this.getEntry(sourceUrl, true)!;
+    const outdatedDependencies = new Set(result.dependencies);
+    result.isHmrEnabled = isHmrEnabled;
+    for (const importUrl of imports) {
+      this.addRelationship(sourceUrl, importUrl);
+      outdatedDependencies.delete(importUrl);
+    }
+    for (const importUrl of outdatedDependencies) {
+      this.removeRelationship(sourceUrl, importUrl);
+    }
+  }
+
+  removeRelationship(sourceUrl: string, importUrl: string) {
+    let importResult = this.getEntry(importUrl);
+    importResult && importResult.dependents.delete(sourceUrl);
+    const sourceResult = this.getEntry(sourceUrl);
+    sourceResult && sourceResult.dependencies.delete(importUrl);
+  }
+
+  addRelationship(sourceUrl: string, importUrl: string) {
+    if (importUrl !== sourceUrl) {
+      let importResult = this.getEntry(importUrl, true)!;
+      importResult.dependents.add(sourceUrl);
+      const sourceResult = this.getEntry(sourceUrl, true)!;
+      sourceResult.dependencies.add(importUrl);
+    }
+  }
+
+  markEntryForReplacement(entry: Dependency, state: boolean) {
+    if (state) {
+      entry.needsReplacementCount++;
     } else {
-      // We've reached the top, trigger a full page refresh
-      hmrEngine.broadcastMessage({type: 'reload'});
+      entry.needsReplacementCount--;
+    }
+    entry.needsReplacement = !!entry.needsReplacementCount;
+  }
+
+  broadcastMessage(data: HMRMessage) {
+    // Special "error" event handling
+    if (data.type === 'error') {
+      // Clean: remove any console styling before we send to the browser
+      // NOTE(@fks): If another event ever needs this, okay to generalize.
+      data.title = data.title && stripAnsi(data.title);
+      data.errorMessage = data.errorMessage && stripAnsi(data.errorMessage);
+      data.fileLoc = data.fileLoc && stripAnsi(data.fileLoc);
+      data.errorStackTrace = data.errorStackTrace && stripAnsi(data.errorStackTrace);
+      // Cache: Cache errors in case an HMR client connects after the error (first page load).
+      if (
+        Array.from(this.cachedConnectErrors).every(
+          (f) => JSON.stringify(f) !== JSON.stringify(data),
+        )
+      ) {
+        this.cachedConnectErrors.add(data);
+        setTimeout(() => {
+          this.cachedConnectErrors.delete(data);
+        }, DEFAULT_CONNECT_DELAY);
+      }
+    }
+    if (this.delay > 0) {
+      if (this.currentBatchTimeout) {
+        clearTimeout(this.currentBatchTimeout);
+      }
+      this.currentBatch.push(data);
+      this.currentBatchTimeout = setTimeout(() => this.dispatchBatch(), this.delay || 100);
+    } else {
+      this.dispatchMessage([data]);
     }
   }
 
-  function handleHmrUpdate(fileLoc: string, originalUrl: string) {
-    // CSS files may be loaded directly in the client (not via JS import / .proxy.js)
-    // so send an "update" event to live update if thats the case.
-    if (hasExtension(originalUrl, '.css') && !hasExtension(originalUrl, '.module.css')) {
-      hmrEngine.broadcastMessage({type: 'update', url: originalUrl, bubbled: false});
+  dispatchBatch() {
+    if (this.currentBatchTimeout) {
+      clearTimeout(this.currentBatchTimeout);
     }
-
-    // Append ".proxy.js" to Non-JS files to match their registered URL in the
-    // client app.
-    let updatedUrl = originalUrl;
-    if (!hasExtension(updatedUrl, '.js')) {
-      updatedUrl += '.proxy.js';
-    }
-
-    // Check if a virtual file exists in the resource cache (ex: CSS from a
-    // Svelte file) If it does, mark it for HMR replacement but DONT trigger a
-    // separate HMR update event. This is because a virtual resource doesn't
-    // actually exist on disk, so we need the main resource (the JS) to load
-    // first. Only after that happens will the CSS exist.
-    const virtualCssFileUrl = updatedUrl.replace(/.js$/, '.css');
-    const virtualNode =
-      virtualCssFileUrl.includes(path.basename(fileLoc)) &&
-      hmrEngine.getEntry(`${virtualCssFileUrl}.proxy.js`);
-    if (virtualNode) {
-      hmrEngine.markEntryForReplacement(virtualNode, true);
-    }
-
-    // If the changed file exists on the page, trigger a new HMR update.
-    if (hmrEngine.getEntry(updatedUrl)) {
-      updateOrBubble(updatedUrl, new Set());
-      return;
-    }
-
-    // Otherwise, reload the page if the file exists in our hot cache (which
-    // means that the file likely exists on the current page, but is not
-    // supported by HMR (HTML, image, etc)).
-    if (inMemoryBuildCache.has(getCacheKey(fileLoc, {isSSR: false, mode: config.mode}))) {
-      hmrEngine.broadcastMessage({type: 'reload'});
-      return;
+    if (this.currentBatch.length > 0) {
+      this.dispatchMessage(this.currentBatch);
+      this.currentBatch = [];
     }
   }
 
-  return {hmrEngine, handleHmrUpdate};
+  /**
+   * This is shared logic to dispatch messages to the clients. The public methods
+   * `broadcastMessage` and `dispatchBatch` manage the delay then use this,
+   * internally when it's time to actually send the data.
+   */
+  private dispatchMessage(messageBatch: HMRMessage[], singleClient?: WebSocket) {
+    if (messageBatch.length === 0) {
+      return;
+    }
+    const clientRecipientList = singleClient ? [singleClient] : this.clients;
+    let singleSummaryMessage = messageBatch.find((message) => message.type === 'reload') || null;
+    clientRecipientList.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        if (singleSummaryMessage) {
+          client.send(JSON.stringify(singleSummaryMessage));
+        } else {
+          messageBatch.forEach((data) => {
+            client.send(JSON.stringify(data));
+          });
+        }
+      } else {
+        this.disconnectClient(client);
+      }
+    });
+  }
+
+  connectClient(client: WebSocket) {
+    this.clients.add(client);
+  }
+
+  disconnectClient(client: WebSocket) {
+    client.terminate();
+    this.clients.delete(client);
+  }
+
+  disconnectAllClients() {
+    for (const client of this.clients) {
+      this.disconnectClient(client);
+    }
+  }
+
+  stop(): Promise<void> {
+    // This will disconnect clients so no need to do that ourselves.
+    return new Promise((resolve, reject) => {
+      this.wss.close((err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(void 0);
+        }
+      });
+    });
+  }
 }

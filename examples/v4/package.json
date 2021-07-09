@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "start": "node server"
+  },
+  "dependencies": {
+    "snowpack": "file:../../snowpack"
+  }
+}

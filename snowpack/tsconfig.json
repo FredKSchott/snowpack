@@ -2,17 +2,15 @@
   "include": ["src", "assets/require-or-import.ts"],
   "exclude": ["lib"],
   "compilerOptions": {
-    "outDir": "lib/esm",
-    "module": "ESNext",
-    "target": "es2018",
-    "moduleResolution": "node",
     "declaration": true,
     "esModuleInterop": true,
-    "strict": true,
-    "sourceMap": false,
+    "module": "ESNext",
+    "moduleResolution": "node",
     "noImplicitAny": false,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "skipLibCheck": true
+    "outDir": "lib/esm",
+    "skipLibCheck": true,
+    "sourceMap": false,
+    "strict": true,
+    "target": "es2018"
   }
 }

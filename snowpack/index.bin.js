@@ -9,9 +9,8 @@ if (majorVer < 10) {
   process.exit(1);
 }
 
-const cli = require('./lib/cjs/index.js');
-const run = cli.run || cli.cli || cli.default;
-run(process.argv).catch(function (error) {
+const cli = require('./lib/cjs/cli/index.js');
+cli.run(process.argv).catch(function (error) {
   console.error(`
 ${error.stack || error.message || error}
 `);
