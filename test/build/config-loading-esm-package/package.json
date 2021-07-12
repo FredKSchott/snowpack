@@ -7,6 +7,6 @@
     "testbuild": "snowpack build"
   },
   "dependencies": {
-    "snowpack": "^3.8.0"
+    "snowpack": "^3.8.1"
   }
 }

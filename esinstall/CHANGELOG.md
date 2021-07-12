@@ -1,5 +1,11 @@
 # esinstall
 
+## 1.1.7
+
+### Patch Changes
+
+- 9b1472f6: Lock slash package version more aggressively
+
 ## 1.1.6
 
 ### Patch Changes

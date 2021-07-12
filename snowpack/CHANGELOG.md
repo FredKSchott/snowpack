@@ -1,5 +1,14 @@
 # snowpack
 
+## 3.8.1
+
+### Patch Changes
+
+- a1f56ef7: Remove type attribute from HMR script in dev server
+- 95d4309a: Remove exports field from package.json
+- Updated dependencies [9b1472f6]
+  - esinstall@1.1.7
+
 ## 3.8.0
 
 ### Minor Changes

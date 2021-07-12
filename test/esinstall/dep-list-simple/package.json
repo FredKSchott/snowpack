@@ -4,6 +4,6 @@
   "name": "@snowpack/test-dep-list-simple",
   "dependencies": {
     "async": "3.1.0",
-    "snowpack": "^3.8.0"
+    "snowpack": "^3.8.1"
   }
 }
