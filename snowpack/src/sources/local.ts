@@ -16,7 +16,7 @@ import slash from 'slash';
 import {getBuiltFileUrls} from '../build/file-urls';
 import {logger} from '../logger';
 import {scanCodeImportsExports, transformFileImports} from '../rewrite-imports';
-import {getInstallTargets} from '../scan-imports';
+import {getInstallTargets, getWebModuleSpecifierFromCode} from '../scan-imports';
 import {ImportMap, PackageOptionsLocal, PackageSource, SnowpackConfig} from '../types';
 import {
   createInstallTarget,
@@ -627,7 +627,14 @@ export class PackageSourceLocal implements PackageSource {
         const packageImports = new Set<string>();
         const code = loadedFile.toString('utf8');
         for (const imp of await scanCodeImportsExports(code)) {
-          const spec = code.substring(imp.s, imp.e).replace(/(\/|\\)+$/, ''); // remove trailing slash from end of specifier (easier for Node to resolve)
+          let spec = getWebModuleSpecifierFromCode(code, imp);
+          if(spec === null) {
+            continue;
+          }
+
+          // remove trailing slash from end of specifier (easier for Node to resolve)
+          spec = spec.replace(/(\/|\\)+$/, '');
+
           if (isRemoteUrl(spec)) {
             continue;
           }
