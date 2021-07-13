@@ -1,5 +1,11 @@
 # snowpack
 
+## 3.8.2
+
+### Patch Changes
+
+- c4a55550: Fixes scanning of dynamic imports on packages
+
 ## 3.8.1
 
 ### Patch Changes
