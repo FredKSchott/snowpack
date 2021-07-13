@@ -267,7 +267,7 @@ describe('runtime', () => {
           let mod = await promise;
           return mod.default;
         }
-      `
+      `,
     });
 
     try {

@@ -628,7 +628,7 @@ export class PackageSourceLocal implements PackageSource {
         const code = loadedFile.toString('utf8');
         for (const imp of await scanCodeImportsExports(code)) {
           let spec = getWebModuleSpecifierFromCode(code, imp);
-          if(spec === null) {
+          if (spec === null) {
             continue;
           }
 
