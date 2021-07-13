@@ -83,7 +83,7 @@ export function matchDynamicImportValue(importStatement: string) {
   return matched?.[2] || matched?.[3] || null;
 }
 
-function getWebModuleSpecifierFromCode(code: string, imp: ImportSpecifier) {
+export function getWebModuleSpecifierFromCode(code: string, imp: ImportSpecifier): string | null {
   // import.meta: we can ignore
   if (imp.d === -2) {
     return null;
