@@ -238,4 +238,46 @@ describe('runtime', () => {
       await fixture.cleanup();
     }
   });
+
+  it('Installs dynamic imports', async () => {
+    const fixture = await testRuntimeFixture({
+      'packages/@owner/dyn/package.json': dedent`
+        {
+          "version": "1.0.0",
+          "name": "@owner/dyn",
+          "module": "main.js"
+        }
+      `,
+      'packages/@owner/dyn/sub/path.js': dedent`
+        export default 2;
+      `,
+      'package.json': dedent`
+        {
+          "version": "1.0.1",
+          "name": "@snowpack/test-runtime-import-dynamic-pkg",
+          "dependencies": {
+            "@owner/dyn": "file:./packages/@owner/dyn"
+          }
+        }
+      `,
+      'main.js': dedent`
+        const promise = import('@owner/dyn/sub/path.js');
+
+        export default async function() {
+          let mod = await promise;
+          return mod.default;
+        }
+      `
+    });
+
+    try {
+      let mod = await fixture.runtime.importModule('/main.js');
+      let promise = mod.exports.default();
+      let value = await promise;
+      console.log(value);
+      expect(value).toEqual(2);
+    } finally {
+      await fixture.cleanup();
+    }
+  });
 });
