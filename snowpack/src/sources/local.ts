@@ -269,7 +269,7 @@ export class PackageSourceLocal implements PackageSource {
     }
   }
 
-  async load(id: string, {isSSR}: {isSSR?: boolean} = {}) {
+  async load(id: string, {isSSR, isWatch}: {isSSR?: boolean; isWatch?: boolean} = {}) {
     const {config, allPackageImports} = this;
     const packageImport = allPackageImports[id];
     if (!packageImport) {
@@ -325,7 +325,7 @@ export class PackageSourceLocal implements PackageSource {
       // Otherwise, resolve this specifier as an external package.
       return await this.resolvePackageImport(spec, {source: entrypoint});
     };
-    packageCode = await transformFileImports({type, contents: packageCode}, async (spec) => {
+    packageCode = await transformFileImports({type, contents: packageCode, isWatch}, async (spec) => {
       let resolvedImportUrl = await resolveImport(spec);
       const importExtName = path.posix.extname(resolvedImportUrl);
       const isProxyImport = importExtName && importExtName !== '.js' && importExtName !== '.mjs';

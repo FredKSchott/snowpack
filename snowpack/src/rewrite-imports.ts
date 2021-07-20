@@ -43,6 +43,7 @@ export async function scanCodeImportsExports(code: string): Promise<any[]> {
 export async function transformEsmImports(
   _code: string,
   replaceImport: (specifier: string) => string | Promise<string>,
+  isWatch?: boolean,
 ) {
   const imports = await scanCodeImportsExports(_code);
   const collectedRewrites: RewriteInstruction[] = [];
@@ -60,6 +61,10 @@ export async function transformEsmImports(
         rewrittenImport = webpackMagicCommentMatches
           ? `${webpackMagicCommentMatches.join(' ')} ${JSON.stringify(rewrittenImport)}`
           : JSON.stringify(rewrittenImport);
+      }
+      // Rewrite the path to be relative when using --watch.
+      if (isWatch) {
+        rewrittenImport = rewrittenImport.replace('/_snowpack/pkg/', './')
       }
       collectedRewrites.push({rewrite: rewrittenImport, start: imp.s, end: imp.e});
     }),
@@ -124,11 +129,11 @@ async function transformCssImports(
 }
 
 export async function transformFileImports(
-  {type, contents}: {type: string; contents: string},
+  {type, contents, isWatch}: {type: string; contents: string; isWatch?: boolean},
   replaceImport: (specifier: string) => string | Promise<string>,
 ) {
   if (type === '.js') {
-    return transformEsmImports(contents, replaceImport);
+    return transformEsmImports(contents, replaceImport, isWatch);
   }
   if (type === '.html') {
     return transformHtmlImports(contents, replaceImport);
