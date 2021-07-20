@@ -65,7 +65,8 @@ export async function transformEsmImports(
       }
       // Rewrite the path to be relative when using --watch.
       if (isWatch) {
-        rewrittenImport = rewrittenImport.replace(`${metaUrlPath}/pkg/`, './')
+        const pkgRegex = new RegExp(`^${metaUrlPath}/pkg/`);
+        rewrittenImport = rewrittenImport.replace(pkgRegex, './');
       }
       collectedRewrites.push({rewrite: rewrittenImport, start: imp.s, end: imp.e});
     }),
