@@ -44,6 +44,7 @@ export async function transformEsmImports(
   _code: string,
   replaceImport: (specifier: string) => string | Promise<string>,
   isWatch?: boolean,
+  metaUrlPath?: string,
 ) {
   const imports = await scanCodeImportsExports(_code);
   const collectedRewrites: RewriteInstruction[] = [];
@@ -64,7 +65,7 @@ export async function transformEsmImports(
       }
       // Rewrite the path to be relative when using --watch.
       if (isWatch) {
-        rewrittenImport = rewrittenImport.replace('/_snowpack/pkg/', './')
+        rewrittenImport = rewrittenImport.replace(`${metaUrlPath}/pkg/`, './')
       }
       collectedRewrites.push({rewrite: rewrittenImport, start: imp.s, end: imp.e});
     }),
@@ -129,11 +130,11 @@ async function transformCssImports(
 }
 
 export async function transformFileImports(
-  {type, contents, isWatch}: {type: string; contents: string; isWatch?: boolean},
+  {type, contents, isWatch, metaUrlPath}: {type: string; contents: string; isWatch?: boolean; metaUrlPath?: string},
   replaceImport: (specifier: string) => string | Promise<string>,
 ) {
   if (type === '.js') {
-    return transformEsmImports(contents, replaceImport, isWatch);
+    return transformEsmImports(contents, replaceImport, isWatch, metaUrlPath);
   }
   if (type === '.html') {
     return transformHtmlImports(contents, replaceImport);
