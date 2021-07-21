@@ -1,5 +1,11 @@
 # snowpack
 
+## 3.8.3
+
+### Patch Changes
+
+- 91da2b6a: Fix a small SSR bug with default exports
+
 ## 3.8.2
 
 ### Patch Changes

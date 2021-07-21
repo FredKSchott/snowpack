@@ -7,6 +7,6 @@
     "simple-svelte-autocomplete": "1.2.4"
   },
   "devDependencies": {
-    "snowpack": "^3.8.2"
+    "snowpack": "^3.8.3"
   }
 }

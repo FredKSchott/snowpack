@@ -19,7 +19,7 @@
     }
   },
   "devDependencies": {
-    "snowpack": "^3.8.2"
+    "snowpack": "^3.8.3"
   },
   "dependencies": {
     "array-flatten": "^3.0.0"

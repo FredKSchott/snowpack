@@ -15,6 +15,6 @@
     "bootstrap": "^4.5.2"
   },
   "devDependencies": {
-    "snowpack": "^3.8.2"
+    "snowpack": "^3.8.3"
   }
 }
