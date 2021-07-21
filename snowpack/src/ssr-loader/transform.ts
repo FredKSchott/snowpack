@@ -88,7 +88,7 @@ export function transform(data) {
     }
 
     if (node.type === 'ExportDefaultDeclaration') {
-      code.overwrite(node.start, node.declaration.start, `${exports}.default = `);
+      code.overwrite(node.start, node.declaration.start - 1, `${exports}.default = `);
     }
 
     if (node.type === 'ExportNamedDeclaration') {
