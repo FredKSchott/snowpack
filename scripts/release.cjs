@@ -38,7 +38,7 @@ module.exports = function release(pkgFolder, tag, skipBuild) {
   const newPkgTag = `${pkgName}@${newPkgVersion}`;
 
   console.log(execa.sync('git', ['add', '-A'], {cwd: dir}));
-  console.log(execa.sync('git', ['commit', '-m', `[skip ci] ${newPkgTag}`], {cwd: dir}));
+  console.log(execa.sync('git', ['commit', '--allow-empty', '-m', `[skip ci] ${newPkgTag}`], {cwd: dir}));
   console.log(execa.sync('git', ['tag', newPkgTag], {cwd: dir}));
   if (pkgName === 'snowpack')
     console.log(execa.sync('git', ['tag', `v${newPkgVersion}`], {cwd: dir})); // 'snowpack' only: also tag as vX.X.X (for GitHub releases)
