@@ -41,6 +41,10 @@ export function startHmrEngine(
     } else {
       // We've reached the top, trigger a full page refresh
       hmrEngine.broadcastMessage({type: 'reload'});
+      visited.add('RELOAD_BROADCASTED');
+    }
+    if (!isBubbled && !visited.has('RELOAD_BROADCASTED')) {
+      hmrEngine.broadcastMessage({type: 'reload'});
     }
   }
 
