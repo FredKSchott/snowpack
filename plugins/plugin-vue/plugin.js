@@ -62,6 +62,13 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       input: ['.vue'],
       output: ['.js', '.css'],
     },
+    config(snowpackConfig) {
+      snowpackConfig.packageOptions = snowpackConfig.packageOptions || {}
+      snowpackConfig.packageOptions.external = snowpackConfig.packageOptions.external || []
+      snowpackConfig.packageOptions.external.push('@vue/runtime-core')
+
+      return snowpackConfig
+    },
     async load({filePath, isSSR}) {
       const {sourcemap, sourceMaps} = snowpackConfig.buildOptions;
 
