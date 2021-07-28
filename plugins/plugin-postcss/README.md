@@ -12,10 +12,10 @@ npm i -D @snowpack/plugin-postcss postcss
 
 Then add this plugin to your Snowpack config:
 
-```js
+```diff
 // snowpack.config.mjs
 export default {
-  plugins: ['@snowpack/plugin-postcss'],
++  plugins: ['@snowpack/plugin-postcss'],
 };
 ```
 

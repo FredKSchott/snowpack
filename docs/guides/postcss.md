@@ -12,10 +12,10 @@ description: How to use PostCSS in your Snowpack project.
 
 **To use PostCSS with Snowpack:** Install [@snowpack/plugin-postcss](https://www.npmjs.com/package/@snowpack/plugin-postcss), [PostCSS](https://www.npmjs.com/package/postcss), and your PostCSS plugins, then add this plugin to your Snowpack config.
 
-```js
+```diff
 // snowpack.config.mjs
 export default {
-  plugins: ['@snowpack/plugin-postcss'],
++  plugins: ['@snowpack/plugin-postcss'],
 };
 ```
 
