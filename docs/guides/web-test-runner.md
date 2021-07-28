@@ -18,7 +18,7 @@ This guide shows how to set up @web/test-runner and [@snowpack/web-test-runner-p
 The base testing dependencies (don't hit Enter just yet!):
 
 ```
-npm i -D @web/test-runner @snowpack/web-test-runner-plugin chai
+npm install --save-dev @web/test-runner @snowpack/web-test-runner-plugin chai
 ```
 
 If using React, Vue, Svelte, or Preact, add the corresponding [Testing Library](https://testing-library.com/) (in this case `@testing-library/react`).

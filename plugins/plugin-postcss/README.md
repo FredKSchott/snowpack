@@ -7,7 +7,7 @@ Runs [PostCSS](https://github.com/postcss/postcss) on all `.css` files, includin
 Install @snowpack/plugin-postcss, PostCSS, and your PostCSS plugins (not shown):
 
 ```
-npm i -D @snowpack/plugin-postcss postcss
+npm install --save-dev @snowpack/plugin-postcss postcss
 ```
 
 Then add this plugin to your Snowpack config:
