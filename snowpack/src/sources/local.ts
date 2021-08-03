@@ -325,23 +325,26 @@ export class PackageSourceLocal implements PackageSource {
       // Otherwise, resolve this specifier as an external package.
       return await this.resolvePackageImport(spec, {source: entrypoint});
     };
-    packageCode = await transformFileImports({type, contents: packageCode, isWatch, metaUrlPath: config.buildOptions.metaUrlPath}, async (spec) => {
-      let resolvedImportUrl = await resolveImport(spec);
-      const importExtName = path.posix.extname(resolvedImportUrl);
-      const isProxyImport = importExtName && importExtName !== '.js' && importExtName !== '.mjs';
-      if (config.buildOptions.resolveProxyImports && isProxyImport) {
-        resolvedImportUrl = resolvedImportUrl + '.proxy.js';
-      }
-      imports.push(
-        createInstallTarget(
-          path.resolve(
-            path.posix.join(config.buildOptions.metaUrlPath, 'pkg', id),
-            resolvedImportUrl,
+    packageCode = await transformFileImports(
+      {type, contents: packageCode, isWatch, metaUrlPath: config.buildOptions.metaUrlPath},
+      async (spec) => {
+        let resolvedImportUrl = await resolveImport(spec);
+        const importExtName = path.posix.extname(resolvedImportUrl);
+        const isProxyImport = importExtName && importExtName !== '.js' && importExtName !== '.mjs';
+        if (config.buildOptions.resolveProxyImports && isProxyImport) {
+          resolvedImportUrl = resolvedImportUrl + '.proxy.js';
+        }
+        imports.push(
+          createInstallTarget(
+            path.resolve(
+              path.posix.join(config.buildOptions.metaUrlPath, 'pkg', id),
+              resolvedImportUrl,
+            ),
           ),
-        ),
-      );
-      return resolvedImportUrl;
-    });
+        );
+        return resolvedImportUrl;
+      },
+    );
     return {contents: packageCode, imports};
   }
 

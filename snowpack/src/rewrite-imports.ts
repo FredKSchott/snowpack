@@ -131,7 +131,12 @@ async function transformCssImports(
 }
 
 export async function transformFileImports(
-  {type, contents, isWatch, metaUrlPath}: {type: string; contents: string; isWatch?: boolean; metaUrlPath?: string},
+  {
+    type,
+    contents,
+    isWatch,
+    metaUrlPath,
+  }: {type: string; contents: string; isWatch?: boolean; metaUrlPath?: string},
   replaceImport: (specifier: string) => string | Promise<string>,
 ) {
   if (type === '.js') {
