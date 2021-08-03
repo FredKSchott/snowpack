@@ -391,7 +391,7 @@ export interface PackageSource {
    */
   load(
     spec: string,
-    options: {isSSR: boolean},
+    options: {isSSR: boolean; isWatch: boolean},
   ): Promise<undefined | {contents: Buffer | string; imports: InstallTarget[]}>;
   /** Resolve a package import to URL (ex: "react" -> "/pkg/react") */
   resolvePackageImport(
