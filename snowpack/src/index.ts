@@ -91,7 +91,7 @@ export async function cli(args: string[]) {
     process.exit(0);
   }
   if (cliFlags.version) {
-    logger.info(require('../package.json').version);
+    logger.info(require('../../package.json').version);
     process.exit(0);
   }
   if (cliFlags.reload) {
