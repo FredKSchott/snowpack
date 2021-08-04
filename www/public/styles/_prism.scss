@@ -71,8 +71,7 @@ pre {
 .token.boolean,
 .token.number,
 .token.constant,
-.token.symbol,
-.token.deleted {
+.token.symbol {
   color: #b5cea8;
 }
 
@@ -80,9 +79,18 @@ pre {
 .token.attr-name,
 .token.string,
 .token.char,
-.token.builtin,
-.token.inserted {
+.token.builtin {
   color: #ce9178;
+}
+
+.token.deleted {
+  background-color: #254439;
+  color: #ff7d47;
+}
+
+.token.inserted {
+  background-color: #244016;
+  color: #96e16f;
 }
 
 .token.operator,
