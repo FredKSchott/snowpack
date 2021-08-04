@@ -622,7 +622,7 @@ export async function startServer(
         throw new NotFoundError(reqPath, [attemptedFileLoc]);
       }
       let foundType = path.extname(reqPath);
-      if (attemptedFileLoc.endsWith('.html')) foundType = '.html';
+      if (!foundType && attemptedFileLoc.endsWith('.html')) foundType = '.html';
       if (IS_DOTFILE_REGEX.test(reqPath)) foundType = '';
       foundFile = {
         loc: attemptedFileLoc,
@@ -669,7 +669,7 @@ export async function startServer(
       // but we hope to add "virtual file" support soon via plugins. This would
       // be the interface for those response types.
       let foundType = path.extname(reqPath);
-      if (attemptedFileLoc.endsWith('.html')) foundType = '.html';
+      if (!foundType && attemptedFileLoc.endsWith('.html')) foundType = '.html';
       if (IS_DOTFILE_REGEX.test(reqPath)) foundType = '';
       foundFile = {
         loc: attemptedFileLoc,
