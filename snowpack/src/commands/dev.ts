@@ -955,7 +955,7 @@ export async function startServer(
     }
     inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: true, mode: config.mode}));
     inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: false, mode: config.mode}));
-    await Promise.all(onFileChangeCallbacks.map(callback => callback({filePath: fileLoc})));
+    await Promise.all(onFileChangeCallbacks.map((callback) => callback({filePath: fileLoc})));
 
     for (const plugin of config.plugins) {
       plugin.onChange && plugin.onChange({filePath: fileLoc});
@@ -1021,7 +1021,7 @@ export async function startServer(
       const result = getUrlsForFile(fileLoc, config);
       return result ? result[0] : null;
     },
-    onFileChange: (callback) => (onFileChangeCallbacks.push(callback)),
+    onFileChange: (callback) => onFileChangeCallbacks.push(callback),
     getServerRuntime: (options) => getServerRuntime(sp, config, options),
     async shutdown() {
       watcher && (await watcher.close());
