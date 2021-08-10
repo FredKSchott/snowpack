@@ -43,8 +43,6 @@ export async function scanCodeImportsExports(code: string): Promise<any[]> {
 export async function transformEsmImports(
   _code: string,
   replaceImport: (specifier: string) => string | Promise<string>,
-  isWatch?: boolean,
-  metaUrlPath?: string,
 ) {
   const imports = await scanCodeImportsExports(_code);
   const collectedRewrites: RewriteInstruction[] = [];
@@ -62,11 +60,6 @@ export async function transformEsmImports(
         rewrittenImport = webpackMagicCommentMatches
           ? `${webpackMagicCommentMatches.join(' ')} ${JSON.stringify(rewrittenImport)}`
           : JSON.stringify(rewrittenImport);
-      }
-      // Rewrite the path to be relative when using --watch.
-      if (isWatch) {
-        const pkgRegex = new RegExp(`^${metaUrlPath}/pkg/`);
-        rewrittenImport = rewrittenImport.replace(pkgRegex, './');
       }
       collectedRewrites.push({rewrite: rewrittenImport, start: imp.s, end: imp.e});
     }),
@@ -131,16 +124,11 @@ async function transformCssImports(
 }
 
 export async function transformFileImports(
-  {
-    type,
-    contents,
-    isWatch,
-    metaUrlPath,
-  }: {type: string; contents: string; isWatch?: boolean; metaUrlPath?: string},
+  {type, contents}: {type: string; contents: string},
   replaceImport: (specifier: string) => string | Promise<string>,
 ) {
   if (type === '.js') {
-    return transformEsmImports(contents, replaceImport, isWatch, metaUrlPath);
+    return transformEsmImports(contents, replaceImport);
   }
   if (type === '.html') {
     return transformHtmlImports(contents, replaceImport);
