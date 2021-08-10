@@ -612,6 +612,7 @@ export async function startServer(
       let attemptedFileLoc = fileToUrlMapping.key(reqPath);
       if (!attemptedFileLoc) {
         resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
+        resourceType = path.extname(resourcePath);
       }
       attemptedFileLoc = fileToUrlMapping.key(resourcePath);
       if (!attemptedFileLoc) {
