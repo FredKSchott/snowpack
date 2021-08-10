@@ -1,5 +1,11 @@
 # skypack
 
+## 0.3.3
+
+### Patch Changes
+
+- 5e84cdd8: Fixes a ghost dependency on 'tar'
+
 ## 0.3.2
 
 ### Patch Changes

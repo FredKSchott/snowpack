@@ -10,6 +10,6 @@
     "exports-only": "file:./pkg"
   },
   "devDependencies": {
-    "snowpack": "^3.8.3"
+    "snowpack": "^3.8.4"
   }
 }

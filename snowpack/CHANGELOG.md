@@ -1,5 +1,14 @@
 # snowpack
 
+## 3.8.4
+
+### Patch Changes
+
+- 47d0792f: Fix using assets from linked packages
+- 57f545cc: Fix issue where multiple onFileChange handlers overwrote each other
+- Updated dependencies [5e84cdd8]
+  - skypack@0.3.3
+
 ## 3.8.3
 
 ### Patch Changes

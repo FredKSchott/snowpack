@@ -13,6 +13,6 @@
     "umd-named-exports": "file:./packages/umd-named-exports"
   },
   "devDependencies": {
-    "snowpack": "^3.8.3"
+    "snowpack": "^3.8.4"
   }
 }
