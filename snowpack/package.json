@@ -83,7 +83,7 @@
     "rollup": "~2.37.1",
     "signal-exit": "^3.0.3",
     "slash": "~3.0.0",
-    "skypack": "^0.3.3",
+    "skypack": "^0.3.2",
     "source-map": "^0.7.3",
     "strip-ansi": "^6.0.0",
     "strip-comments": "^2.0.1",
