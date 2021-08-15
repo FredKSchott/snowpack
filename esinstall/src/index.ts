@@ -339,7 +339,7 @@ ${colors.dim(
         esmExternals: Array.isArray(externalEsm)
           ? (id) => externalEsm.some((packageName) => isImportOfPackage(id, packageName))
           : externalEsm,
-        requireReturnsDefault: 'auto',
+        requireReturnsDefault: 'preferred',
       } as RollupCommonJSOptions),
       rollupPluginWrapInstallTargets(!!isTreeshake, installTargets, logger),
       stats && rollupPluginDependencyStats((info) => (dependencyStats = info)),
