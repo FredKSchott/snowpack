@@ -141,6 +141,9 @@ export class PackageSourceLocal implements PackageSource {
 
   private async setupCacheDirectory() {
     const {config, packageSourceDirectory, cacheDirectory} = this;
+    const lockfileLoc = path.join(cacheDirectory, 'lock.json');
+    const manifestLoc = path.join(packageSourceDirectory, 'package.json');
+    const manifestLockLoc = path.join(packageSourceDirectory, 'package-lock.json');
     await mkdirp(packageSourceDirectory);
     if (config.dependencies) {
       await fs.writeFile(
@@ -155,15 +158,15 @@ export class PackageSourceLocal implements PackageSource {
         ),
         'utf8',
       );
-      const lockfile = await fs.readFile(path.join(cacheDirectory, 'lock.json')).catch(() => null);
-      if (lockfile) {
-        await fs.writeFile(path.join(packageSourceDirectory, 'package-lock.json'), lockfile);
+      if (existsSync(lockfileLoc)) {
+        const lockfile = await fs.readFile(lockfileLoc);
+        await fs.writeFile(manifestLockLoc, lockfile);
       } else {
-        await fs.unlink(path.join(packageSourceDirectory, 'package-lock.json')).catch(() => null);
+        if (existsSync(manifestLockLoc)) await fs.unlink(manifestLockLoc);
       }
     } else {
-      await fs.unlink(path.join(packageSourceDirectory, 'package.json')).catch(() => null);
-      await fs.unlink(path.join(packageSourceDirectory, 'package-lock.json')).catch(() => null);
+      if (existsSync(manifestLoc)) await fs.unlink(manifestLoc);
+      if (existsSync(manifestLockLoc)) await fs.unlink(manifestLockLoc);
     }
   }
 
@@ -203,9 +206,9 @@ export class PackageSourceLocal implements PackageSource {
 
   async prepare() {
     const installDirectoryHashLoc = path.join(this.cacheDirectory, '.meta');
-    const installDirectoryHash = await fs
-      .readFile(installDirectoryHashLoc, 'utf-8')
-      .catch(() => null);
+    const installDirectoryHash = existsSync(installDirectoryHashLoc)
+      ? await fs.readFile(installDirectoryHashLoc, 'utf8')
+      : undefined;
 
     if (installDirectoryHash === CURRENT_META_FILE_CONTENTS) {
       logger.debug(`Install directory ".meta" file is up-to-date. Welcome back!`);
@@ -499,9 +502,21 @@ export class PackageSourceLocal implements PackageSource {
       let packageFormatted = spec + colors.dim('@' + packageVersion);
       const existingImportMapLoc = path.join(installDest, 'import-map.json');
       let existingImportMap: ImportMap | undefined = memoizedImportMap[packageName];
-      if (!existingImportMap && existsSync(existingImportMapLoc)) {
-        existingImportMap = JSON.parse(await fs.readFile(existingImportMapLoc, 'utf8'));
-        memoizedImportMap[packageName] = existingImportMap as ImportMap;
+      if (!existingImportMap) {
+        // note: this must happen BEFORE the check on disk to prevent a race condition.
+        // If two lookups occur at once from different sources, then we mark this as “taken” immediately and finish the lookup async
+        memoizedImportMap[packageName] = {imports: {}}; // TODO: this may not exist; should we throw an error?
+        try {
+          const importMapHandle = await fs.open(existingImportMapLoc, 'r+');
+          if (importMapHandle) {
+            const importMapData = await importMapHandle.readFile('utf8');
+            existingImportMap = importMapData ? JSON.parse(importMapData) : null;
+            memoizedImportMap[packageName] = existingImportMap as ImportMap;
+            await importMapHandle.close();
+          }
+        } catch (err) {
+          delete memoizedImportMap[packageName]; // if there was trouble reading this, free up memoization
+        }
       }
 
       // Kick off a build, if needed.
