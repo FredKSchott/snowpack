@@ -24,7 +24,7 @@
     "svelte": "^3.37.0"
   },
   "devDependencies": {
-    "@snowpack/plugin-dotenv": "^2.1.0",
+    "@snowpack/plugin-dotenv": "^2.2.0",
     "@snowpack/plugin-svelte": "^3.6.1",
     "@snowpack/plugin-typescript": "^1.2.1",
     "@snowpack/web-test-runner-plugin": "^0.2.2",
