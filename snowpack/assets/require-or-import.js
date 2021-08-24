@@ -32,7 +32,7 @@ module.exports = async function requireOrImport(filepath, {from = process.cwd()}
     }
 
     return mdl;
-  } catch (e) 
+  } catch (e) {
     if (e instanceof SyntaxError && /export|import/.test(e.message)) {
       console.error(`Failed to load "${filepath}"!\nESM format is not natively supported in "node@${process.version}".\nPlease use CommonJS or upgrade to an LTS version of node above "node@12.17.0".`);
     } else {
