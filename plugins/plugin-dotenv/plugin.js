@@ -27,7 +27,7 @@ module.exports = function plugin(snowpackConfig, options) {
 
     if (fs.existsSync(dotenvFile)) {
       const dotenv = require('dotenv').config({
-        path: dotenvFile
+        path: dotenvFile,
       });
 
       if (expand) require('dotenv-expand')(dotenv);
