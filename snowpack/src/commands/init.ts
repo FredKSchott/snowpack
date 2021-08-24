@@ -9,8 +9,8 @@ export async function command(commandOptions: CommandOptions) {
   const {config} = commandOptions;
   logger.info(`Creating new project configuration file... ${dim('(snowpack.config.js)')}`);
   if (!existsSync(path.join(config.root, 'package.json'))) {
-    logger.error(`Error: create a package.json file in your project root`)
-    process.exit(1)
+    logger.error(`Error: create a package.json file in your project root`);
+    process.exit(1);
   }
   const destLoc = path.join(config.root, 'snowpack.config.js');
   if (existsSync(destLoc)) {
