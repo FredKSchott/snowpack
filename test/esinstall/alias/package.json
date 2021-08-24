@@ -9,6 +9,6 @@
     "vue-currency-input": "^1.21.0"
   },
   "devDependencies": {
-    "snowpack": "^3.8.4"
+    "snowpack": "^3.8.7"
   }
 }
