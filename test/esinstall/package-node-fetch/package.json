@@ -17,6 +17,6 @@
     "dep-node-fetch-mock-pkg": "file:./packages/dep-node-fetch-mock-pkg"
   },
   "devDependencies": {
-    "snowpack": "^3.8.4"
+    "snowpack": "^3.8.6"
   }
 }

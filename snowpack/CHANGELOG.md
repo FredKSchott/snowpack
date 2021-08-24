@@ -1,5 +1,18 @@
 # snowpack
 
+## 3.8.6
+
+### Patch Changes
+
+- d72dc7df: Bugfix: dev server hanging on circular dependencies
+- c6146e61: Fixes a ghost dependency on 'magic-string'
+
+## 3.8.5
+
+### Patch Changes
+
+- 0e9829ce: Fixes a regression caused by #3597
+
 ## 3.8.4
 
 ### Patch Changes

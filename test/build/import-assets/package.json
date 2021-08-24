@@ -8,6 +8,6 @@
     "testbuild": "snowpack build"
   },
   "devDependencies": {
-    "snowpack": "^3.8.4"
+    "snowpack": "^3.8.6"
   }
 }
