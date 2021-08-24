@@ -39,7 +39,7 @@ module.exports = async function requireOrImport(filepath, {from = process.cwd()}
       try {
         return await import(pathToFileURL(resolvedPath)).then(mdl => mdl.default || mdl);
       } catch (e) {
-        console.error(`Failed to load "${filepath}"!\nThis file is treated as an ES module because it has a '.mjs' file extension or nearest parent package.json contains "type": "module". Please rename this file to end in .cjs, change the code to use ESM export, or remove "type": "module" from package.json.`);
+        console.error(`Failed to load "${filepath}"!\nThis file is treated as an ES module because it has a '.mjs' file extension or nearest parent package.json contains "type": "module". Please rename this file to end in .cjs, change the code to use ESM export, or remove "type": "module" from package.json.`, e);
       }
     }
 
