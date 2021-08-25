@@ -85,6 +85,16 @@ interface FoundFile {
 
 const FILE_BUILD_RESULT_ERROR = `Build Result Error: There was a problem with a file build result.`;
 
+const COMMON_HEADERS: http.OutgoingHttpHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Accept-Ranges': 'bytes',
+  'Content-Type': 'application/octet-stream',
+  'Cross-Origin-Embedder-Policy': 'require-corp',
+  'Cross-Origin-Opener-Policy': 'same-origin',
+  'Cross-Origin-Resource-Policy': 'cross-origin',
+  Vary: 'Accept-Encoding',
+};
+
 /**
  * If encoding is defined, return a string. Otherwise, return a Buffer.
  */
@@ -129,12 +139,10 @@ function sendResponseFile(
 ) {
   const body = Buffer.from(contents);
   const ETag = etag(body, {weak: true});
-  const headers: Record<string, string> = {
-    'Accept-Ranges': 'bytes',
-    'Access-Control-Allow-Origin': '*',
+  const headers: http.OutgoingHttpHeaders = {
+    ...COMMON_HEADERS,
     'Content-Type': contentType || 'application/octet-stream',
     ETag,
-    Vary: 'Accept-Encoding',
   };
 
   if (req.headers['if-none-match'] === ETag) {
@@ -199,11 +207,9 @@ function sendResponseFile(
 
 function sendResponseError(req: http.IncomingMessage, res: http.ServerResponse, status: number) {
   const contentType = mime.contentType(path.extname(req.url!) || '.html');
-  const headers: Record<string, string> = {
-    'Access-Control-Allow-Origin': '*',
-    'Accept-Ranges': 'bytes',
+  const headers: http.OutgoingHttpHeaders = {
+    ...COMMON_HEADERS,
     'Content-Type': contentType || 'application/octet-stream',
-    Vary: 'Accept-Encoding',
   };
   res.writeHead(status, headers);
   res.end();
