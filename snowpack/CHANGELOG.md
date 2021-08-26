@@ -1,5 +1,11 @@
 # snowpack
 
+## 3.8.8
+
+### Patch Changes
+
+- 57ee22fc: Fix for dynamic import scanning
+
 ## 3.8.7
 
 ### Patch Changes

@@ -7,7 +7,7 @@
     "testbuild": "snowpack build"
   },
   "devDependencies": {
-    "snowpack": "^3.8.7"
+    "snowpack": "^3.8.8"
   },
   "dependencies": {
     "test-workspace-component": "^1.0.0"
