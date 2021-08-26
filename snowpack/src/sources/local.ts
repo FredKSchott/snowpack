@@ -648,18 +648,20 @@ export class PackageSourceLocal implements PackageSource {
             continue;
           }
 
-          const scannedImport = code.substring(imp.s, imp.e).replace(/(\/|\\)+$/, ''); // remove trailing slash from end of specifier (easier for Node to resolve)
-          if (isRemoteUrl(scannedImport)) {
+          // remove trailing slash from end of specifier (easier for Node to resolve)
+          spec = spec.replace(/(\/|\\)+$/, '');
+
+          if (isRemoteUrl(spec)) {
             continue; // ignore remote files
           }
-          if (isPathImport(scannedImport)) {
+          if (isPathImport(spec)) {
             continue;
           }
-          const [scannedPackageName] = parsePackageImportSpecifier(scannedImport);
+          const [scannedPackageName] = parsePackageImportSpecifier(spec);
           if (scannedPackageName && memoizedImportMap[scannedPackageName]) {
             continue; // if we’ve already installed this, then don’t reinstall
           }
-          newPackageImports.add(scannedImport);
+          newPackageImports.add(spec);
         }
 
         for (const packageImport of newPackageImports) {
