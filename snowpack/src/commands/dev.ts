@@ -129,10 +129,11 @@ function sendResponseFile(
 ) {
   const body = Buffer.from(contents);
   const ETag = etag(body, {weak: true});
+  console.log(contentType)
   const headers: Record<string, string> = {
     'Accept-Ranges': 'bytes',
     'Access-Control-Allow-Origin': '*',
-    'Content-Type': contentType || 'application/octet-stream',
+    'Content-Type': contentType || 'text/html',
     ETag,
     Vary: 'Accept-Encoding',
   };
@@ -199,10 +200,11 @@ function sendResponseFile(
 
 function sendResponseError(req: http.IncomingMessage, res: http.ServerResponse, status: number) {
   const contentType = mime.contentType(path.extname(req.url!) || '.html');
+  console.log(contentType)
   const headers: Record<string, string> = {
     'Access-Control-Allow-Origin': '*',
     'Accept-Ranges': 'bytes',
-    'Content-Type': contentType || 'application/octet-stream',
+    'Content-Type': contentType || 'text/html',
     Vary: 'Accept-Encoding',
   };
   res.writeHead(status, headers);
@@ -486,7 +488,8 @@ export async function startServer(
         imports: [],
         originalFileLoc: null,
         contentType: 'application/javascript',
-      };
+      }; 
+
     }
     // * NPM Packages:
     // NPM packages are served via `/_snowpack/pkg/` URLs. Behavior varies based on package source (local, remote)
