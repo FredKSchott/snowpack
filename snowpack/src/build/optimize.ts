@@ -417,7 +417,7 @@ async function runEsbuildOnBuildDirectory(
     minify: config.optimize!.minify,
     target: config.optimize!.target,
     external: Array.from(new Set(allFiles.map((f) => '*' + path.extname(f))))
-      .filter((ext) => ext !== '*.js' && ext !== '*.mjs' && ext !== '*.css' && ext !== '*')
+      .filter((ext) => !["*.js", "*.mjs", "*.css", "*", "*.png", "*.gif", "*.jpg", "*.webp",  "*.jpeg"].includes(ext))
       .concat(config.packageOptions?.external ?? []),
     charset: 'utf8',
   });
