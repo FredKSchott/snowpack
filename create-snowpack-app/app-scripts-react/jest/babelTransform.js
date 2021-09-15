@@ -11,6 +11,8 @@ const babelJest = require('babel-jest');
 const importMetaBabelPlugin = require('./importMetaBabelPlugin');
 
 module.exports = babelJest.createTransformer({
-  presets: ['babel-preset-react-app', '@babel/preset-react', '@babel/preset-typescript'],
+  presets: ['babel-preset-react-app', ['@babel/preset-react', {
+    runtime: "automatic"
+  }], '@babel/preset-typescript'],
   plugins: [[importMetaBabelPlugin]],
 });
