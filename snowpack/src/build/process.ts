@@ -148,20 +148,22 @@ export function maybeCleanBuildDirectory(state: BuildState) {
 
 export async function addBuildFiles(state: BuildState, files: string[]) {
   const {config} = state;
-  const excludeGlobs = [...config.exclude, ...config.testOptions.files];
+  const relativeFiles = files.map((file) => path.relative(config.root, file));
+  const excludeGlobs = config.mode === 'test' ? config.exclude : [...config.exclude, ...config.testOptions.files];
   const foundExcludeMatch = picomatch(excludeGlobs);
   const mountedNodeModules = Object.keys(config.mount).filter((v) => v.includes('node_modules'));
 
   const allFileUrls: string[] = [];
 
-  for (const f of files) {
+  for (const f of relativeFiles) {
     if (foundExcludeMatch(f)) {
       const isMounted = mountedNodeModules.find((mountKey) => f.startsWith(mountKey));
       if (!isMounted || (isMounted && foundExcludeMatch(f.slice(isMounted.length)))) {
         continue;
       }
     }
-    const fileUrls = getUrlsForFile(f, config)!;
+    const absFile = path.resolve(f);
+    const fileUrls = getUrlsForFile(absFile, config)!;
     allFileUrls.push(...fileUrls);
   }
 
