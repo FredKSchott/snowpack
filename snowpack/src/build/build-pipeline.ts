@@ -5,6 +5,7 @@ import {validatePluginLoadResult} from '../config';
 import {logger} from '../logger';
 import {PluginTransformResult, SnowpackBuildMap, SnowpackConfig} from '../types';
 import {getExtension, readFile, removeExtension} from '../util';
+import {getUrlsForFile} from './file-urls';
 import {cssModules, needsCSSModules} from './import-css';
 
 export interface BuildFileOptions {
@@ -108,6 +109,15 @@ async function runPipelineLoadStep(
           break;
         }
       }
+
+      if (config.workspaceRoot && srcPath.startsWith(config.workspaceRoot)) {
+        const urls = getUrlsForFile(srcPath, config);
+        const workspaceCssUrl = urls?.find((u) => u.endsWith('.css'));
+        if (workspaceCssUrl) {
+          url = workspaceCssUrl;
+        }
+      }
+
       const {css, json} = await cssModules({contents, url});
       result['.css'] = {...(result['.css'] || {}), code: css};
       result['.json'] = {code: JSON.stringify(json)};
