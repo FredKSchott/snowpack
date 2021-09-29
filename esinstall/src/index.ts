@@ -118,6 +118,7 @@ interface InstallOptions {
     context?: string;
     plugins?: RollupPlugin[]; // for simplicity, only Rollup plugins are supported for now
     dedupe?: string[];
+    requireReturnsDefault?: string | boolean;
   };
 }
 
@@ -339,7 +340,10 @@ ${colors.dim(
         esmExternals: Array.isArray(externalEsm)
           ? (id) => externalEsm.some((packageName) => isImportOfPackage(id, packageName))
           : externalEsm,
-        requireReturnsDefault: 'preferred',
+        requireReturnsDefault:
+          userDefinedRollup.requireReturnsDefault == undefined
+            ? 'auto'
+            : userDefinedRollup.requireReturnsDefault,
       } as RollupCommonJSOptions),
       rollupPluginWrapInstallTargets(!!isTreeshake, installTargets, logger),
       stats && rollupPluginDependencyStats((info) => (dependencyStats = info)),
