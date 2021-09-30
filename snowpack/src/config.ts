@@ -176,6 +176,7 @@ const configSchema = {
               type: 'array',
               items: {type: 'string'},
             },
+            requireReturnsDefault: {type: ['string', 'boolean']},
           },
         },
       },
