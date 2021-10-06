@@ -21,18 +21,6 @@ Also note that the URL passed to the `Worker` must match the final URL which may
 
 ### ESM Web Worker Support
 
-**ESM syntax (`import`/`export`) in Web Workers is still not supported in all modern browsers.** Snowpack v3.0.0 and the Snowpack Webpack v5 plugin will both support automatic bundling once released. Until then, you'll need to write self-contained, single-file Web Workers (no ESM `import`/`export` statements) or pre-bundle your web workers yourself.
-
-```js
-const worker = new Worker(new URL('./esm-worker.js', import.meta.url), {
-  name: 'my-worker',
-  type: 'module',
-});
-```
-
-<!--
-TO REPLACE THE PREVIOUS PARAGRAPH ON v3.0.0 LAUNCH DAY:
-
 Modern browsers have begun to support ESM syntax (`import`/`export`) inside of Web Workers. However, some notable exceptions still exist. To use ESM syntax inside of a web worker, consult [caniuse.com](https://caniuse.com/mdn-api_worker_worker_ecmascript_modules) and choose a supported browser for your local development. When you build for production, choose a bundler that will bundle your Web Worker to remove ESM import/export syntax. Currently, Snowpack's builtin bundler and @snowpack/plugin-webpack both support automatic Web Worker bundling to remove ESM syntax from web workers.
 
 
@@ -45,5 +33,3 @@ const worker = new Worker(
   }
 );
 ```
-
--->
