@@ -32,13 +32,13 @@ Our built-in TypeScript support can detect type-only imports and will attempt to
 
 This error could also appear if named imports are used with older, Common.js npm packages. Thanks to improvements in our package scanner this is no longer a common issue for most packages. However, some packages are written or compiled in a way that makes automatic import scanning impossible.
 
-**To solve:** Use the default import (`import pkg from 'my-old-package'`) for legacy Common.js/UMD packages that cannot be analyzed. Or, add the package name to your `packageOptions.namedExports` configuration for runtime import scanning.
+**To solve:** Use the default import (`import pkg from 'my-old-package'`) for legacy Common.js/UMD packages that cannot be analyzed. Or, add the package name to your `packageOptions.knownEntrypoints` configuration for runtime import scanning.
 
 ```js
 // snowpack.config.mjs
 export default {
   packageOptions: {
-    namedExports: ['@shopify/polaris-tokens'],
+    knownEntrypoints: ['@shopify/polaris-tokens'],
   },
 };
 ```
