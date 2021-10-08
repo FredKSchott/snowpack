@@ -336,13 +336,18 @@ export class PackageSourceLocal implements PackageSource {
       if (config.buildOptions.resolveProxyImports && isProxyImport) {
         resolvedImportUrl = resolvedImportUrl + '.proxy.js';
       }
+      
+      let resolvedPath =  path.resolve(
+        path.posix.join(config.buildOptions.metaUrlPath, 'pkg', id),
+        resolvedImportUrl
+      );
+      if(process.platform === 'win32') { //windows resolves all '/' starded paths to the root of the disk (C:\_snowpack\pkg\object-assign.js)
+         resolvedPath = resolvedPath.replace(/^.:/gm,''); // remove 'C:' disk letter
+         resolvedPath = resolvedPath.split('\\').join('/'); // transform path separators
+      }
+      
       imports.push(
-        createInstallTarget(
-          path.resolve(
-            path.posix.join(config.buildOptions.metaUrlPath, 'pkg', id),
-            resolvedImportUrl,
-          ),
-        ),
+        createInstallTarget(resolvedPath)
       );
       return resolvedImportUrl;
     });
