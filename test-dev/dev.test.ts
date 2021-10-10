@@ -94,36 +94,4 @@ describe('snowpack dev', () => {
     const cwd = path.join(__dirname, 'smoke-secure-2');
     await startServer(cwd);
   });
-
-  /**
-  Given we mount a static folder.
-  And do not specify any value for the `resolve` param.
-  And the folder contains an SCSS file with a missing import.
-  When the dev server is started.
-  Then the dev server should exit.
-  */
-  it('given-bad-scss-when-resolve-omitted-then-fail-to-start', async () => {
-    await expect(async () => {
-      // start the server
-      const cwd = path.join(__dirname, 'given-bad-scss-when-resolve-omitted-then-fail-to-start');
-      await startServer(cwd);
-    }).rejects.toThrow();
-  });
-
-  /**
-  Given we mount a static folder.
-  And we set the `resolve` param to False.
-  And the folder contains an SCSS file with a missing import.
-  When the dev server is started.
-  Then the dev server should start successfully.
-  */
-  it('given-bad-scss-when-resolve-false-then-start-successfully', async () => {
-    // start the server
-    const cwd = path.join(__dirname, 'given-bad-scss-when-resolve-false-then-start-successfully');
-    await startServer(cwd);
-
-    // Ensure that the file was indeed mounted
-    const {data} = await get('http://localhost:8080/invalid-scss.scss');
-    expect(data).toMatchSnapshot("@import 'doesnt-exist';");
-  });
 });
