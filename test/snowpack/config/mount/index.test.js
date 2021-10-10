@@ -282,7 +282,7 @@ describe('mount', () => {
   When the dev server is started.
   Then the dev server should throw an exception.
   */
-  it('Invalid imports should fail when "resolve" is omitted (js)', async () => {
+  it('Invalid imports should fail when "resolve" is omitted', async () => {
     await expect(async () => {
       await testRuntimeFixture({
         'public/invalid.js': `import 'doesnt-exist.js';`,
@@ -308,7 +308,7 @@ describe('mount', () => {
   Then the dev server should start successfully.
   And the dev server should serve the file.
   */
-  it('Invalid imports should be ignored when "resolve" is False (js)', async () => {
+  it('Invalid imports should be ignored when "resolve" is False', async () => {
     const server = await testRuntimeFixture({
       'public/invalid.js': `import 'doesnt-exist.js';`,
       'snowpack.config.js': dedent`
