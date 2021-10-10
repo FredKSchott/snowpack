@@ -241,31 +241,39 @@ describe('runtime', () => {
 
   it('Installs dynamic imports', async () => {
     const fixture = await testRuntimeFixture({
-      'packages/@owner/dyn/package.json': dedent`
+      'packages/@owner/dyn2/package.json': dedent`
         {
           "version": "1.0.0",
-          "name": "@owner/dyn",
+          "name": "@owner/dyn2",
           "module": "main.js"
         }
       `,
-      'packages/@owner/dyn/sub/path.js': dedent`
-        export default 2;
+      'packages/@owner/dyn2/sub/sibling.js': dedent`
+        export default 3;
+      `,
+      'packages/@owner/dyn2/sub/path.js': dedent`
+        const promise = import('./sibling.js');
+
+        export default async function() {
+          let mod = await promise;
+          return mod.default;
+        }
       `,
       'package.json': dedent`
         {
           "version": "1.0.1",
           "name": "@snowpack/test-runtime-import-dynamic-pkg",
           "dependencies": {
-            "@owner/dyn": "file:./packages/@owner/dyn"
+            "@owner/dyn2": "file:./packages/@owner/dyn2"
           }
         }
       `,
       'main.js': dedent`
-        const promise = import('@owner/dyn/sub/path.js');
+        import fn from '@owner/dyn2/sub/path.js';
 
         export default async function() {
-          let mod = await promise;
-          return mod.default;
+          let value = await fn();
+          return value;
         }
       `,
     });
@@ -274,8 +282,7 @@ describe('runtime', () => {
       let mod = await fixture.runtime.importModule('/main.js');
       let promise = mod.exports.default();
       let value = await promise;
-      console.log(value);
-      expect(value).toEqual(2);
+      expect(value).toEqual(3);
     } finally {
       await fixture.cleanup();
     }

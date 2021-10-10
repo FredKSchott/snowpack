@@ -612,6 +612,7 @@ export async function startServer(
       let attemptedFileLoc = fileToUrlMapping.key(reqPath);
       if (!attemptedFileLoc) {
         resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
+        resourceType = path.extname(resourcePath);
       }
       attemptedFileLoc = fileToUrlMapping.key(resourcePath);
       if (!attemptedFileLoc) {
@@ -622,7 +623,7 @@ export async function startServer(
         throw new NotFoundError(reqPath, [attemptedFileLoc]);
       }
       let foundType = path.extname(reqPath);
-      if (attemptedFileLoc.endsWith('.html')) foundType = '.html';
+      if (!foundType && attemptedFileLoc.endsWith('.html')) foundType = '.html';
       if (IS_DOTFILE_REGEX.test(reqPath)) foundType = '';
       foundFile = {
         loc: attemptedFileLoc,
@@ -669,7 +670,7 @@ export async function startServer(
       // but we hope to add "virtual file" support soon via plugins. This would
       // be the interface for those response types.
       let foundType = path.extname(reqPath);
-      if (attemptedFileLoc.endsWith('.html')) foundType = '.html';
+      if (!foundType && attemptedFileLoc.endsWith('.html')) foundType = '.html';
       if (IS_DOTFILE_REGEX.test(reqPath)) foundType = '';
       foundFile = {
         loc: attemptedFileLoc,
@@ -938,7 +939,7 @@ export async function startServer(
     : {hmrEngine: undefined, handleHmrUpdate: undefined};
 
   // Allow the user to hook into this callback, if they like (noop by default)
-  let onFileChangeCallback: OnFileChangeCallback = () => {};
+  let onFileChangeCallbacks: OnFileChangeCallback[] = [];
   let watcher: FSWatcher | undefined;
 
   // Watch src files
@@ -955,7 +956,7 @@ export async function startServer(
     }
     inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: true, mode: config.mode}));
     inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: false, mode: config.mode}));
-    await onFileChangeCallback({filePath: fileLoc});
+    await Promise.all(onFileChangeCallbacks.map((callback) => callback({filePath: fileLoc})));
 
     for (const plugin of config.plugins) {
       plugin.onChange && plugin.onChange({filePath: fileLoc});
@@ -1021,7 +1022,7 @@ export async function startServer(
       const result = getUrlsForFile(fileLoc, config);
       return result ? result[0] : null;
     },
-    onFileChange: (callback) => (onFileChangeCallback = callback),
+    onFileChange: (callback) => onFileChangeCallbacks.push(callback),
     getServerRuntime: (options) => getServerRuntime(sp, config, options),
     async shutdown() {
       watcher && (await watcher.close());

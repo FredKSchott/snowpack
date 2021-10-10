@@ -1,15 +1,14 @@
 .Card {
   margin: 0.5rem 0.25em;
   border-radius: 4px;
-  padding: 0.25rem .5rem .5rem 3.5rem;
+  padding: 0.25rem 0.5rem 0.5rem 3.5rem;
   flex-direction: column;
   position: relative;
   display: flex;
   grid-column: span 1;
   overflow: hidden;
-  font-family: Open Sans, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
-    Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Segoe UI, Roboto,
-    sans-serif;
+  font-family: Open Sans, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans,
+    sans-serif, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
   color: #1a202c;
   -webkit-font-smoothing: antialiased;
   box-sizing: border-box;
@@ -32,6 +31,7 @@
 
 .CardName {
   margin: 0;
+  font-size: 24px;
   font-weight: 500;
 }
 

@@ -5,6 +5,7 @@ Object {
   "__DOTENV_DEVELOPMENT": "DEVELOPMENT",
   "__DOTENV_DEVELOPMENT_LOCAL": "DEVELOPMENT_LOCAL",
   "__DOTENV_ENV": "ENV",
+  "__DOTENV_EXPAND": "PRESET",
   "__DOTENV_LOCAL": "LOCAL",
   "__DOTENV_PRESET": "PRESET",
   "__DOTENV_PRODUCTION": "ENV",
@@ -19,6 +20,7 @@ Object {
   "__DOTENV_DEVELOPMENT": "ENV",
   "__DOTENV_DEVELOPMENT_LOCAL": "LOCAL",
   "__DOTENV_ENV": "ENV",
+  "__DOTENV_EXPAND": "PRESET",
   "__DOTENV_LOCAL": "LOCAL",
   "__DOTENV_PRESET": "PRESET",
   "__DOTENV_PRODUCTION": "PRODUCTION",
@@ -33,6 +35,7 @@ Object {
   "__DOTENV_DEVELOPMENT": "ENV",
   "__DOTENV_DEVELOPMENT_LOCAL": "ENV",
   "__DOTENV_ENV": "ENV",
+  "__DOTENV_EXPAND": "PRESET",
   "__DOTENV_LOCAL": "TEST",
   "__DOTENV_PRESET": "PRESET",
   "__DOTENV_PRODUCTION": "ENV",
@@ -47,6 +50,7 @@ Object {
   "__DOTENV_DEVELOPMENT": "ENV",
   "__DOTENV_DEVELOPMENT_LOCAL": "LOCAL",
   "__DOTENV_ENV": "ENV",
+  "__DOTENV_EXPAND": "PRESET",
   "__DOTENV_LOCAL": "LOCAL",
   "__DOTENV_PRESET": "PRESET",
   "__DOTENV_PRODUCTION": "ENV",
@@ -103,6 +107,126 @@ Object {
   "__DOTENV_DEVELOPMENT": "ENV",
   "__DOTENV_DEVELOPMENT_LOCAL": "LOCAL",
   "__DOTENV_ENV": "ENV",
+  "__DOTENV_LOCAL": "LOCAL",
+  "__DOTENV_PRESET": "PRESET",
+  "__DOTENV_PRODUCTION": "ENV",
+  "__DOTENV_PRODUCTION_LOCAL": "LOCAL",
+  "__DOTENV_TEST": "ENV",
+  "__DOTENV_TEST_LOCAL": "LOCAL",
+}
+`;
+
+exports[`with expand explicitly off development 1`] = `
+Object {
+  "__DOTENV_DEVELOPMENT": "DEVELOPMENT",
+  "__DOTENV_DEVELOPMENT_LOCAL": "DEVELOPMENT_LOCAL",
+  "__DOTENV_ENV": "ENV",
+  "__DOTENV_EXPAND": "\${__DOTENV_PRESET}",
+  "__DOTENV_LOCAL": "LOCAL",
+  "__DOTENV_PRESET": "PRESET",
+  "__DOTENV_PRODUCTION": "ENV",
+  "__DOTENV_PRODUCTION_LOCAL": "LOCAL",
+  "__DOTENV_TEST": "ENV",
+  "__DOTENV_TEST_LOCAL": "LOCAL",
+}
+`;
+
+exports[`with expand explicitly off production 1`] = `
+Object {
+  "__DOTENV_DEVELOPMENT": "ENV",
+  "__DOTENV_DEVELOPMENT_LOCAL": "LOCAL",
+  "__DOTENV_ENV": "ENV",
+  "__DOTENV_EXPAND": "\${__DOTENV_PRESET}",
+  "__DOTENV_LOCAL": "LOCAL",
+  "__DOTENV_PRESET": "PRESET",
+  "__DOTENV_PRODUCTION": "PRODUCTION",
+  "__DOTENV_PRODUCTION_LOCAL": "PRODUCTION_LOCAL",
+  "__DOTENV_TEST": "ENV",
+  "__DOTENV_TEST_LOCAL": "LOCAL",
+}
+`;
+
+exports[`with expand explicitly off test 1`] = `
+Object {
+  "__DOTENV_DEVELOPMENT": "ENV",
+  "__DOTENV_DEVELOPMENT_LOCAL": "ENV",
+  "__DOTENV_ENV": "ENV",
+  "__DOTENV_EXPAND": "\${__DOTENV_PRESET}",
+  "__DOTENV_LOCAL": "TEST",
+  "__DOTENV_PRESET": "PRESET",
+  "__DOTENV_PRODUCTION": "ENV",
+  "__DOTENV_PRODUCTION_LOCAL": "ENV",
+  "__DOTENV_TEST": "TEST",
+  "__DOTENV_TEST_LOCAL": "TEST_LOCAL",
+}
+`;
+
+exports[`with expand explicitly off undefined 1`] = `
+Object {
+  "__DOTENV_DEVELOPMENT": "ENV",
+  "__DOTENV_DEVELOPMENT_LOCAL": "LOCAL",
+  "__DOTENV_ENV": "ENV",
+  "__DOTENV_EXPAND": "\${__DOTENV_PRESET}",
+  "__DOTENV_LOCAL": "LOCAL",
+  "__DOTENV_PRESET": "PRESET",
+  "__DOTENV_PRODUCTION": "ENV",
+  "__DOTENV_PRODUCTION_LOCAL": "LOCAL",
+  "__DOTENV_TEST": "ENV",
+  "__DOTENV_TEST_LOCAL": "LOCAL",
+}
+`;
+
+exports[`with expand explicitly on development 1`] = `
+Object {
+  "__DOTENV_DEVELOPMENT": "DEVELOPMENT",
+  "__DOTENV_DEVELOPMENT_LOCAL": "DEVELOPMENT_LOCAL",
+  "__DOTENV_ENV": "ENV",
+  "__DOTENV_EXPAND": "PRESET",
+  "__DOTENV_LOCAL": "LOCAL",
+  "__DOTENV_PRESET": "PRESET",
+  "__DOTENV_PRODUCTION": "ENV",
+  "__DOTENV_PRODUCTION_LOCAL": "LOCAL",
+  "__DOTENV_TEST": "ENV",
+  "__DOTENV_TEST_LOCAL": "LOCAL",
+}
+`;
+
+exports[`with expand explicitly on production 1`] = `
+Object {
+  "__DOTENV_DEVELOPMENT": "ENV",
+  "__DOTENV_DEVELOPMENT_LOCAL": "LOCAL",
+  "__DOTENV_ENV": "ENV",
+  "__DOTENV_EXPAND": "PRESET",
+  "__DOTENV_LOCAL": "LOCAL",
+  "__DOTENV_PRESET": "PRESET",
+  "__DOTENV_PRODUCTION": "PRODUCTION",
+  "__DOTENV_PRODUCTION_LOCAL": "PRODUCTION_LOCAL",
+  "__DOTENV_TEST": "ENV",
+  "__DOTENV_TEST_LOCAL": "LOCAL",
+}
+`;
+
+exports[`with expand explicitly on test 1`] = `
+Object {
+  "__DOTENV_DEVELOPMENT": "ENV",
+  "__DOTENV_DEVELOPMENT_LOCAL": "ENV",
+  "__DOTENV_ENV": "ENV",
+  "__DOTENV_EXPAND": "PRESET",
+  "__DOTENV_LOCAL": "TEST",
+  "__DOTENV_PRESET": "PRESET",
+  "__DOTENV_PRODUCTION": "ENV",
+  "__DOTENV_PRODUCTION_LOCAL": "ENV",
+  "__DOTENV_TEST": "TEST",
+  "__DOTENV_TEST_LOCAL": "TEST_LOCAL",
+}
+`;
+
+exports[`with expand explicitly on undefined 1`] = `
+Object {
+  "__DOTENV_DEVELOPMENT": "ENV",
+  "__DOTENV_DEVELOPMENT_LOCAL": "LOCAL",
+  "__DOTENV_ENV": "ENV",
+  "__DOTENV_EXPAND": "PRESET",
   "__DOTENV_LOCAL": "LOCAL",
   "__DOTENV_PRESET": "PRESET",
   "__DOTENV_PRODUCTION": "ENV",

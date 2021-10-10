@@ -1,5 +1,11 @@
 # @snowpack/plugin-dotenv
 
+## 2.2.0
+
+### Minor Changes
+
+- cf1bd442: Added an option to disable dotenv-expand functionality
+
 ## 2.1.0
 
 ### Minor Changes

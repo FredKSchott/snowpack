@@ -33,3 +33,19 @@ describe('with dir NODE_ENV=', () => {
     });
   });
 });
+
+describe('with expand explicitly off', () => {
+  NODE_ENV_LIST.forEach((nodeEnv) => {
+    test(`${nodeEnv}`, () => {
+      expect(execPlugin(nodeEnv, {expand: false})).toMatchSnapshot();
+    });
+  });
+});
+
+describe('with expand explicitly on', () => {
+  NODE_ENV_LIST.forEach((nodeEnv) => {
+    test(`${nodeEnv}`, () => {
+      expect(execPlugin(nodeEnv, {expand: true})).toMatchSnapshot();
+    });
+  });
+});
