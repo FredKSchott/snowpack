@@ -8,7 +8,7 @@ const {get} = require('httpie');
 
 let snowpackProcess;
 
-async function startServer(cwd) {
+async function startServer (cwd) {
   // start the server
   // NOTE: we tried spawning `yarn` here, but the process was not cleaned up
   //       correctly on CI and the action got stuck. npx does not cause that problem.
@@ -52,7 +52,7 @@ describe('snowpack dev', () => {
     try {
       await snowpackProcess;
     } catch (error) {
-      expect(error.killed || error.failed).toEqual(true);
+      expect(error.killed).toEqual(true);
     }
   });
 
