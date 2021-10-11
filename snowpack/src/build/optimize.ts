@@ -401,6 +401,7 @@ async function runEsbuildOnBuildDirectory(
   ) {
     publicPath = config.buildOptions.baseUrl;
   }
+  const supportedExtensions = ['*.js', '*.mjs', '*.css', '*.json', '*'];
   const {outputFiles, warnings, metafile} = await esbuild.build({
     entryPoints: bundleEntrypoints,
     outdir: FAKE_BUILD_DIRECTORY,
@@ -417,7 +418,7 @@ async function runEsbuildOnBuildDirectory(
     minify: config.optimize!.minify,
     target: config.optimize!.target,
     external: Array.from(new Set(allFiles.map((f) => '*' + path.extname(f))))
-      .filter((ext) => ext !== '*.js' && ext !== '*.mjs' && ext !== '*.css' && ext !== '*')
+      .filter((ext) => !supportedExtensions.includes(ext))
       .concat(config.packageOptions?.external ?? []),
     charset: 'utf8',
   });

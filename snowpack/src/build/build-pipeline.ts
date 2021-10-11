@@ -90,30 +90,6 @@ async function runPipelineLoadStep(
     }
   }
 
-  // handle CSS Modules, after plugins run
-  if (needsCSSModules(srcPath)) {
-    let contents: string = result['.css']
-      ? (result['.css'].code as string)
-      : ((await readFile(srcPath)) as string);
-    if (contents) {
-      // for CSS Modules URLs, we only need the destination URL (POSIX-style)
-      let url = srcPath;
-      for (const dir in config.mount) {
-        if (srcPath.startsWith(dir)) {
-          url = srcPath
-            .replace(dir, config.mount[dir].url)
-            .replace(/\\/g, '/')
-            .replace(/\/+/g, '/')
-            .replace(/\.(scss|sass)$/i, '.css');
-          break;
-        }
-      }
-      const {css, json} = await cssModules({contents, url});
-      result['.css'] = {...(result['.css'] || {}), code: css};
-      result['.json'] = {code: JSON.stringify(json)};
-    }
-  }
-
   // if no result was generated, return file as-is
   if (!Object.keys(result).length) {
     return {
@@ -218,6 +194,30 @@ async function runPipelineTransformStep(
       // Attach metadata detailing where the error occurred.
       err.__snowpackBuildDetails = {name: step.name, step: 'transform'};
       throw err;
+    }
+  }
+
+  // handle CSS Modules, after plugins run
+  if (needsCSSModules(srcPath)) {
+    let contents: string = output['.css']
+      ? (output['.css'].code as string)
+      : ((await readFile(srcPath)) as string);
+    if (contents) {
+      // for CSS Modules URLs, we only need the destination URL (POSIX-style)
+      let url = srcPath;
+      for (const dir in config.mount) {
+        if (srcPath.startsWith(dir)) {
+          url = srcPath
+            .replace(dir, config.mount[dir].url)
+            .replace(/\\/g, '/')
+            .replace(/\/+/g, '/')
+            .replace(/\.(scss|sass)$/i, '.css');
+          break;
+        }
+      }
+      const {css, json} = await cssModules({contents, url});
+      output['.css'] = {...(output['.css'] || {}), code: css};
+      output['.json'] = {code: JSON.stringify(json)};
     }
   }
 

@@ -174,6 +174,8 @@ export class FileBuilder {
         this.config,
       );
       contents = await transformGlobImports({contents, resolveImportGlobSpecifier});
+
+      const cssModules: string[] = [];
       contents = await transformFileImports({type, contents}, async (spec) => {
         let resolvedImportUrl = await resolveImport(spec);
 
@@ -184,6 +186,12 @@ export class FileBuilder {
         if (isAbsoluteUrlPath) {
           if (isResolve && this.config.buildOptions.resolveProxyImports && isProxyImport) {
             resolvedImportUrl = resolvedImportUrl + '.proxy.js';
+          }
+          if (resolvedImportUrl.endsWith('.module.css')) {
+            cssModules.push(resolvedImportUrl);
+            resolvedImports.push(createInstallTarget(resolvedImportUrl));
+
+            resolvedImportUrl = resolvedImportUrl + '.json';
           }
           resolvedImports.push(createInstallTarget(resolvedImportUrl));
         } else {
@@ -202,6 +210,10 @@ export class FileBuilder {
           resolvedImportUrl = relativeURL(urlPathDirectory, resolvedImportUrl);
         }
         return resolvedImportUrl;
+      });
+
+      cssModules.forEach((cssModule) => {
+        contents = `import "${relativeURL(urlPathDirectory, cssModule)}";\n` + contents;
       });
 
       // This is a hack since we can't currently scan "script" `src=` tags as imports.
