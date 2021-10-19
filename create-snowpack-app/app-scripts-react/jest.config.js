@@ -24,6 +24,7 @@ module.exports = function () {
       '^(?!.*\\.(js|jsx|ts|tsx|css|json)$)': path.resolve(__dirname, 'jest/fileTransform.js'),
     },
     transformIgnorePatterns: ['node_modules'],
+    testEnvironment: 'jsdom',
     // transformIgnorePatterns: [
     //   "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|ts|tsx)$",
     //   "^.+\\.module\\.(css|sass|scss)$",

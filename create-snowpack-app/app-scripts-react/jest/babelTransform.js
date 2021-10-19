@@ -7,8 +7,9 @@
  */
 'use strict';
 
-const babelJest = require('babel-jest');
 const importMetaBabelPlugin = require('./importMetaBabelPlugin');
+const babelJestModule = require('babel-jest');
+const babelJest = babelJestModule.__esModule ? babelJestModule.default : babelJestModule;
 
 module.exports = babelJest.createTransformer({
   presets: ['babel-preset-react-app', '@babel/preset-react', '@babel/preset-typescript'],
