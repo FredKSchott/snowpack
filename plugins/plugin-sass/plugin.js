@@ -94,7 +94,7 @@ module.exports = function sassPlugin(snowpackConfig, {native, compilerOptions = 
   }
 
   return {
-    name: '@snowpack/plugin-sass',
+    name: 'snowpack4-plugin-sass',
     resolve: {
       input: ['.scss', '.sass'],
       output: ['.css'],

@@ -130,20 +130,24 @@ function sendResponseFile(
   const body = Buffer.from(contents);
   const ETag = etag(body, {weak: true});
   const headers: Record<string, string> = {
-    'Accept-Ranges': 'bytes',
+    'XAccept-Ranges': 'bytes',
     'Access-Control-Allow-Origin': '*',
-    'Content-Type': contentType || 'application/octet-stream',
-    ETag,
-    Vary: 'Accept-Encoding',
+    'Content-Type': contentType || 'text/html',
+  
+    Vary: 'XAccept-Encoding',
   };
 
+  headers['Content-Type'] = contentType || 'text/html'
+  console.log(headers)
+  res.writeHead(200, headers);
+
   if (req.headers['if-none-match'] === ETag) {
-    res.writeHead(304, headers);
+    res.writeHead(200, headers);
     res.end();
     return;
   }
 
-  let acceptEncoding = (req.headers['accept-encoding'] as string) || '';
+  let acceptEncoding =  '';
   if (
     req.headers['cache-control']?.includes('no-transform') ||
     ['HEAD', 'OPTIONS'].includes(req.method!) ||
@@ -156,7 +160,7 @@ function sendResponseFile(
   // Handle gzip compression
   if (/\bgzip\b/.test(acceptEncoding) && stream.Readable.from) {
     const bodyStream = stream.Readable.from([body]);
-    headers['Content-Encoding'] = 'gzip';
+    headers['XContent-Encoding'] = 'gzip';
     res.writeHead(200, headers);
     stream.pipeline(bodyStream, zlib.createGzip(), res, function onError(err) {
       if (err) {
@@ -201,10 +205,13 @@ function sendResponseError(req: http.IncomingMessage, res: http.ServerResponse, 
   const contentType = mime.contentType(path.extname(req.url!) || '.html');
   const headers: Record<string, string> = {
     'Access-Control-Allow-Origin': '*',
-    'Accept-Ranges': 'bytes',
-    'Content-Type': contentType || 'application/octet-stream',
-    Vary: 'Accept-Encoding',
+    'XAccept-Ranges': 'bytes',
+    'Content-Type': contentType || 'text/html',
+    Vary: 'XAccept-Encoding',
   };
+
+  console.log(headers)
+
   res.writeHead(status, headers);
   res.end();
 }
@@ -440,26 +447,26 @@ export async function startServer(
     reqUrl: string,
     opt: LoadUrlOptions & {encoding: null},
   ): Promise<LoadResult<Buffer> | undefined>;
-  async function loadUrl(
+  async function loadUrl( 
     reqUrl: string,
     {
       isSSR: _isSSR,
       isHMR: _isHMR,
       isResolve: _isResolve,
-      encoding: _encoding,
+      encoding: _encoding ,
       importMap,
     }: LoadUrlOptions = {},
   ): Promise<LoadResult | undefined> {
     const isSSR = _isSSR ?? false;
     //   // Default to HMR on, but disable HMR if SSR mode is enabled.
     const isHMR = _isHMR ?? (!!config.devOptions.hmr && !isSSR);
-    const encoding = _encoding ?? null;
+    // let encoding  ;
     const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
 
     if (reqPath === getMetaUrlPath('/hmr-client.js', config)) {
       return {
-        contents: encodeResponse(HMR_CLIENT_CODE, encoding),
+        contents: encodeResponse(HMR_CLIENT_CODE, null),
         imports: [],
         originalFileLoc: null,
         contentType: 'application/javascript',
@@ -467,7 +474,7 @@ export async function startServer(
     }
     if (reqPath === getMetaUrlPath('/hmr-error-overlay.js', config)) {
       return {
-        contents: encodeResponse(HMR_OVERLAY_CODE, encoding),
+        contents: encodeResponse(HMR_OVERLAY_CODE, null),
         imports: [],
         originalFileLoc: null,
         contentType: 'application/javascript',
@@ -481,12 +488,13 @@ export async function startServer(
             isSSR,
             configEnv: config.env,
           }),
-          encoding,
+          null,
         ),
         imports: [],
         originalFileLoc: null,
         contentType: 'application/javascript',
-      };
+      }; 
+
     }
     // * NPM Packages:
     // NPM packages are served via `/_snowpack/pkg/` URLs. Behavior varies based on package source (local, remote)
@@ -528,7 +536,7 @@ export async function startServer(
       }
       return {
         imports: loadedModule.imports,
-        contents: encodeResponse(loadedModule.contents, encoding),
+        contents: encodeResponse(loadedModule.contents, null),
         originalFileLoc: null,
         contentType: mime.lookup(reqPath) || 'application/javascript',
       };
@@ -749,7 +757,7 @@ export async function startServer(
     if (finalizedResponse) {
       return {
         imports: resolvedImports,
-        contents: encodeResponse(finalizedResponse, encoding),
+        contents: encodeResponse(finalizedResponse, null),
         originalFileLoc: fileLoc,
         contentType: mime.lookup(responseType),
       };
@@ -817,7 +825,11 @@ export async function startServer(
         return matchedRouteHandler(req, res);
       }
     }
-    // Check if we can send back an optimized 304 response
+
+  console.log('not matched')
+
+  // Check if we can send back an optimized 304 response
+  /*
     const quickETagCheck = req.headers['if-none-match'];
     const quickETagCheckUrl = reqUrl.replace(/\/$/, '/index.html');
     if (quickETagCheck && quickETagCheck === knownETags.get(quickETagCheckUrl)) {
@@ -826,6 +838,8 @@ export async function startServer(
       res.end();
       return;
     }
+  */
+ 
     // Backwards-compatable redirect for legacy package URLs: If someone has created an import URL manually
     // (ex: /_snowpack/pkg/react.js) then we need to redirect and warn to use our new API in the future.
     if (
