@@ -388,6 +388,7 @@ export function findMatchingAliasEntry(
  * Get all the possible file extensions, from longest to shortest
  */
 export function* getPossibleExtensions(fileName: string): Generator<string> {
+  // If a full URL is given, start at the basename. Otherwise, start at zero.
   let extensionMatchIndex = Math.max(0, fileName.lastIndexOf(path.sep));
 
   do {
