@@ -1,6 +1,19 @@
-const {getExtensionMatch} = require('../../snowpack/lib/cjs/util');
+const {getExtensionMatch, getPossibleExtensions} = require('../../snowpack/lib/cjs/util');
 
 const EMPTY = Buffer.from('');
+
+describe('getPossibleExtensions()', () => {
+  test('returns a Generator object', () => {
+    expect(getPossibleExtensions.constructor.name).toEqual('GeneratorFunction');
+  });
+
+  test('returns all the possible file extensions, from longest to shortest', () => {
+    expect([...getPossibleExtensions('foo')]).toEqual([]);
+    expect([...getPossibleExtensions('foo.js')]).toEqual(['.js']);
+    expect([...getPossibleExtensions('foo.one.js')]).toEqual(['.one.js', '.js']);
+    expect([...getPossibleExtensions('foo.one.two.js')]).toEqual(['.one.two.js', '.two.js', '.js']);
+  });
+});
 
 describe('getExtensionMatch()', () => {
   const TEST_EXTENSION_MAP = {
