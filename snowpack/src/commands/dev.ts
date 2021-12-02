@@ -746,7 +746,7 @@ export async function startServer(
       throw err;
     }
 
-    if (finalizedResponse) {
+    if (finalizedResponse !== undefined) {
       return {
         imports: resolvedImports,
         contents: encodeResponse(finalizedResponse, encoding),
