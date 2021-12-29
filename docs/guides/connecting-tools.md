@@ -42,7 +42,7 @@ Open up `snowpack.config.mjs` and add the name of your new plugin to the plugins
   };
 ```
 
-What about the other optional configuration options? [The `@snowpack/plugin-sass` documentation](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-sass) lists all the options and where to put them in the `snowpack.config.mjs` file. If I wanted the `compressed` output `style` I'd turn the `@snowpack/plugin-sass` value into an array with an object containing the configuration:
+What about the other optional configuration options? [The `@snowpack/plugin-sass` documentation](https://github.com/withastro/snowpack/tree/main/plugins/plugin-sass) lists all the options and where to put them in the `snowpack.config.mjs` file. If I wanted the `compressed` output `style` I'd turn the `@snowpack/plugin-sass` value into an array with an object containing the configuration:
 
 ```diff
   // snowpack.config.mjs
@@ -79,7 +79,7 @@ export default {
 };
 ```
 
-This plugin allows you to connect any CLI into your build process. Just give it a `cmd` CLI command that can take input from `stdin` and emit the build result via `stdout`. Check out the [plugin documentation](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-build-script) for more information.
+This plugin allows you to connect any CLI into your build process. Just give it a `cmd` CLI command that can take input from `stdin` and emit the build result via `stdout`. Check out the [plugin documentation](https://github.com/withastro/snowpack/tree/main/plugins/plugin-build-script) for more information.
 
 #### @snowpack/plugin-run-script
 
@@ -99,7 +99,7 @@ export default {
 };
 ```
 
-This plugin allows you to run any CLI command as a part of your dev and build workflow. This plugin doesn't affect your build output, but it is useful for connecting developer tooling directly into Snowpack. Use this to add meaningful feedback to your dev console as you type, like TypeScript type-checking and ESLint lint errors. This doesn't affect how Snowpack builds your site. Check out the [plugin documentation](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-run-script) for more information.
+This plugin allows you to run any CLI command as a part of your dev and build workflow. This plugin doesn't affect your build output, but it is useful for connecting developer tooling directly into Snowpack. Use this to add meaningful feedback to your dev console as you type, like TypeScript type-checking and ESLint lint errors. This doesn't affect how Snowpack builds your site. Check out the [plugin documentation](https://github.com/withastro/snowpack/tree/main/plugins/plugin-run-script) for more information.
 
 ### Examples
 

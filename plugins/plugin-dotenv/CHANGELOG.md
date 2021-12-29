@@ -17,4 +17,4 @@
 - ad8de420: [ci] yarn format <drwpow>
 - ae4c04bd: Updated link; reference page had moved (#2646) <ericrinaldo>
 
-_For older releases, check our curated [release update thread](https://github.com/snowpackjs/snowpack/discussions/1183) or the raw [commit history](https://github.com/snowpackjs/snowpack/commits/main/plugins/plugin-dotenv)._
+_For older releases, check our curated [release update thread](https://github.com/withastro/snowpack/discussions/1183) or the raw [commit history](https://github.com/withastro/snowpack/commits/main/plugins/plugin-dotenv)._

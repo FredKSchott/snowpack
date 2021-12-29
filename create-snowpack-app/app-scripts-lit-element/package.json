@@ -6,10 +6,10 @@
     "access": "public"
   },
   "license": "MIT",
-  "homepage": "https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-scripts-lit-element#readme",
+  "homepage": "https://github.com/withastro/snowpack/tree/main/create-snowpack-app/app-scripts-lit-element#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/snowpackjs/snowpack.git",
+    "url": "https://github.com/withastro/snowpack.git",
     "directory": "create-snowpack-app/app-scripts-lit-element"
   },
   "dependencies": {

@@ -26,4 +26,4 @@
 - 1c2a2094: update lockfile
 - e2c2d5f4: final cleanup, tests passing
 
-_For older releases, check our curated [release update thread](https://github.com/snowpackjs/snowpack/discussions/1183) or the raw [commit history](https://github.com/snowpackjs/snowpack/commits/main/plugins/plugin-optimize)._
+_For older releases, check our curated [release update thread](https://github.com/withastro/snowpack/discussions/1183) or the raw [commit history](https://github.com/withastro/snowpack/commits/main/plugins/plugin-optimize)._

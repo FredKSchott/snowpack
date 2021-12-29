@@ -6,7 +6,7 @@ description: How to use HTTPs during development and generate SSL certifcates fo
 
 <div class="notification">
 This guide has an example repo:
-<a href="https://github.com/snowpackjs/snowpack/tree/main/examples/https-ssl-certificates/">
+<a href="https://github.com/withastro/snowpack/tree/main/examples/https-ssl-certificates/">
     examples/https-ssl-certificates
 </a>
 </div>

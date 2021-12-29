@@ -6,7 +6,7 @@ published: false
 
 <div class="notification">
   This guide has an example repo:
-  <a href="https://github.com/snowpackjs/snowpack/examples/react-loadable-components">examples/react-loadable-components</a>
+  <a href="https://github.com/withastro/snowpack/examples/react-loadable-components">examples/react-loadable-components</a>
 </div>
 
 _Based on [app-template-react][app-template-react]_

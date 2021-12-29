@@ -29,7 +29,7 @@ We‘d recommend being explicit and manually managing every `import` statement y
 
 But if you‘ve weighed the tradeoffs and decide that a slower build is worth it to get global import functionality, then start from the example here.
 
-[app-template-react]: https://github.com/snowpackjs/snowpack/create-snowpack-app/app-template-react
+[app-template-react]: https://github.com/withastro/snowpack/create-snowpack-app/app-template-react
 [babel-plugin-import-global]: https://www.npmjs.com/package/babel-plugin-import-global
 [esbuild]: https://esbuild.github.io/
-[snowpack-babel]: https://github.com/snowpackjs/snowpack/plugins/plugin-babel
+[snowpack-babel]: https://github.com/withastro/snowpack/plugins/plugin-babel

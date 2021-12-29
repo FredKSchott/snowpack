@@ -25,4 +25,4 @@
 - 71bb73b5: [ci] yarn format
 - 48d8b9c7: skip failing windows sass test
 
-_For older releases, check our curated [release update thread](https://github.com/snowpackjs/snowpack/discussions/1183) or the raw [commit history](https://github.com/snowpackjs/snowpack/commits/main/plugins/plugin-sass)._
+_For older releases, check our curated [release update thread](https://github.com/withastro/snowpack/discussions/1183) or the raw [commit history](https://github.com/withastro/snowpack/commits/main/plugins/plugin-sass)._

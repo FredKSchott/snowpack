@@ -2,10 +2,10 @@
   "name": "create-snowpack-app",
   "version": "1.10.0",
   "license": "MIT",
-  "homepage": "https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/cli#readme",
+  "homepage": "https://github.com/withastro/snowpack/tree/main/create-snowpack-app/cli#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/snowpackjs/snowpack.git",
+    "url": "https://github.com/withastro/snowpack.git",
     "directory": "create-snowpack-app/cli"
   },
   "publishConfig": {

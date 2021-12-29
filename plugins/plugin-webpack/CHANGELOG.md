@@ -28,4 +28,4 @@
 - 41c29f25: [ci] yarn format
 - 83616faa: Keep original HTML attributes on script tags (#2498) <Francisco Sousa>
 
-_For older releases, check our curated [release update thread](https://github.com/snowpackjs/snowpack/discussions/1183) or the raw [commit history](https://github.com/snowpackjs/snowpack/commits/main/plugins/plugin-webpack)._
+_For older releases, check our curated [release update thread](https://github.com/withastro/snowpack/discussions/1183) or the raw [commit history](https://github.com/withastro/snowpack/commits/main/plugins/plugin-webpack)._

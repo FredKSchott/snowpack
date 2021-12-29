@@ -15,7 +15,7 @@ In this guide you'll learn
 - Building your first project
 - Customizing Snowpack with plugins
 
-> 💡 Tip: This guide walks you through creating the [Snowpack minimal app template](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/) from scratch. Spin up a copy of the final [using the create-snowpack-app command line tool](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/).
+> 💡 Tip: This guide walks you through creating the [Snowpack minimal app template](https://github.com/withastro/snowpack/tree/main/create-snowpack-app/) from scratch. Spin up a copy of the final [using the create-snowpack-app command line tool](https://github.com/withastro/snowpack/tree/main/create-snowpack-app/).
 
 Prerequisites: Snowpack is a command line tool installed from npm. This guide assumes a basic understanding of JavaScript, npm, and how to run commands in the terminal.
 
@@ -231,7 +231,7 @@ What's next? Our docs site has several great resources
 
 - [Bundling for production guide](/guides/optimize-and-bundle): how to connect a bundler like Webpack to optimize code for production deployments
 - [Plugins](/plugins): a list of plugins that allow you to integrate your favorite tools with Snowpack
-- [Templates/Examples](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/cli): pre-built projects you can build on or just explore using many popular frameworks and tools
+- [Templates/Examples](https://github.com/withastro/snowpack/tree/main/create-snowpack-app/cli): pre-built projects you can build on or just explore using many popular frameworks and tools
 - [Guides](/guides): Step by step deep dives on building with and for Snowpack. Includes frameworks like React and Svelte.
 
-If you have any questions, comments, or corrections, we'd love to hear from you in the Snowpack [discussion](https://github.com/snowpackjs/snowpack/discussions) forum or our [Snowpack Discord community](https://discord.gg/rS8SnRk).
+If you have any questions, comments, or corrections, we'd love to hear from you in the Snowpack [discussion](https://github.com/withastro/snowpack/discussions) forum or our [Snowpack Discord community](https://discord.gg/rS8SnRk).

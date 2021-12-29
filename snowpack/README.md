@@ -1,4 +1,4 @@
-[![CI](https://github.com/snowpackjs/snowpack/workflows/CI/badge.svg?event=push)](https://github.com/snowpackjs/snowpack/actions)
+[![CI](https://github.com/withastro/snowpack/workflows/CI/badge.svg?event=push)](https://github.com/withastro/snowpack/actions)
 
 ### What is Snowpack?
 

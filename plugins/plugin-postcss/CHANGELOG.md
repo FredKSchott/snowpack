@@ -55,4 +55,4 @@
 - 21461ce5: Update @snowpack/plugin-postcss API (#2854) <Drew Powers>
 - 68a66d4e: plugin-postcss: Use API and threadpool instead of CLI. (#2165) <Josh Wilson>
 
-_For older releases, check our curated [release update thread](https://github.com/snowpackjs/snowpack/discussions/1183) or the raw [commit history](https://github.com/snowpackjs/snowpack/commits/main/plugins/plugin-postcss)._
+_For older releases, check our curated [release update thread](https://github.com/withastro/snowpack/discussions/1183) or the raw [commit history](https://github.com/withastro/snowpack/commits/main/plugins/plugin-postcss)._

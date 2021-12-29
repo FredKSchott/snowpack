@@ -2,4 +2,4 @@ blank_issues_enabled: false
 contact_links:
   - name: 💬 Everything else
     about: Ask questions and get help from our community!
-    url: https://github.com/snowpackjs/snowpack/discussions
+    url: https://github.com/withastro/snowpack/discussions

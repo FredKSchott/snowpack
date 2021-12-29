@@ -6,7 +6,7 @@ description: The Snowpack Plugin API and how to use it.
 
 Looking to get started writing your own plugin? Check out our [Plugin Guide](/guides/plugins) for an overview of how plugins work and a walk-through to help you create your own.
 
-Looking for a good summary? Check out our ["SnowpackPlugin" TypeScript definition](https://github.com/snowpackjs/snowpack/blob/main/snowpack/src/types.ts#L130) for a fully documented and up-to-date overview of the Plugin API and all supported options.
+Looking for a good summary? Check out our ["SnowpackPlugin" TypeScript definition](https://github.com/withastro/snowpack/blob/main/snowpack/src/types.ts#L130) for a fully documented and up-to-date overview of the Plugin API and all supported options.
 
 ### Overview
 
@@ -62,14 +62,14 @@ Run a CLI command, and connect it's output into the Snowpack console. Useful for
 
 Snowpack’s bundler plugin API is still experimental and may change in a future release. See our official bundler plugins for an example of using the current interface:
 
-- Example: [@snowpack/plugin-webpack](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-webpack)
+- Example: [@snowpack/plugin-webpack](https://github.com/withastro/snowpack/tree/main/plugins/plugin-webpack)
 - Example: [snowpack-plugin-rollup-bundle](https://github.com/ParamagicDev/snowpack-plugin-rollup-bundle)
 
 #### onChange()
 
 Get notified any time a watched file changes. This can be useful when paired with the `markChanged()` plugin method, to mark multiple files changed at once.
 
-See [@snowpack/plugin-sass](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-sass/plugin.js) for an example of how to use this method.
+See [@snowpack/plugin-sass](https://github.com/withastro/snowpack/tree/main/plugins/plugin-sass/plugin.js) for an example of how to use this method.
 
 ### Plugin Properties
 
@@ -96,7 +96,7 @@ If your plugin defines a `load()` method, Snowpack will need to know what files 
 
 - `input`: An array of file extensions that this plugin will load.
 - `output`: The set of all file extensions that this plugin's `load()` method will output.
-- [Full TypeScript definition](https://github.com/snowpackjs/snowpack/tree/main/snowpack/src/types/snowpack.ts).
+- [Full TypeScript definition](https://github.com/withastro/snowpack/tree/main/snowpack/src/types/snowpack.ts).
 
 ### Plugin Methods
 
@@ -109,5 +109,5 @@ this.markChanged('/some/file/path.scss');
 
 Manually mark a file as changed, regardless of whether the file changed on disk or not. This can be useful when paired with the `markChanged()` plugin hook, to mark multiple files changed at once.
 
-- See [@snowpack/plugin-sass](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-sass/plugin.js) for an example of how to use this method.
-- [Full TypeScript definition](https://github.com/snowpackjs/snowpack/blob/main/snowpack/src/types.ts).
+- See [@snowpack/plugin-sass](https://github.com/withastro/snowpack/tree/main/plugins/plugin-sass/plugin.js) for an example of how to use this method.
+- [Full TypeScript definition](https://github.com/withastro/snowpack/blob/main/snowpack/src/types.ts).

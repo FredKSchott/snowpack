@@ -4,8 +4,8 @@
   <img src="https://www.snowpack.dev/img/StateOfJSAwardWinner.png"   />
 </a></p>
 
-<a href="https://github.com/snowpackjs/snowpack/actions">
-  <img src="https://github.com/snowpackjs/snowpack/workflows/CI/badge.svg" alt="CI" />
+<a href="https://github.com/withastro/snowpack/actions">
+  <img src="https://github.com/withastro/snowpack/workflows/CI/badge.svg" alt="CI" />
 </a> <a href="https://discord.gg/snowpack"><img alt="Join us on Discord!" src="https://img.shields.io/discord/712696926406967308.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2"/></a>
 
 <h1>Snowpack</h1>
@@ -25,4 +25,4 @@ Snowpack is a lightning-fast frontend build tool, designed to leverage JavaScrip
 <br/>
 
 > **Contributor Guidelines:** [CONTRIBUTING.md](./CONTRIBUTING.md)  
-> **License:** [MIT](https://github.com/snowpackjs/snowpack/blob/main/LICENSE)
+> **License:** [MIT](https://github.com/withastro/snowpack/blob/main/LICENSE)

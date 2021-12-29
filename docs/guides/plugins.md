@@ -103,7 +103,7 @@ Snowpack plugins support a `run()` method which lets you run any CLI tool and co
 
 Snowpack builds you a runnable, unbundled website by default, but you can optimize this final build with your favorite bundler (webpack, Rollup, Parcel, etc.) through the plugin `optimize()` method. When a bundler plugin is used, Snowpack will run the bundler on your build automatically to optimize it.
 
-See our official [@snowpack/plugin-webpack](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-webpack) bundler plugin for an example of using the current interface.
+See our official [@snowpack/plugin-webpack](https://github.com/withastro/snowpack/tree/main/plugins/plugin-webpack) bundler plugin for an example of using the current interface.
 
 ### Example: Getting Started
 
@@ -307,7 +307,7 @@ export default {
 
 ### Publishing a Plugin
 
-To share a plugin with the world, you can publish it to npm. For example, take a look at [snowpack-plugin-starter-template](https://github.com/snowpackjs/snowpack-plugin-starter-template) which can get you up-and-running quickly. You can either copy this outright or simply take what you need.
+To share a plugin with the world, you can publish it to npm. For example, take a look at [snowpack-plugin-starter-template](https://github.com/withastro/snowpack-plugin-starter-template) which can get you up-and-running quickly. You can either copy this outright or simply take what you need.
 
 In general, make sure to mind the following checklist:
 

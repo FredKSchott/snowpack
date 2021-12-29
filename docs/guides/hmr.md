@@ -27,7 +27,7 @@ HMR is enabled by default when you run `snowpack dev`. The Snowpack dev server w
 
 ### Enable HMR: Custom Server
 
-_Note: Full HMR is not yet supported. Only full page reloads are currently working. Follow updates here: [https://github.com/snowpackjs/snowpack/issues/1935](https://github.com/snowpackjs/snowpack/issues/1935)_
+_Note: Full HMR is not yet supported. Only full page reloads are currently working. Follow updates here: [https://github.com/withastro/snowpack/issues/1935](https://github.com/withastro/snowpack/issues/1935)_
 
 If you use your own server (ex: Rails) to serve your application during development, there are a couple of small steps to enable HMR.
 

@@ -20,11 +20,11 @@ In this guide, you'll go from an empty directory to a fully configured Snowpack 
 
 Prerequisites: Snowpack is a command line tool installed from npm. This guide assumes a basic understanding of Node.js, npm, and how to run commands in the terminal. Knowledge of React is not required, Snowpack is a great way to learn React!
 
-> 💡 Tip: if you want to jump to the end to see a full featured React setup, the [Create Snowpack App React template](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-react) comes with everything you'll learn in this guide plus other useful tools.
+> 💡 Tip: if you want to jump to the end to see a full featured React setup, the [Create Snowpack App React template](https://github.com/withastro/snowpack/tree/main/create-snowpack-app/app-template-react) comes with everything you'll learn in this guide plus other useful tools.
 
 ## Getting started
 
-The easiest way to start a new Snowpack project is with [Create Snowpack App](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/cli), a tool to set up Snowpack in a new directory. `@snowpack/project-template-minimal` is a Create Snowpack App template for a simple, bare-bones Snowpack project setup that the rest of this guide builds on.
+The easiest way to start a new Snowpack project is with [Create Snowpack App](https://github.com/withastro/snowpack/tree/main/create-snowpack-app/cli), a tool to set up Snowpack in a new directory. `@snowpack/project-template-minimal` is a Create Snowpack App template for a simple, bare-bones Snowpack project setup that the rest of this guide builds on.
 
 To get started, open your terminal and head to a directory where you want to put your new project. Now run the following command in your terminal to create a new directory called `react-snowpack` with the minimal template automatically installed.
 
@@ -196,7 +196,7 @@ When you add assets like images or CSS, Snowpack includes them in your final bui
 
 > 💡 Tip: as you're doing this, you should not need to reload the page or restart Snowpack. Snowpack automatically updates the project in the browser as you edit code.
 
-Add this file [`logo.svg`](https://github.com/snowpackjs/snowpack/blob/main/create-snowpack-app/app-template-react/src/logo.svg) to your `src` directory. Now you can import it into your `App.jsx` and use it in an `img` tag to display it.
+Add this file [`logo.svg`](https://github.com/withastro/snowpack/blob/main/create-snowpack-app/app-template-react/src/logo.svg) to your `src` directory. Now you can import it into your `App.jsx` and use it in an `img` tag to display it.
 
 ```diff
   import React, { useState, useEffect } from 'react';
@@ -332,12 +332,12 @@ Great job! You're now ready to build the React project of your dreams with Snowp
 
 <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-text="I just learned how to build a React app with #Snowpack. Check out the tutorial:" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-At this point you have the basics and have a great starter for any React project. But if you compare with the official [Snowpack React template](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-react) you'll notice it has some other developer tools you might find useful:
+At this point you have the basics and have a great starter for any React project. But if you compare with the official [Snowpack React template](https://github.com/withastro/snowpack/tree/main/create-snowpack-app/app-template-react) you'll notice it has some other developer tools you might find useful:
 
 - [Prettier](https://prettier.io/) — a popular code formatter
 - [Tests](/guides/testing) — Snowpack supports any popular JavaScript testing framework
-- [`@snowpack/plugin-dotenv`](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-dotenv) — Use `dotenv` in your Snowpack. This is useful for environment specific variables
+- [`@snowpack/plugin-dotenv`](https://github.com/withastro/snowpack/tree/main/plugins/plugin-dotenv) — Use `dotenv` in your Snowpack. This is useful for environment specific variables
 
-If you'd like to use Typescript with Snowpack and React, check out the [Snowpack React Typescript](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-react-typescript) starter.
+If you'd like to use Typescript with Snowpack and React, check out the [Snowpack React Typescript](https://github.com/withastro/snowpack/tree/main/create-snowpack-app/app-template-react-typescript) starter.
 
-If you have any questions, comments, or corrections, we'd love to hear from you in the Snowpack [discussion](https://github.com/snowpackjs/snowpack/discussions) forum or our [Snowpack Discord community](https://discord.gg/rS8SnRk).
+If you have any questions, comments, or corrections, we'd love to hear from you in the Snowpack [discussion](https://github.com/withastro/snowpack/discussions) forum or our [Snowpack Discord community](https://discord.gg/rS8SnRk).

@@ -20,7 +20,7 @@ Happy release day! We are excited to announce Snowpack v2.7 with a handful of ne
 
 Plus, we hit some VERY exciting project milestones last month:
 
-- ❤️ **150** [open source contributors](https://github.com/snowpackjs/snowpack/graphs/contributors) (and growing!)
+- ❤️ **150** [open source contributors](https://github.com/withastro/snowpack/graphs/contributors) (and growing!)
 - 🏆 **1000+** discussions, issues, and pull requests
 - ⭐️ **10,000+** stars on GitHub
 - 👋 **New companies using Snowpack:** [Alibaba](https://www.1688.com/) & [Airhacks](https://airhacks.com/)
@@ -80,11 +80,11 @@ If you don't use a bundler in production, you'll still see a smaller build. That
 
 Last week, [Svelte announced official support for TypeScript](https://svelte.dev/blog/svelte-and-typescript). We're huge fans of both projects and couldn't pass up the chance to test the new support out in a brand new Svelte + TypeScript app template for Snowpack.
 
-Visit [Create Snowpack App](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app) for a list of all of our new app templates.
+Visit [Create Snowpack App](https://github.com/withastro/snowpack/tree/main/create-snowpack-app) for a list of all of our new app templates.
 
 ## Thank You, Contributors!
 
-Finally, Snowpack wouldn't be possible without the [150+ contributors](https://github.com/snowpackjs/snowpack/graphs/contributors) who contributed features, fixes, and documentation improvements. Thanks again for all of your help.
+Finally, Snowpack wouldn't be possible without the [150+ contributors](https://github.com/withastro/snowpack/graphs/contributors) who contributed features, fixes, and documentation improvements. Thanks again for all of your help.
 
 -- Snowpack Maintainers
 

@@ -14,10 +14,10 @@
     "esbuild",
     "cjs"
   ],
-  "homepage": "https://github.com/snowpackjs/snowpack/tree/main/esinstall#readme",
+  "homepage": "https://github.com/withastro/snowpack/tree/main/esinstall#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/snowpackjs/snowpack.git",
+    "url": "https://github.com/withastro/snowpack.git",
     "directory": "esinstall"
   },
   "publishConfig": {

@@ -17,4 +17,4 @@
 
 - cc36acf2: Update @web/test-runner (#2222) <David Bailey>
 
-_For older releases, check our curated [release update thread](https://github.com/snowpackjs/snowpack/discussions/1183) or the raw [commit history](https://github.com/snowpackjs/snowpack/commits/main/plugins/web-test-runner-plugin)._
+_For older releases, check our curated [release update thread](https://github.com/withastro/snowpack/discussions/1183) or the raw [commit history](https://github.com/withastro/snowpack/commits/main/plugins/web-test-runner-plugin)._

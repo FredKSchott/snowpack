@@ -3,10 +3,10 @@
   "name": "@snowpack/plugin-sass",
   "main": "plugin.js",
   "license": "MIT",
-  "homepage": "https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-sass#readme",
+  "homepage": "https://github.com/withastro/snowpack/tree/main/plugins/plugin-sass#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/snowpackjs/snowpack.git",
+    "url": "https://github.com/withastro/snowpack.git",
     "directory": "plugins/plugin-sass"
   },
   "publishConfig": {

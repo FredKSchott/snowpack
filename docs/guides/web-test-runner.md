@@ -11,7 +11,7 @@ description: How to use @web/test-runner in your Snowpack project.
 
 ## Setup
 
-This guide shows how to set up @web/test-runner and [@snowpack/web-test-runner-plugin](https://www.npmjs.com/package/@snowpack/web-test-runner-plugin) for a React project. The end result recreates the test configuration in [app-template-react](https://github.com/snowpackjs/snowpack/blob/main/create-snowpack-app/app-template-react), one of our Create Snowpack App starter templates. If you're using a different framework, tweak React specific steps appropriately.
+This guide shows how to set up @web/test-runner and [@snowpack/web-test-runner-plugin](https://www.npmjs.com/package/@snowpack/web-test-runner-plugin) for a React project. The end result recreates the test configuration in [app-template-react](https://github.com/withastro/snowpack/blob/main/create-snowpack-app/app-template-react), one of our Create Snowpack App starter templates. If you're using a different framework, tweak React specific steps appropriately.
 
 #### 1. Install dependencies
 

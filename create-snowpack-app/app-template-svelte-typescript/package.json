@@ -3,10 +3,10 @@
   "description": "A preconfigured template for Snowpack with Svelte and TypeScript",
   "version": "2.1.5",
   "license": "MIT",
-  "homepage": "https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-svelte-typescript#readme",
+  "homepage": "https://github.com/withastro/snowpack/tree/main/create-snowpack-app/app-template-svelte-typescript#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/snowpackjs/snowpack.git",
+    "url": "https://github.com/withastro/snowpack.git",
     "directory": "create-snowpack-app/app-template-svelte-typescript"
   },
   "keywords": [

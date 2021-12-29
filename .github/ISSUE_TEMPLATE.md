@@ -5,11 +5,11 @@
 ---- Issues are handled a little bit differently than you might be used to.
 ----
 ---- ❗️ Don't start by creating a new issue. Instead, create a discussion:
-----   🔎 Search Existing:   https://github.com/snowpackjs/snowpack/discussions
-----   📝 Create New:        https://github.com/snowpackjs/snowpack/discussions/category_choices
+----   🔎 Search Existing:   https://github.com/withastro/snowpack/discussions
+----   📝 Create New:        https://github.com/withastro/snowpack/discussions/category_choices
 ----
 ---- More information on how our team manages issues & discussions:
-----   https://github.com/snowpackjs/snowpack/discussions/613#discussioncomment-41103
+----   https://github.com/withastro/snowpack/discussions/613#discussioncomment-41103
 --->
 
 **Original Discussion:** <!-- URL to discussion -->

@@ -4,7 +4,7 @@ title: Common Error Details
 description: How to troubleshoot common issues and error messagesm, plus our resources for getting help.
 ---
 
-This page details several common issues and error messages. For further help we have an active [GitHub Discussion forum](https://github.com/snowpackjs/snowpack/discussions)and [Discord](https://discord.gg/snowpack). Developers and community contributors frequently answer questions on both.
+This page details several common issues and error messages. For further help we have an active [GitHub Discussion forum](https://github.com/withastro/snowpack/discussions)and [Discord](https://discord.gg/snowpack). Developers and community contributors frequently answer questions on both.
 
 ### No such file or directory
 
@@ -107,7 +107,7 @@ If you‘re getting this error while trying to import a local file, the fix usua
 + import myFile from './myFile.js';
 ```
 
-If the issue still persists, [please open an issue](https://github.com/snowpackjs/snowpack/issues/new/choose).
+If the issue still persists, [please open an issue](https://github.com/withastro/snowpack/issues/new/choose).
 
 #### I’m trying to import a local `.css` file
 

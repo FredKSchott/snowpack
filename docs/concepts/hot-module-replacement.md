@@ -24,12 +24,12 @@ Fast Refresh makes development even faster, especially when working on popups an
 
 ## Enabling HMR + Fast Refresh
 
-Snowpack supports HMR for all popular frontend frameworks. **[Create Snowpack App (CSA)](https://github.com/snowpackjs/snowpack/blob/main/create-snowpack-app) ships with HMR enabled by default.** You can setup HMR yourself with just a few lines of code, and Fast Refresh can be enabled automatically via plugin:
+Snowpack supports HMR for all popular frontend frameworks. **[Create Snowpack App (CSA)](https://github.com/withastro/snowpack/blob/main/create-snowpack-app) ships with HMR enabled by default.** You can setup HMR yourself with just a few lines of code, and Fast Refresh can be enabled automatically via plugin:
 
 - Preact: [@prefresh/snowpack](https://www.npmjs.com/package/@prefresh/snowpack)
 - React: [@snowpack/plugin-react-refresh](https://www.npmjs.com/package/@snowpack/plugin-react-refresh)
 - Svelte: [@snowpack/plugin-svelte](https://www.npmjs.com/package/@snowpack/plugin-svelte)
-- Vue (HMR only): [A few lines of code](https://github.com/snowpackjs/snowpack/blob/main/create-snowpack-app/app-template-vue/src/index.js#L7-L14)
+- Vue (HMR only): [A few lines of code](https://github.com/withastro/snowpack/blob/main/create-snowpack-app/app-template-vue/src/index.js#L7-L14)
 
 For more advanced HMR integrations, Snowpack created the [esm-hmr spec](https://github.com/snowpackjs/esm-hmr), a standard HMR API for any ESM-based dev environment:
 

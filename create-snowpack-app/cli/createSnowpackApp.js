@@ -6,7 +6,7 @@ const {copy, removeSync} = require('fs-extra');
 const colors = require('kleur');
 
 const errorAlert = `${colors.red('[ERROR]')}`;
-const errorLink = `${colors.dim(colors.underline('https://github.com/snowpackjs/snowpack'))}`;
+const errorLink = `${colors.dim(colors.underline('https://github.com/withastro/snowpack'))}`;
 
 function logError(msg) {
   console.error(`${errorAlert} ${msg} ${errorLink}`);
