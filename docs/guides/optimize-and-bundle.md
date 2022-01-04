@@ -40,7 +40,7 @@ export interface OptimizeOptions {
   treeshake: boolean;
   manifest: boolean;
   minify: boolean;
-  target: 'es2020' | 'es2019' | 'es2018' | 'es2017';
+  target: 'es2020' | 'es2019' | 'es2018' | 'es2017' | 'esnext';
 }
 ```
 
