@@ -140,6 +140,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
           preprocessLang: descriptor.template.lang,
           compilerOptions: {
             scopeId: scoped ? `data-v-${id}` : null,
+            ...pluginOptions.compilerOptions,
           },
         });
         if (js.errors && js.errors.length > 0) {
