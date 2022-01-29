@@ -22,7 +22,8 @@ export default {
 
 You may customize Vue's bundler behavior using the following plugin options.
 
-| Name           |   Type    | Description                                                                                          |
-| :------------- | :-------: | :--------------------------------------------------------------------------------------------------- |
-| `optionsApi`   | `boolean` | Enable/disable [Options API](https://v3.vuejs.org/api/options-api.html) support. Defaults to `true`. |
-| `prodDevtools` | `boolean` | Enable/disable devtools support in production. Defaults to `false`.                                  |
+| Name              |   Type    | Description                                                                                          |
+| :---------------- | :-------: | :--------------------------------------------------------------------------------------------------- |
+| `optionsApi`      | `boolean` | Enable/disable [Options API](https://v3.vuejs.org/api/options-api.html) support. Defaults to `true`. |
+| `prodDevtools`    | `boolean` | Enable/disable devtools support in production. Defaults to `false`.                                  |
+| `compilerOptions` | `object`  | Pass additional configuration to the vue template compiler. Defaults to `{}`                         |
