@@ -175,7 +175,7 @@ module.exports = function sassPlugin(snowpackConfig, {native, compilerOptions = 
           }
           case 'string':
           case 'number': {
-            if (flagName === 'loadPath') {
+            if (flagName === 'load-path') {
               loadPaths.add(value); // don’t add these until default load paths are collected
             } else {
               args.push(`--${flagName}=${value}`);
