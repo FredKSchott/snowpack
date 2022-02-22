@@ -34,6 +34,7 @@ Run the following command in your terminal to create a new directory called `sve
 ```bash
 npx create-snowpack-app svelte-snowpack --template @snowpack/app-template-minimal
 ```
+> 💡 Tip: add the `--use-yarn` or `--use-pnpm` flag to use something other than npm
 
 Head to the new `svelte-snowpack` directory and start Snowpack with the following two commands:
 
@@ -51,8 +52,6 @@ Now that you have a basic project up and running! The next step is to install Sv
 ```bash
 npm install svelte --save
 ```
-
-> 💡 Tip: add the `--use-yarn` or `--use-pnpm` flag to use something other than npm
 
 ```bash
 npm install @snowpack/plugin-svelte --save-dev
