@@ -35,6 +35,7 @@ Once added to the configuration, `@snowpack/plugin-webpack` will run automatical
 - `manifest: boolean | string` - Enable generating a manifest file. The default value is `false`, the default file name is `./asset-manifest.json` if setting manifest to `true`. The relative path is resolved from the output directory.
 - `htmlMinifierOptions: boolean | object` - [See below](#minify-html).
 - `failOnWarnings: boolean` - Does fail the build when Webpack emits warnings. The default value is `false`.
+- `browserslist: string[]` - Manually pass the browserslist configuration as an array if you don't want to read it from `package.json` by default.
 
 #### Extending The Default Webpack Config
 
@@ -87,3 +88,15 @@ The default options are:
   removeStyleLinkTypeAttributes: true,
 }
 ```
+
+#### Specify the browser env 
+
+The default browserslist configuration is: `>0.75%, not ie 11, not UCAndroid >0, not OperaMini all`.
+You can specify it by pass a string array as below or config it in the `package.json` file
+
+```js
+{
+  browserslist: ['>0.75%', 'not ie 11', 'not UCAndroid >0', 'not OperaMini all']
+}
+```
+
