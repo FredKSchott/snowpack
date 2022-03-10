@@ -294,7 +294,17 @@ function* forEachWildcardEntry(
   let valueDirectoryFullPath = path.join(cwd, valueDirectoryName);
 
   if (existsSync(valueDirectoryFullPath)) {
-    let filesInDirectory = readdirSync(valueDirectoryFullPath).filter(
+    let directoryContents = readdirSync(valueDirectoryFullPath);
+    let directoriesInDirectory = directoryContents.filter(
+      (filepath) => statSync(path.join(valueDirectoryFullPath, filepath)).isDirectory(), // ignore directories
+    );
+
+    for (let directoryname of directoriesInDirectory) {
+      const nextdir = `${valueDirectoryName}/${directoryname}/*`;
+      yield * forEachWildcardEntry(nextdir, nextdir, cwd);
+    }
+
+    let filesInDirectory = directoryContents.filter(
       (filepath) => statSync(path.join(valueDirectoryFullPath, filepath)).isFile(), // ignore directories
     );
 
