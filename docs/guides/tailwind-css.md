@@ -39,13 +39,12 @@ module.exports = {
 ```js
 // tailwind.config.js
 module.exports = {
-  mode: 'jit',
-  purge: ['./public/**/*.html', './src/**/*.{js,jsx,ts,tsx,vue}'],
+  content: ['./public/**/*.html', './src/**/*.{js,jsx,ts,tsx,vue}'],
   // specify other options here
 };
 ```
 
-_Note: be sure to set `purge: []` correctly for your project structure_
+_Note: be sure to set `content: []` correctly for your project structure_
 
 Also, you’ll need to add the Snowpack PostCSS plugin to your Snowpack config, and set the [Tailwind config option][config-tailwind], if you haven‘t already:
 
