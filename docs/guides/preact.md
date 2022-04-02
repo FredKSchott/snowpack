@@ -9,7 +9,7 @@ description: With Snowpack you can import and use Preact without any custom conf
 
 You can import and use Preact without any custom configuration needed.
 
-**To use `preact/compat`:** (the Preact+React compatability layer) alias the "compat" package to React in your install options:
+**To use `preact/compat`:** (the Preact+React compatibility layer) alias the "compat" package to React in your install options:
 
 ```js
 // Example: Lets you import "react" in your application, but uses preact internally

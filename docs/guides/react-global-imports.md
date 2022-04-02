@@ -11,7 +11,7 @@ published: false
 
 _Based on [app-template-react][app-template-react]_
 
-Example of using Snowpack in conjuction with [babel-plugin-import-global][babel-plugin-import-global]. This is useful when you need to need to inject an import statement at the top of every file, such as React:
+Example of using Snowpack in conjunction with [babel-plugin-import-global][babel-plugin-import-global]. This is useful when you need to need to inject an import statement at the top of every file, such as React:
 
 ```jsx
 // "import React from 'react'" no longer needed!

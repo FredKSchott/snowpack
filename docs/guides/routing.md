@@ -34,7 +34,7 @@ This tells Snowpack's dev server to serve the fallback `/index.html` URL for all
 
 ### Scenario 2: Proxy API Paths
 
-Many modern frontend applications will talk directly to an API. Often this API is hosted as a seperate application at another domain (ex: `api.example.com/users`) and no special server configuration is needed to talk with it. However in some cases, your API may be hosted at the same domain as your website using a different path scheme (ex: `www.example.com/api/users`).
+Many modern frontend applications will talk directly to an API. Often this API is hosted as a separate application at another domain (ex: `api.example.com/users`) and no special server configuration is needed to talk with it. However in some cases, your API may be hosted at the same domain as your website using a different path scheme (ex: `www.example.com/api/users`).
 
 To serve the correct API response to a URL like `/api/users` in development, you can configure Snowpack to proxy some requests to another server. In this example, we'll proxy all "/api/\*" requests to another server that we have running locally on port `3001`:
 

@@ -65,7 +65,7 @@ const {contents} = server.loadUrl('/dist/index.js', {...});
 
 Load a file and return the result. On the first request of a URL, this will kick off a build that will then be cached for all future requests during the life of the server.
 
-You can pass `allowStale: true` to enable Snowpack's cold cache for cached results from past sessions. However, Snowpack provides no guarentee on the freshness of the cold-cache data.
+You can pass `allowStale: true` to enable Snowpack's cold cache for cached results from past sessions. However, Snowpack provides no guarantee on the freshness of the cold-cache data.
 
 #### SnowpackDevServer.getUrlForFile()
 
