@@ -1,12 +1,7 @@
-<p><a href="https://osawards.com/javascript/2020">
-  <img src="https://www.snowpack.dev/img/JSAwardWinner.png"   />
-</a><a href="https://2020.stateofjs.com/en-US/technologies/build-tools/">
-  <img src="https://www.snowpack.dev/img/StateOfJSAwardWinner.png"   />
-</a></p>
-
-<a href="https://github.com/withastro/snowpack/actions">
-  <img src="https://github.com/withastro/snowpack/workflows/CI/badge.svg" alt="CI" />
-</a> <a href="https://discord.gg/snowpack"><img alt="Join us on Discord!" src="https://img.shields.io/discord/712696926406967308.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2"/></a>
+> **Update (April 20, 2022):** Snowpack is no longer actively maintained and is not recommended for new projects.
+> 
+> Check out [Vite](https://vitejs.dev/) for a well-maintained Snowpack alternative.  
+> See also: [esbuild](https://esbuild.github.io/), [parcel](https://parceljs.org/)
 
 <h1>Snowpack</h1>
 
