@@ -38,14 +38,6 @@ const description = 'Snowpack community news and companies that use Snowpack.';
     </p>
 
     <div class="card-grid card-grid-3">
-      <article class="discord-banner">
-        <a href="https://discord.gg/snowpack" style="flex-shrink: 0; height: 48px;"><img alt="Join us on Discord!"
-            src="https://img.shields.io/discord/712696926406967308.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2"
-            style="height: 48px;  border: none; margin-right: 1rem; filter: brightness(1.2) contrast(1.5);" /></a>
-        <div>Join us on Discord to discuss Snowpack, meet other developers in our community, and show off what you’re
-          working on!</div>
-      </article>
-
       {news.reverse().map((item: any) => <Card item={item} />)}
     </div>
 
