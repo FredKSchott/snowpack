@@ -59,7 +59,7 @@ class SnowpackLogger {
     if (level === 'error') text = colors.red(text);
     const time = new Date();
     const log = `${colors.dim(
-      `[${String(time.getHours() + 1).padStart(2, '0')}:${String(time.getMinutes() + 1).padStart(
+      `[${String(time.getHours()).padStart(2, '0')}:${String(time.getMinutes()).padStart(
         2,
         '0',
       )}:${String(time.getSeconds()).padStart(2, '0')}]`,
