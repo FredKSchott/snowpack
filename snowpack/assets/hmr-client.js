@@ -50,9 +50,9 @@ let socketURL = isWindowDefined && window.HMR_WEBSOCKET_URL;
 if (!socketURL) {
   const socketHost =
     isWindowDefined && window.HMR_WEBSOCKET_PORT && window.HMR_WEBSOCKET_PORT !== 80
-      ? `${location.hostname}:${window.HMR_WEBSOCKET_PORT}`
-      : location.host;
-  socketURL = (location.protocol === 'http:' ? 'ws://' : 'wss://') + socketHost + '/';
+      ? `${new URL(document.baseURI).hostname}:${window.HMR_WEBSOCKET_PORT}`
+      : new URL(document.baseURI).host;
+  socketURL = (new URL(document.baseURI).protocol === 'http:' ? 'ws://' : 'wss://') + socketHost + '/';
 }
 
 const socket = new WebSocket(socketURL, 'esm-hmr');
@@ -105,7 +105,7 @@ class HotModuleState {
       } else if (ext !== 'js') {
         dep += '.proxy.js';
       }
-      return new URL(dep, `${window.location.origin}${this.id}`).pathname;
+      return new URL(dep, `${new URL(document.baseURI).origin}${this.id}`).pathname;
     });
     this.acceptCallbacks.push({
       deps,
