@@ -509,7 +509,7 @@ export async function startServer(
       }
       const resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
       const webModuleUrl = resourcePath.substr(PACKAGE_PATH_PREFIX.length);
-      let loadedModule = await pkgSource.load(webModuleUrl, {isSSR});
+      let loadedModule = await pkgSource.load(webModuleUrl, {isSSR, isWatch});
       if (!loadedModule) {
         throw new NotFoundError(reqPath);
       }
