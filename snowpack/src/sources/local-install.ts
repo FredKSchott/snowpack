@@ -53,6 +53,7 @@ export async function installPackages({
     ...installOptions,
     stats: false,
     rollup: {
+      requireReturnsDefault: installOptions?.rollup?.requireReturnsDefault,
       plugins: [
         ...(installOptions?.rollup?.plugins ?? []),
         {
