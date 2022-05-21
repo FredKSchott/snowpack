@@ -501,21 +501,21 @@ export class PackageSourceLocal implements PackageSource {
       const lineBullet = colors.dim(depth === 0 ? '+' : '└──'.padStart(depth * 2 + 1, ' '));
       let packageFormatted = spec + colors.dim('@' + packageVersion);
       const existingImportMapLoc = path.join(installDest, 'import-map.json');
-      let existingImportMap: ImportMap | undefined = memoizedImportMap[packageName];
+      let existingImportMap: ImportMap | undefined = memoizedImportMap[packageUID];
       if (!existingImportMap) {
         // note: this must happen BEFORE the check on disk to prevent a race condition.
         // If two lookups occur at once from different sources, then we mark this as “taken” immediately and finish the lookup async
-        memoizedImportMap[packageName] = {imports: {}}; // TODO: this may not exist; should we throw an error?
+        memoizedImportMap[packageUID] = {imports: {}}; // TODO: this may not exist; should we throw an error?
         try {
           const importMapHandle = await fs.open(existingImportMapLoc, 'r+');
           if (importMapHandle) {
             const importMapData = await importMapHandle.readFile('utf8');
             existingImportMap = importMapData ? JSON.parse(importMapData) : null;
-            memoizedImportMap[packageName] = existingImportMap as ImportMap;
+            memoizedImportMap[packageUID] = existingImportMap as ImportMap;
             await importMapHandle.close();
           }
         } catch (err) {
-          delete memoizedImportMap[packageName]; // if there was trouble reading this, free up memoization
+          delete memoizedImportMap[packageUID]; // if there was trouble reading this, free up memoization
         }
       }
 
@@ -658,7 +658,7 @@ export class PackageSourceLocal implements PackageSource {
             continue;
           }
           const [scannedPackageName] = parsePackageImportSpecifier(spec);
-          if (scannedPackageName && memoizedImportMap[scannedPackageName]) {
+          if (scannedPackageName && memoizedImportMap[packageUID]) {
             continue; // if we’ve already installed this, then don’t reinstall
           }
           newPackageImports.add(spec);
