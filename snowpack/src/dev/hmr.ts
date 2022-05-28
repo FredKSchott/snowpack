@@ -15,7 +15,7 @@ export function startHmrEngine(
 ) {
   const {hmrDelay} = config.devOptions;
   const hmrPort = config.devOptions.hmrPort || serverPort;
-  const hmrEngine = new EsmHmrEngine({server, port: hmrPort, delay: hmrDelay});
+  const hmrEngine = new EsmHmrEngine({server: (hmrPort == serverPort ? server : null) , port: hmrPort, delay: hmrDelay});
   onProcessExit(() => {
     hmrEngine.disconnectAllClients();
   });
