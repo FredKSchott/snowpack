@@ -72,7 +72,7 @@ Add the Snowpack development server to `package.json` under as the `start` scrip
 ```diff
   "scripts": {
 +   "start": "snowpack dev",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo 'Error: no test specified' && exit 1"
   },
 
 ```
