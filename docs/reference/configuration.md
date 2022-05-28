@@ -73,10 +73,11 @@ mount: {
 
 Mount local directories to custom URLs in your built application.
 
-- `mount.url` | `string` | _required_ : The URL to mount to, matching the string in the simple form above.
-- `mount.static` | `boolean` | _optional_ | **Default**: `false` : If true, don't build files in this directory. Copy and serve them directly from disk to the browser.
-- `mount.resolve` | `boolean` | _optional_ | **Default**: `true`: If false, don't resolve JS & CSS imports in your JS, CSS, and HTML files. Instead send every import to the browser, as written.
-- `mount.dot` | `boolean` | _optional_ | **Default**: `false`: If true, include dotfiles (ex: `.htaccess`) in the final build.
+- `mount.path` | `string` | _required_ : The relative directory path to mount from `src: '/dist'` is equivalent to `'./src': '/dist'`
+- `mount.path.url` | `string` | _required_ : The URL to mount to, matching the string in the simple form above.
+- `mount.path.static` | `boolean` | _optional_ | **Default**: `false` : If true, don't build files in this directory. Copy and serve them directly from disk to the browser.
+- `mount.path.resolve` | `boolean` | _optional_ | **Default**: `true`: If false, don't resolve JS & CSS imports in your JS, CSS, and HTML files. Instead send every import to the browser, as written.
+- `mount.path.dot` | `boolean` | _optional_ | **Default**: `false`: If true, include dotfiles (ex: `.htaccess`) in the final build.
 
 Example:
 
@@ -107,6 +108,20 @@ export default {
   },
 };
 ```
+
+Example of `mount`, where the `index.js` is in `./my-todo-app/frontend`:
+
+```js
+// snowpack.config.mjs
+// Example: Alternate "mount" from "path"
+export default {
+  mount: {
+    './my-todo-app/frontend': '/dist',
+    public: '/',
+  },
+};
+```
+
 
 ## env
 
