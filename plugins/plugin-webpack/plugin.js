@@ -261,7 +261,7 @@ module.exports = function plugin(config, args = {}) {
     async optimize({buildDirectory, log}) {
       const buildOptions = config.buildOptions || {};
       let baseUrl = buildOptions.baseUrl || '/';
-      const tempBuildManifest = JSON.parse(
+      const tempBuildManifest = Array.isArray(args.browserslist) ? { browserslist: args.browserslist} : JSON.parse(
         await fs.readFileSync(path.join(config.root || process.cwd(), 'package.json'), {
           encoding: 'utf-8',
         }),
