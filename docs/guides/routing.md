@@ -68,7 +68,7 @@ Proxied requests can be upgraded to a WebSocket connection via the "upgrade" eve
 
 ```js
 // snowpack.config.mjs
-import proxy = from 'http2-proxy';
+import proxy from 'http2-proxy';
 
 export default {
   routes: [
