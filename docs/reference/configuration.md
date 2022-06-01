@@ -472,7 +472,7 @@ When you build your project, this will be a path on disk relative to the `buildO
 
 ### buildOptions.sourcemap
 
-**Type**: `boolean`
+**Type**: `"inline" | false`
 **Default**: `false`
 
 Generates source maps.
