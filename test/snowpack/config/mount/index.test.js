@@ -1,4 +1,4 @@
-const {testFixture} = require('../../../fixture-utils');
+const {testFixture, testRuntimeFixture} = require('../../../fixture-utils');
 const dedent = require('dedent');
 
 const advanced = {
@@ -273,5 +273,61 @@ describe('mount', () => {
       `,
     });
     expect(result['g/.dotfile']).toBeDefined();
+  });
+
+  /**
+  Given we mount a static folder.
+  And do not specify any value for the `resolve` param.
+  And the folder contains a JS file with a missing import.
+  When the dev server is started.
+  Then the dev server should throw an exception.
+  */
+  it('Invalid imports should fail when "resolve" is omitted', async () => {
+    await expect(async () => {
+      await testRuntimeFixture({
+        'public/invalid.js': `import 'doesnt-exist.js';`,
+        'snowpack.config.js': dedent`
+          module.exports = {
+            mount: {
+              'public': {
+                url: '/',
+                static: true,
+              },
+            }
+          };
+        `,
+      });
+    }).rejects.toThrow();
+  });
+
+  /**
+  Given we mount a static folder.
+  And we set the `resolve` param to False.
+  And the folder contains a JS file with a missing import.
+  When the dev server is started.
+  Then the dev server should start successfully.
+  And the dev server should serve the file.
+  */
+  it('Invalid imports should be ignored when "resolve" is False', async () => {
+    const server = await testRuntimeFixture({
+      'public/invalid.js': `import 'doesnt-exist.js';`,
+      'snowpack.config.js': dedent`
+        module.exports = {
+          mount: {
+            'public': {
+              url: '/',
+              static: true,
+              resolve: false,
+            },
+          }
+        };
+      `,
+    });
+
+    // Ensure that the file was indeed mounted
+    const content = (await server.loadUrl('/invalid.js')).contents.toString('utf8');
+    expect(content).toEqual(`import 'doesnt-exist.js';`);
+
+    await server.cleanup();
   });
 });

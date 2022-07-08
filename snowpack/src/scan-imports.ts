@@ -319,16 +319,18 @@ export async function scanImports(
   await initESModuleLexer;
 
   const includeFileSets = await Promise.all(
-    Object.entries(config.mount).map(async ([fromDisk, mountEntry]) => {
-      const allMatchedFiles = (await new fdir()
-        .withFullPaths()
-        .crawl(fromDisk)
-        .withPromise()) as string[];
-      if (mountEntry.dot) {
-        return allMatchedFiles;
-      }
-      return allMatchedFiles.filter((f) => !IS_DOTFILE_REGEX.test(slash(f))); // TODO: use a file URL instead
-    }),
+    Object.entries(config.mount)
+      .filter(([, mountEntry]) => mountEntry.resolve !== false)
+      .map(async ([fromDisk, mountEntry]) => {
+        const allMatchedFiles = (await new fdir()
+          .withFullPaths()
+          .crawl(fromDisk)
+          .withPromise()) as string[];
+        if (mountEntry.dot) {
+          return allMatchedFiles;
+        }
+        return allMatchedFiles.filter((f) => !IS_DOTFILE_REGEX.test(slash(f))); // TODO: use a file URL instead
+      }),
   );
   const includeFiles = Array.from(new Set(([] as string[]).concat.apply([], includeFileSets)));
   if (includeFiles.length === 0) {
