@@ -385,25 +385,38 @@ export function findMatchingAliasEntry(
 }
 
 /**
+ * Get all the possible file extensions, from longest to shortest
+ */
+export function* getPossibleExtensions(fileName: string): Generator<string> {
+  // If a full URL is given, start at the basename. Otherwise, start at zero.
+  let extensionMatchIndex = Math.max(0, fileName.lastIndexOf(path.sep));
+
+  do {
+    extensionMatchIndex = fileName.indexOf('.', extensionMatchIndex + 1);
+    if (extensionMatchIndex > -1) {
+      yield fileName.substr(extensionMatchIndex).toLowerCase();
+    }
+  } while (extensionMatchIndex > -1);
+}
+
+/**
  * Get the most specific file extension match possible.
  */
 export function getExtensionMatch(
   fileName: string,
   extensionMap: Record<string, string[]>,
 ): [string, string[]] | undefined {
-  let extensionPartial;
-  let extensionMatch;
-  // If a full URL is given, start at the basename. Otherwise, start at zero.
-  let extensionMatchIndex = Math.max(0, fileName.lastIndexOf('/'), fileName.lastIndexOf('\\'));
-  // Grab expanded file extensions, from longest to shortest.
-  while (!extensionMatch && extensionMatchIndex > -1) {
-    extensionMatchIndex++;
-    extensionMatchIndex = fileName.indexOf('.', extensionMatchIndex);
-    extensionPartial = fileName.substr(extensionMatchIndex).toLowerCase();
-    extensionMatch = extensionMap[extensionPartial];
+  const possibleExtensions = getPossibleExtensions(fileName);
+
+  for (const extension of possibleExtensions) {
+    if (extension in extensionMap) {
+      // Return the first match, if one was found.
+      return [extension, extensionMap[extension]];
+    }
   }
-  // Return the first match, if one was found. Otherwise, return undefined.
-  return extensionMatch ? [extensionPartial, extensionMatch] : undefined;
+
+  //Otherwise, return undefined.
+  return undefined;
 }
 
 export function isPathImport(spec: string): boolean {

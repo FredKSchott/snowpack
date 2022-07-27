@@ -20,6 +20,7 @@ import {
 } from '../types';
 import {
   createInstallTarget,
+  getPossibleExtensions,
   isRemoteUrl,
   relativeURL,
   removeLeadingSlash,
@@ -86,12 +87,20 @@ export class FileBuilder {
   }
 
   private verifyRequestFromBuild(type: string): SnowpackBuiltFile | undefined {
-    const possibleExtensions = this.urls.map((url) => path.extname(url));
-    if (!possibleExtensions.includes(type))
-      throw new Error(
-        `${this.loc} - Requested content "${type}" but only built ${possibleExtensions.join(', ')}`,
-      );
-    return this.resolvedOutput[type];
+    const possibleExtensions: string[] = [];
+
+    for (const url of this.urls) {
+      const urlExtensions = Array.from(getPossibleExtensions(url));
+      possibleExtensions.push(...urlExtensions);
+
+      if (urlExtensions.includes(type)) {
+        return this.resolvedOutput[type];
+      }
+    }
+
+    throw new Error(
+      `${this.loc} - Requested content "${type}" but only built ${possibleExtensions.join(', ')}`,
+    );
   }
 
   /**
