@@ -37,4 +37,10 @@ pre {
 body.is-nav-open {
   height: 100%;
   overflow: hidden;
+
+  #nav-primary nav {
+    display: block;
+    bottom: 0;
+    padding-bottom: 2rem;
+  }
 }
