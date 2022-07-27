@@ -48,6 +48,7 @@ Add a `test` script to your project `package.json`:
   "start": "snowpack dev",
   "build": "snowpack build",
 +  "test": "web-test-runner \\\"src/**/*.test.jsx\\\"",
++  "test:watch": "npm run test -- --watch"
   ...
 },
 ```
@@ -60,4 +61,38 @@ To specify multiple test file types, enclose with curly brackets and separate wi
 "test": "web-test-runner \\\"src/**/*.test.{jsx,js,ts}\\\"",
 ```
 
+`test:watch` will run in interactive mode, which automatically re-runs the tests when you change files.
+
 > 💡 Tip: `wtr` can be used as a shorthand for `web-test-runner`.
+
+#### 4. Add test code
+
+Create a `sum.jsx` to your project:
+
+```js
+export function sum( a, b ) {
+	return a + b;
+}
+```
+
+Create a `sum.test.js` file in the same directory:
+
+```js
+import { expect } from 'chai';
+import { sum } from './sum';
+
+it( 'sums up 2 numbers', () => {
+	expect( sum( 1, 1 ) ).to.equal( 2 );
+	expect( sum( 3, 12 ) ).to.equal( 15 );
+} );
+```
+
+#### 5. Run tests
+
+Run `npm run test` or `npm run test:watch` in your terminal.
+
+#### 6. More Information
+
+In general, you should follow the documentation for [Web Test Runner](https://modern-web.dev/docs/test-runner/overview/) and [Chai](https://www.chaijs.com/api/).
+
+⚠️ The WTR docs mention `--node-resolve`, but you don't need that. They also reference `@esm-bundle/chai`, but you should use `chai` instead.
