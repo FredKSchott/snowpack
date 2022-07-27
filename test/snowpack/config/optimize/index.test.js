@@ -1,4 +1,5 @@
 const {testFixture} = require('../../../fixture-utils');
+const {promises: fs} = require("fs")
 const dedent = require('dedent');
 
 describe('optimize', () => {
@@ -58,6 +59,7 @@ describe('optimize', () => {
       `,
       'src/App.jsx': dedent`
         import React, { useState, useEffect } from "react";
+        import {ProgrammerOath} from "./components/programmer-oath"
         import logo from "./logo.svg";
         import "./App.css";
         
@@ -74,6 +76,7 @@ describe('optimize', () => {
             <div className="App">
               <header className="App-header">
                 <img src={logo} className="App-logo" alt="logo" />
+                <ProgrammerOath/>
                 <p>
                   Edit <code>src/App.jsx</code> and save to reload.
                 </p>
@@ -96,6 +99,13 @@ describe('optimize', () => {
         }
 
         export default App;
+      `,
+      'src/components/programmer-oath/index.jsx': dedent`
+        import React from "react";
+        import programmerOath from "./programmer-oath.jpg"
+        export function ProgrammerOath() {
+          return <img src={programmerOath} alt={"programmer-oath"}/>
+        }
       `,
       'src/index.css': dedent`
         body {
@@ -137,6 +147,9 @@ describe('optimize', () => {
           </g>
         </svg>
       `,
+      'src/components/programmer-oath/programmer-oath.jpg': Object.assign(await fs.readFile(`${__dirname}/programmer-oath.jpg`), {
+        replace: jest.fn()
+      }),
       'public/index.html': dedent`
         <!DOCTYPE html>
         <html lang="en">
@@ -169,20 +182,24 @@ describe('optimize', () => {
           },
           optimize: {
             bundle: true,
-            minify: true,
             target: 'es2020',
+            loader: {
+              ".jpg": "file"
+            }
           },
         };
       `,
     });
 
     expect(Object.keys(result)).toEqual([
+      "dist/components/programmer-oath/programmer-oath.jpg",
       'dist/index.css',
       'dist/index.js',
       'dist/index.js.map',
       'dist/logo.svg',
       'index.html',
     ]);
+    expect(result['dist/index.js']).not.toContain('import programmerOath from "./programmer-oath.jpg";')
   });
 
   it('Treeshakes imported modules', async () => {
