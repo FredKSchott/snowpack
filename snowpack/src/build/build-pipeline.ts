@@ -104,7 +104,7 @@ async function runPipelineLoadStep(
             .replace(dir, config.mount[dir].url)
             .replace(/\\/g, '/')
             .replace(/\/+/g, '/')
-            .replace(/\.(scss|sass)$/i, '.css');
+            .replace(/\.(scss|sass|less)$/i, '.css');
           break;
         }
       }

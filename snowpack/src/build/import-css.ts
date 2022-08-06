@@ -41,6 +41,6 @@ export function cssModuleJSON(url: string): string {
 /** Should this file get CSS Modules? */
 export function needsCSSModules(url: string): boolean {
   return (
-    url.endsWith('.module.css') || url.endsWith('.module.scss') || url.endsWith('.module.sass')
+    url.endsWith('.module.css') || url.endsWith('.module.scss') || url.endsWith('.module.sass') || url.endsWith('.module.less')
   );
 }
