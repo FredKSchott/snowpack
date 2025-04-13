@@ -49,7 +49,7 @@ You should see your new website up and running!
 Now that you have a basic project up and running! The next step is to install Svelte. Run the following command in your project directory:
 
 ```bash
-npm install svelte --save
+npm install --save svelte
 ```
 
 > 💡 Tip: add the `--use-yarn` or `--use-pnpm` flag to use something other than npm
@@ -257,14 +257,21 @@ Svelte components include component specific scripts in a `<script>` tag. Add th
 <!-- src/App.svelte -->
 
 <script>
-  import {onMount} from 'svelte';
-  let count = 0;
-  onMount(() => {
-    const interval = setInterval(() => count++, 1000);
-    return () => {
-      clearInterval(interval);
-    };
-  });
+	let count = $state(0);
+
+	$effect(() => {
+		// This will be recreated whenever `milliseconds` changes
+		const interval = setInterval(() => {
+			count += 1;
+		}, 1000);
+
+		return () => {
+			// if a teardown function is provided, it will run
+			// a) immediately before the effect re-runs
+			// b) when the component is destroyed
+			clearInterval(interval);
+		};
+	});
 </script>
 ```
 
